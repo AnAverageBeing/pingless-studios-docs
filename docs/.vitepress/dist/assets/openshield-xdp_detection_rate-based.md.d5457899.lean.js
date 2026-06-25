@@ -1,0 +1,1 @@
+import{_ as e,c as t,o as a}from"./app.09cc872b.js";const l=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"openshield-xdp/detection/rate-based.md","lastUpdated":1782412920000}'),s={name:"openshield-xdp/detection/rate-based.md"};function o(r,d,n,c,p,i){return a(),t("div")}const m=e(s,[["render",o]]);export{l as __pageData,m as default};
