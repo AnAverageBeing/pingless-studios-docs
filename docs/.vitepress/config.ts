@@ -9,7 +9,7 @@ export default defineConfig({
   cleanUrls: true,
 
   head: [
-    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/pingless.svg' }],
+    ['link', { rel: 'icon', href: '/pingless.svg' }],
     ['meta', { name: 'theme-color', content: '#89b4fa' }],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:title', content: 'PingLess Studios Docs' }],
