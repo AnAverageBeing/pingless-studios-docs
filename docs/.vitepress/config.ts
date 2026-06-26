@@ -2,14 +2,14 @@ import { defineConfig } from 'vitepress'
 
 export default defineConfig({
   title: 'PingLess Studios',
-  description: 'Open-source infrastructure tools — XDP firewalls, DDoS mitigation, developer utilities',
+  description: 'Open-source infrastructure tools',
   base: '/pingless-studios-docs/',
   lang: 'en-US',
   lastUpdated: true,
   cleanUrls: true,
 
   head: [
-    ['link', { rel: 'icon', href: '/pingless.svg' }],
+    ['link', { rel: 'icon', type: 'image/png', href: '/pingless-studios-docs/pingles.png' }],
     ['meta', { name: 'theme-color', content: '#89b4fa' }],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:title', content: 'PingLess Studios Docs' }],
@@ -17,9 +17,8 @@ export default defineConfig({
   ],
 
   themeConfig: {
-    logo: '/pingless.svg',
+    logo: '/pingles.png',
     nav: [
-      { text: 'OpenShield-XDP', link: '/openshield-xdp/' },
       { text: 'Projects', link: '/projects/' },
     ],
 
@@ -27,6 +26,8 @@ export default defineConfig({
       '/openshield-xdp/': [
         {
           text: 'OpenShield-XDP',
+          collapsible: true,
+          collapsed: false,
           items: [
             { text: 'Overview', link: '/openshield-xdp/' },
             { text: 'Installation', link: '/openshield-xdp/guide/installation' },
@@ -35,6 +36,8 @@ export default defineConfig({
         },
         {
           text: 'Architecture',
+          collapsible: true,
+          collapsed: false,
           items: [
             { text: 'Overview', link: '/openshield-xdp/architecture/overview' },
             { text: 'Pipeline', link: '/openshield-xdp/architecture/pipeline' },
@@ -44,6 +47,8 @@ export default defineConfig({
         },
         {
           text: 'Configuration',
+          collapsible: true,
+          collapsed: false,
           items: [
             { text: 'Reference', link: '/openshield-xdp/configuration/reference' },
             { text: 'Validation & Whitelist', link: '/openshield-xdp/configuration/validation' },
@@ -52,6 +57,8 @@ export default defineConfig({
         },
         {
           text: 'Detection',
+          collapsible: true,
+          collapsed: false,
           items: [
             { text: 'Overview', link: '/openshield-xdp/detection/overview' },
             { text: 'L2 / L3 / L4', link: '/openshield-xdp/detection/l3-l4' },
@@ -64,6 +71,8 @@ export default defineConfig({
         },
         {
           text: 'Mitigation',
+          collapsible: true,
+          collapsed: false,
           items: [
             { text: 'Overview', link: '/openshield-xdp/mitigation/overview' },
             { text: 'Ban System', link: '/openshield-xdp/mitigation/bans' },
@@ -73,6 +82,8 @@ export default defineConfig({
         },
         {
           text: 'Performance',
+          collapsible: true,
+          collapsed: false,
           items: [
             { text: 'Benchmarks', link: '/openshield-xdp/performance/overview' },
             { text: 'Optimizations', link: '/openshield-xdp/performance/optimizations' },
@@ -81,6 +92,8 @@ export default defineConfig({
         },
         {
           text: 'TUI',
+          collapsible: true,
+          collapsed: false,
           items: [
             { text: 'Overview', link: '/openshield-xdp/tui/overview' },
             { text: 'Screens', link: '/openshield-xdp/tui/screens' },
@@ -89,6 +102,8 @@ export default defineConfig({
         },
         {
           text: 'CLI Reference',
+          collapsible: true,
+          collapsed: false,
           items: [
             { text: 'Commands', link: '/openshield-xdp/cli/commands' },
             { text: 'openshield load', link: '/openshield-xdp/cli/load' },
@@ -98,6 +113,8 @@ export default defineConfig({
         },
         {
           text: 'Developer Guide',
+          collapsible: true,
+          collapsed: false,
           items: [
             { text: 'Setup & Build', link: '/openshield-xdp/development/guide' },
             { text: 'BPF Verifier Patterns', link: '/openshield-xdp/development/bpf-patterns' },
@@ -110,12 +127,12 @@ export default defineConfig({
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/AnAverageBeing/OpenShield-XDP' },
+      { icon: 'github', link: 'https://github.com/AnAverageBeing' },
       { icon: 'discord', link: 'https://discord.gg/qgBMREWWgp' },
     ],
 
     footer: {
-      message: 'Maintained by <a href="https://github.com/AnAverageBeing">AnAverageBeing</a> — PingLess Studios',
+      message: 'Maintained by <a href="https://github.com/AnAverageBeing">AnAverageBeing</a> — <a href="https://studio.pingless.org">PingLess Studios</a>',
     },
 
     search: { provider: 'local' },

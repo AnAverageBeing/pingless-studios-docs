@@ -7,10 +7,10 @@ hero:
   tagline: "XDP-native DDoS mitigation, developer tools, and networking utilities. Built and maintained by AnAverageBeing."
   actions:
     - theme: brand
-      text: OpenShield-XDP
+      text: View Docs
       link: /openshield-xdp/
     - theme: alt
-      text: View on GitHub
+      text: GitHub
       link: https://github.com/AnAverageBeing
 
 features:
@@ -19,9 +19,8 @@ features:
     details: DDoS mitigation at the NIC driver level. 42 detection vectors, suspicion scoring, SYNPROXY cookies, entropy spoofing detection. 10M+ PPS per core.
     link: /openshield-xdp/
   - icon: <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-    title: More Coming Soon
-    details: Additional open-source infrastructure tools and developer utilities in development. Room for networking, monitoring, and security projects.
-    link: /projects/
+    title: More in Development
+    details: Additional open-source infrastructure tools coming soon. Networking, monitoring, and security projects.
 ---
 
 ## Projects
@@ -38,9 +37,9 @@ features:
   </a>
 
   <div class="project-card placeholder">
-    <h3>Your Project Here</h3>
-    <p>This documentation hub is built to scale. Add your project under <code>docs/</code> and configure the sidebar in <code>.vitepress/config.ts</code>.</p>
-    <span class="badge">extensible</span>
+    <h3>More projects under development</h3>
+    <p>Additional tools and utilities are in the pipeline. Check back or follow the GitHub for updates.</p>
+    <span class="badge">coming soon</span>
   </div>
 
 </div>
