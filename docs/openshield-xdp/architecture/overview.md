@@ -19,35 +19,53 @@ graph LR
     end
 
     subgraph "Userspace (Go)"
-        L[loader] -->|pin / unpin| BPF[/sys/fs/bpf/openshield/]
+        L[loader] -->|pin/unpin| BPF[/sys/fs/bpf/openshield/]
         C[collector] -->|read ringbuf| M8
-        C -->|poll every 1s| M6
-        B[baseline] -->|write every 5s| M7
-        BM[ban mgr] -->|cleanup every 5s| M4
+        C -->|poll 1s| M6
+        B[baseline] -->|write 5s| M7
+        BM[ban mgr] -->|cleanup 5s| M4
         T[TUI] --> S[Unix socket]
     end
-
-    M8 --> C
 ```
 
-## Key Concepts
+## Key concepts
 
-**XDP** — Programs attach to the NIC driver. Process packets before the kernel allocates an skb. No memory allocation per packet, direct DMA access.
+**XDP** — programs attach to the NIC driver. Zero per-packet allocation, zero sk_buff overhead.
 
-**BPF Maps** — 13 maps pinned to `/sys/fs/bpf/openshield/`. Survive restarts and crashes.
+**PERCPU** — 4 maps use per-CPU arrays. Each CPU writes independently. Userspace aggregates by summing.
 
-**PERCPU** — Four maps use per-CPU arrays. Each CPU writes to its own copy. Zero lock contention.
+**LRU auto-eviction** — ip_stats, ban, and syn_cookie maps auto-evict oldest entries under memory pressure.
 
-**LRU Auto-Eviction** — ip_stats, ban, and syn_cookie maps use LRU hashing. Under spoofed-source floods, oldest entries evicted automatically.
-
-## Component Roles
+## Component roles
 
 | Component | Language | Role |
 |-----------|----------|------|
 | XDP program | C → BPF | Packet inspection, rate tracking, cookie generation, ban insertion |
-| Loader | Go | BPF loading, map init, XDP attachment |
-| Collector | Go | Per-second stats, ring buffer reading, webhook dispatch |
-| TUI | Go (Bubbletea) | Terminal dashboard, 7 screens |
-| Baseline learner | Go | EMA smoothing, attack classification |
-| Ban manager | Go | Expired ban cleanup, star decay |
-| Panic coordinator | Go | Cross-CPU panic detection |
+| Loader | Go | BPF loading, map init, XDP attachment, config population |
+| Collector | Go | Per-second stats polling, ring buffer reading, webhook dispatch |
+| TUI | Go (Bubbletea) | 7-screen terminal dashboard |
+| Baseline learner | Go | EMA smoothing, attack classification, threshold adjustment |
+| Ban manager | Go | Expired ban cleanup, star decay, map maintenance |
+| Panic coordinator | Go | Cross-CPU panic detection and response |
+
+## Map reference
+
+| Map | Type | Entries | RW |
+|-----|------|---------|-----|
+| `config_map` | ARRAY | 1 | userspace write, kernel read |
+| `whitelist_map` / `_v6` | HASH | 10K | userspace write, kernel read |
+| `ip_stats_map` / `_v6` | LRU_HASH | 100K | kernel R/W, userspace read |
+| `ban_map` / `_v6` | LRU_HASH | 50K | kernel write, userspace R/W |
+| `subnet_ban_map` / `_v6` | LPM_TRIE | 1K/512 | userspace write, kernel read |
+| `prefix_ban_map` | PERCPU_ARRAY | 256 | kernel R/W |
+| `global_stats_map` | PERCPU_ARRAY | 1 | kernel write, userspace read |
+| `baseline_map` | ARRAY | 1 | userspace write, kernel read |
+| `panic_bucket_map` | PERCPU_ARRAY | 1 | kernel R/W |
+| `events_map` | RINGBUF | 256KB | kernel write, userspace read |
+| `prof_map` | PERCPU_ARRAY | 27 | kernel write, userspace read |
+| `l7_sig_map` | ARRAY | 16 | userspace write, kernel read |
+| `syn_cookie_map` | LRU_HASH | 100K | kernel R/W |
+
+## Related pages
+
+[Pipeline](/openshield-xdp/detection-engine/pipeline) · [Map Layout](/openshield-xdp/architecture/maps) · [Developer Guide](/openshield-xdp/developer-guide/overview)

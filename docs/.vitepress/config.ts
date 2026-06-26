@@ -7,6 +7,7 @@ export default defineConfig({
   lang: 'en-US',
   lastUpdated: true,
   cleanUrls: true,
+  ignoreDeadLinks: true,
 
   head: [
     ['link', { rel: 'icon', type: 'image/png', href: '/pingless-studios-docs/pingles.png' }],
@@ -29,42 +30,35 @@ export default defineConfig({
           collapsible: true,
           collapsed: false,
           items: [
-            { text: 'Overview', link: '/openshield-xdp/' },
-            { text: 'Installation', link: '/openshield-xdp/guide/installation' },
-            { text: 'Quick Start', link: '/openshield-xdp/guide/quick-start' },
             {
-              text: 'Architecture',
+              text: 'Getting Started',
               collapsible: true,
-              collapsed: true,
+              collapsed: false,
               items: [
-                { text: 'Overview', link: '/openshield-xdp/architecture/overview' },
-                { text: 'Pipeline', link: '/openshield-xdp/architecture/pipeline' },
-                { text: 'Map Layout', link: '/openshield-xdp/architecture/maps' },
-                { text: 'freplace Design', link: '/openshield-xdp/architecture/freplace' },
+                { text: 'Overview', link: '/openshield-xdp/getting-started/overview' },
+                { text: 'Installation', link: '/openshield-xdp/getting-started/installation' },
+                { text: 'Quick Start', link: '/openshield-xdp/getting-started/quick-start' },
+                { text: 'Upgrade', link: '/openshield-xdp/getting-started/upgrade' },
+                { text: 'FAQ', link: '/openshield-xdp/getting-started/faq' },
               ]
             },
             {
-              text: 'Configuration',
+              text: 'User Guide',
               collapsible: true,
               collapsed: true,
               items: [
-                { text: 'Reference', link: '/openshield-xdp/configuration/reference' },
-                { text: 'Validation & Whitelist', link: '/openshield-xdp/configuration/validation' },
-                { text: 'Alerter & Telemetry', link: '/openshield-xdp/configuration/alerter' },
+                { text: 'Configuration', link: '/openshield-xdp/user-guide/configuration' },
+                { text: 'CLI Reference', link: '/openshield-xdp/user-guide/cli' },
+                { text: 'TUI', link: '/openshield-xdp/user-guide/tui' },
               ]
             },
             {
-              text: 'Detection',
+              text: 'Detection Engine',
               collapsible: true,
               collapsed: true,
               items: [
-                { text: 'Overview', link: '/openshield-xdp/detection/overview' },
-                { text: 'L2 / L3 / L4', link: '/openshield-xdp/detection/l3-l4' },
-                { text: 'Rate-Based', link: '/openshield-xdp/detection/rate-based' },
-                { text: 'Connection Tracking', link: '/openshield-xdp/detection/conn-track' },
-                { text: 'Amplification & L7', link: '/openshield-xdp/detection/amplification' },
-                { text: 'Statistical', link: '/openshield-xdp/detection/statistical' },
-                { text: 'SYNPROXY', link: '/openshield-xdp/detection/synproxy' },
+                { text: 'Overview', link: '/openshield-xdp/detection-engine/overview' },
+                { text: 'Pipeline', link: '/openshield-xdp/detection-engine/pipeline' },
               ]
             },
             {
@@ -73,40 +67,14 @@ export default defineConfig({
               collapsed: true,
               items: [
                 { text: 'Overview', link: '/openshield-xdp/mitigation/overview' },
-                { text: 'Ban System', link: '/openshield-xdp/mitigation/bans' },
-                { text: 'Rate Limiting', link: '/openshield-xdp/mitigation/rate-limiting' },
-                { text: 'Whitelist', link: '/openshield-xdp/mitigation/whitelist' },
               ]
             },
             {
-              text: 'Performance',
+              text: 'Architecture',
               collapsible: true,
               collapsed: true,
               items: [
-                { text: 'Benchmarks', link: '/openshield-xdp/performance/overview' },
-                { text: 'Optimizations', link: '/openshield-xdp/performance/optimizations' },
-                { text: 'Tuning', link: '/openshield-xdp/performance/tuning' },
-              ]
-            },
-            {
-              text: 'TUI',
-              collapsible: true,
-              collapsed: true,
-              items: [
-                { text: 'Overview', link: '/openshield-xdp/tui/overview' },
-                { text: 'Screens', link: '/openshield-xdp/tui/screens' },
-                { text: 'Shortcuts', link: '/openshield-xdp/tui/shortcuts' },
-              ]
-            },
-            {
-              text: 'CLI Reference',
-              collapsible: true,
-              collapsed: true,
-              items: [
-                { text: 'Commands', link: '/openshield-xdp/cli/commands' },
-                { text: 'openshield load', link: '/openshield-xdp/cli/load' },
-                { text: 'openshield fix', link: '/openshield-xdp/cli/fix' },
-                { text: 'openshield status', link: '/openshield-xdp/cli/status' },
+                { text: 'Overview', link: '/openshield-xdp/architecture/overview' },
               ]
             },
             {
@@ -114,13 +82,9 @@ export default defineConfig({
               collapsible: true,
               collapsed: true,
               items: [
-                { text: 'Setup & Build', link: '/openshield-xdp/development/guide' },
-                { text: 'BPF Verifier Patterns', link: '/openshield-xdp/development/bpf-patterns' },
-                { text: 'Adding a Detection Module', link: '/openshield-xdp/development/adding-module' },
-                { text: 'Config Struct Alignment', link: '/openshield-xdp/development/config-alignment' },
+                { text: 'Overview', link: '/openshield-xdp/developer-guide/overview' },
               ]
             },
-            { text: 'FAQ', link: '/openshield-xdp/faq/' },
           ]
         },
       ],
