@@ -3,6 +3,7 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: 'PingLess Studios',
   description: 'Open-source infrastructure tools — XDP firewalls, DDoS mitigation, developer utilities',
+  base: '/pingless-studios-docs/',
   lang: 'en-US',
   lastUpdated: true,
   cleanUrls: true,

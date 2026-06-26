@@ -1,1 +1,0 @@
-import{_ as t,c as e,o as s}from"./app.09cc872b.js";const _=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"openshield-xdp/cli/status.md","lastUpdated":1782412920000}'),a={name:"openshield-xdp/cli/status.md"};function o(r,c,n,p,d,i){return s(),e("div")}const m=t(a,[["render",o]]);export{_ as __pageData,m as default};

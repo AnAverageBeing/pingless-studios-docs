@@ -1,0 +1,1 @@
+import{_ as e,c as t,o as a}from"./app.3fdcf20e.js";const m=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"openshield-xdp/mitigation/bans.md","lastUpdated":1782412920000}'),n={name:"openshield-xdp/mitigation/bans.md"};function s(o,r,i,p,c,d){return a(),t("div")}const l=e(n,[["render",s]]);export{m as __pageData,l as default};

@@ -1,1 +1,0 @@
-import{_ as t,c as e,o as a}from"./app.09cc872b.js";const _=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"openshield-xdp/mitigation/whitelist.md","lastUpdated":1782412920000}'),i={name:"openshield-xdp/mitigation/whitelist.md"};function s(o,n,r,p,c,d){return a(),e("div")}const m=t(i,[["render",s]]);export{_ as __pageData,m as default};

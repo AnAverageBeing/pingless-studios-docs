@@ -1,1 +1,0 @@
-import{_ as e,c as t,o as s}from"./app.09cc872b.js";const l=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"openshield-xdp/tui/screens.md","lastUpdated":1782412920000}'),a={name:"openshield-xdp/tui/screens.md"};function r(n,o,c,p,d,i){return s(),t("div")}const m=e(a,[["render",r]]);export{l as __pageData,m as default};

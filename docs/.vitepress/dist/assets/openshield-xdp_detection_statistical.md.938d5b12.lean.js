@@ -1,0 +1,1 @@
+import{_ as t,c as e,o as a}from"./app.3fdcf20e.js";const _=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"openshield-xdp/detection/statistical.md","lastUpdated":1782412920000}'),s={name:"openshield-xdp/detection/statistical.md"};function o(c,i,n,r,d,p){return a(),e("div")}const m=t(s,[["render",o]]);export{_ as __pageData,m as default};
