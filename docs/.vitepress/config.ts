@@ -62,6 +62,8 @@ export default withMermaid({
               items: [
                 { text: 'Overview', link: '/openshield-xdp/detection-engine/overview' },
                 { text: 'Pipeline', link: '/openshield-xdp/detection-engine/pipeline' },
+                { text: 'L2/L3/L4 Validation', link: '/openshield-xdp/detection-engine/l3-l4' },
+                { text: 'SYNPROXY', link: '/openshield-xdp/detection-engine/synproxy' },
               ]
             },
             {
