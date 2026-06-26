@@ -15,7 +15,15 @@ ls /sys/kernel/btf/vmlinux
 If this file doesn't exist, your kernel was compiled without BTF support. Rebuild with `CONFIG_DEBUG_INFO_BTF=y`.
 :::
 
-## Automated install
+## One-liner install
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/AnAverageBeing/OpenShield-XDP/main/install-online.sh | sudo bash
+```
+
+Choose **Install / Update** from the menu. The installer auto-detects your package manager, installs dependencies, compiles BPF and Go, generates config, and sets up systemd.
+
+## Automated install (from clone)
 
 ```bash
 git clone https://github.com/AnAverageBeing/OpenShield-XDP.git
