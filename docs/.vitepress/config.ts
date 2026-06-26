@@ -1,6 +1,6 @@
-import { defineConfig } from 'vitepress'
+import { withMermaid } from 'vitepress-plugin-mermaid'
 
-export default defineConfig({
+export default withMermaid({
   title: 'PingLess Studios',
   description: 'Open-source infrastructure tools',
   base: '/pingless-studios-docs/',
@@ -8,6 +8,9 @@ export default defineConfig({
   lastUpdated: true,
   cleanUrls: true,
   ignoreDeadLinks: true,
+  mermaid: {
+    theme: 'dark',
+  },
 
   head: [
     ['link', { rel: 'icon', type: 'image/png', href: '/pingless-studios-docs/pingles.png' }],
