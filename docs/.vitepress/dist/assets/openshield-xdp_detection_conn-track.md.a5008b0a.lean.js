@@ -1,1 +1,0 @@
-import{_ as e,c as t,o as n}from"./app.3fdcf20e.js";const l=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"openshield-xdp/detection/conn-track.md","lastUpdated":1782412920000}'),a={name:"openshield-xdp/detection/conn-track.md"};function o(c,r,s,d,p,i){return n(),t("div")}const m=e(a,[["render",o]]);export{l as __pageData,m as default};

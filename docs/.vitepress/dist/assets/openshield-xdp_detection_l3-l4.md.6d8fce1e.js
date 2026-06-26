@@ -1,1 +1,0 @@
-import{_ as e,c as t,o as a}from"./app.3fdcf20e.js";const _=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"openshield-xdp/detection/l3-l4.md","lastUpdated":1782412920000}'),o={name:"openshield-xdp/detection/l3-l4.md"};function n(s,r,c,d,p,l){return a(),t("div")}const m=e(o,[["render",n]]);export{_ as __pageData,m as default};

@@ -1,1 +1,0 @@
-import{_ as e,c as t,o as a}from"./app.3fdcf20e.js";const _=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"openshield-xdp/cli/load.md","lastUpdated":1782412920000}'),o={name:"openshield-xdp/cli/load.md"};function s(d,r,c,n,p,l){return a(),t("div")}const m=e(o,[["render",s]]);export{_ as __pageData,m as default};
