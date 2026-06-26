@@ -63,6 +63,8 @@ export default withMermaid({
                 { text: 'Overview', link: '/openshield-xdp/detection-engine/overview' },
                 { text: 'Pipeline', link: '/openshield-xdp/detection-engine/pipeline' },
                 { text: 'L2/L3/L4 Validation', link: '/openshield-xdp/detection-engine/l3-l4' },
+                { text: 'Rate-Based Scoring', link: '/openshield-xdp/detection-engine/rate-based' },
+                { text: 'Connection Tracking', link: '/openshield-xdp/detection-engine/conn-track' },
                 { text: 'SYNPROXY', link: '/openshield-xdp/detection-engine/synproxy' },
               ]
             },
@@ -72,6 +74,7 @@ export default withMermaid({
               collapsed: true,
               items: [
                 { text: 'Overview', link: '/openshield-xdp/mitigation/overview' },
+                { text: 'Ban System', link: '/openshield-xdp/mitigation/bans' },
               ]
             },
             {
