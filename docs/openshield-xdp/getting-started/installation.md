@@ -2,9 +2,9 @@
 
 ## Prerequisites
 
-- Linux kernel ≥ 5.8 (≥ 5.11 for freplace hot-patching)
+- Linux kernel ≥ 5.15 (recommended ≥ 6.10 for full feature set)
 - `CONFIG_DEBUG_INFO_BTF=y` in kernel config
-- XDP-capable NIC driver
+- XDP-capable NIC driver (native mode) or any NIC (generic/skb mode)
 - `clang` ≥ 12, `llvm`, `bpftool`, `libbpf-dev`
 - `Go` ≥ 1.21
 
@@ -13,6 +13,15 @@
 ls /sys/kernel/btf/vmlinux
 ```
 If this file doesn't exist, your kernel was compiled without BTF support. Rebuild with `CONFIG_DEBUG_INFO_BTF=y`.
+:::
+
+::: info Kernel feature gates
+OpenShield-XDP automatically detects available kernel features at load time and silently disables features your kernel doesn't support. For example:
+- **Bloom filter maps** require kernel 5.16+ — if unavailable, the LRU hashmap whitelist is used instead
+- **freplace** requires kernel 5.15+ — if unavailable, all BPF logic runs in the main program (no hot-patching)
+- **BPF timers** require kernel 5.15+ — connection tracking uses a simpler mechanism without them
+
+Run `openshield status` after loading to see which features are active on your kernel.
 :::
 
 ## One-liner install
@@ -36,20 +45,28 @@ The installer auto-detects your package manager (apt, dnf, yum, pacman, apk, zyp
 ## Manual build
 
 ```bash
-make vmlinux     # Generate vmlinux.h from /sys/kernel/btf/vmlinux (first time only)
-make all         # BPF + bpf2go bindings + Go userspace
+# vmlinux.h is auto-generated from /sys/kernel/btf/vmlinux (first time only)
+make vmlinux
+# Build BPF + bpf2go bindings + Go userspace
+make all
+# Install binaries, config, systemd
 sudo make install
 ```
+
+::: tip vmlinux.h auto-generation
+The `make vmlinux` step runs `bpftool btf dump file /sys/kernel/btf/vmlinux format c > ebpf/headers/vmlinux.h` to generate a type header matching your *running* kernel. This ensures the BPF program is compiled against your exact kernel's data structures — no kernel headers package needed.
+:::
 
 ## Verify installation
 
 ```bash
 openshield version
+# Verify the BPF program is accepted by your kernel's verifier
 bpftool prog load /opt/openshield/lib/openshield.bpf.o /sys/fs/bpf/test_verify type xdp
 rm /sys/fs/bpf/test_verify
 ```
 
-Both commands should succeed. The verifier check confirms the BPF program is accepted by your kernel.
+Both commands should succeed. The verifier check confirms the BPF program passes your kernel's BPF verifier.
 
 ## Update
 

@@ -56,6 +56,29 @@ export default withMermaid({
               ]
             },
             {
+              text: 'Configuration',
+              collapsible: true,
+              collapsed: true,
+              items: [
+                { text: 'Reference', link: '/openshield-xdp/configuration/reference' },
+                { text: 'Validation & Runtime Updates', link: '/openshield-xdp/configuration/validation' },
+                { text: 'Alerter & Telemetry', link: '/openshield-xdp/configuration/alerter' },
+              ]
+            },
+            {
+              text: 'Architecture',
+              collapsible: true,
+              collapsed: true,
+              items: [
+                { text: 'Overview', link: '/openshield-xdp/architecture/overview' },
+                { text: 'Pipeline', link: '/openshield-xdp/architecture/pipeline' },
+                { text: 'Map Layout', link: '/openshield-xdp/architecture/maps' },
+                { text: 'Bloom Filter', link: '/openshield-xdp/architecture/bloom-filter' },
+                { text: 'freplace Design', link: '/openshield-xdp/architecture/freplace' },
+                { text: 'Kernel Feature Gates', link: '/openshield-xdp/architecture/kernel-gates' },
+              ]
+            },
+            {
               text: 'Detection Engine',
               collapsible: true,
               collapsed: true,
@@ -75,22 +98,30 @@ export default withMermaid({
               items: [
                 { text: 'Overview', link: '/openshield-xdp/mitigation/overview' },
                 { text: 'Ban System', link: '/openshield-xdp/mitigation/bans' },
+                { text: 'Rate Limiting', link: '/openshield-xdp/mitigation/rate-limiting' },
+                { text: 'Whitelist', link: '/openshield-xdp/mitigation/whitelist' },
               ]
             },
             {
-              text: 'Architecture',
+              text: 'Performance',
               collapsible: true,
               collapsed: true,
               items: [
-                { text: 'Overview', link: '/openshield-xdp/architecture/overview' },
+                { text: 'Overview', link: '/openshield-xdp/performance/overview' },
+                { text: 'Optimizations', link: '/openshield-xdp/performance/optimizations' },
+                { text: 'Tuning', link: '/openshield-xdp/performance/tuning' },
               ]
             },
             {
-              text: 'Developer Guide',
+              text: 'Development',
               collapsible: true,
               collapsed: true,
               items: [
-                { text: 'Overview', link: '/openshield-xdp/developer-guide/overview' },
+                { text: 'Environment Setup', link: '/openshield-xdp/development/guide' },
+                { text: 'Developer Guide', link: '/openshield-xdp/developer-guide/overview' },
+                { text: 'Adding a Module', link: '/openshield-xdp/development/adding-module' },
+                { text: 'BPF Patterns', link: '/openshield-xdp/development/bpf-patterns' },
+                { text: 'Config Alignment', link: '/openshield-xdp/development/config-alignment' },
               ]
             },
           ]
