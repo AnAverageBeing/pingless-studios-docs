@@ -103,6 +103,14 @@ export default withMermaid({
               ]
             },
             {
+              text: 'Security',
+              collapsible: true,
+              collapsed: true,
+              items: [
+                { text: 'Threat Model', link: '/openshield-xdp/security/threat-model' },
+              ]
+            },
+            {
               text: 'Performance',
               collapsible: true,
               collapsed: true,
@@ -110,6 +118,14 @@ export default withMermaid({
                 { text: 'Overview', link: '/openshield-xdp/performance/overview' },
                 { text: 'Optimizations', link: '/openshield-xdp/performance/optimizations' },
                 { text: 'Tuning', link: '/openshield-xdp/performance/tuning' },
+              ]
+            },
+            {
+              text: 'Reference',
+              collapsible: true,
+              collapsed: true,
+              items: [
+                { text: 'Benchmarks', link: '/openshield-xdp/reference/benchmarks' },
               ]
             },
             {
