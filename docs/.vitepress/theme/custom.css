@@ -1,0 +1,13 @@
+.vp-doc .mermaid {
+    display: flex;
+    justify-content: center;
+    margin: 1.5em 0;
+}
+.vp-doc .mermaid svg {
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 250px;
+}
+.vp-doc .mermaid .label foreignObject {
+    overflow: visible !important;
+}

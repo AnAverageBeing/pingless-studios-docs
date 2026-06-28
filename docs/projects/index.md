@@ -1,9 +1,14 @@
 # Projects
 
-## OpenShield-XDP
+## 🛡️ OpenShield-XDP
+XDP-native DDoS mitigation at line rate. 16-stage detection pipeline with Bloom filter whitelist acceleration and freplace hot-patching.
 
-XDP-native DDoS mitigation. [Documentation →](/openshield-xdp/)
+[Documentation →](/openshield-xdp/) · [GitHub →](https://github.com/AnAverageBeing/OpenShield-XDP)
 
-## More Coming
+## ⚡ mcu-hitter
+High-performance DDoS testing and benchmarking tool. Supports UDP flood, TCP SYN, ICMP, raw packet crafting with IP spoofing.
 
-Additional projects are under development. Follow [AnAverageBeing on GitHub](https://github.com/AnAverageBeing) for updates.
+[GitHub →](https://github.com/AnAverageBeing/OpenShield-XDP/tree/main/tools/mcu-hitter)
+
+## 📦 More Projects
+Follow [PingLess Studios on GitHub](https://github.com/AnAverageBeing) for new projects and updates.

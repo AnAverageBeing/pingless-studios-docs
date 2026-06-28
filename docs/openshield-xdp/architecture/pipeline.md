@@ -5,43 +5,32 @@ OpenShield-XDP processes every packet through a fixed **16-stage pipeline**. Eac
 ## Pipeline Order
 
 ```mermaid
-flowchart LR
-    A["NIC"] --> B["0. MAC Filter"]
-    B --> C["1. Parse"]
-    C --> D["2. SYNPROXY"]
-    D --> E["3. Panic Breaker"]
-    E --> F["4. Global Detect"]
-    F --> G["5. Bloom WL"]
-    G --> H["6. HASH WL"]
-    H --> I["7. Ban Check"]
-    I --> J["8. Validation"]
-    J --> K["9. L4 Validation"]
-    K --> L["10. UDP Amp"]
-    L --> M["11. L7 Sigs"]
-    M --> N["12. IP Stats"]
-    N --> O["13. NewSrc Flood"]
-    O --> P["14. Conn Track"]
-    P --> Q["15. Window Reset"]
-    Q --> R["16. Rate Limit"]
-    R --> S["PASS"]
-
-    style B fill:#4a4,stroke:#2a2,color:#fff
-    style C fill:#44a,stroke:#22a,color:#fff
-    style D fill:#a4a,stroke:#82a,color:#fff
-    style E fill:#a44,stroke:#822,color:#fff
-    style F fill:#a4a,stroke:#82a,color:#fff
-    style G fill:#4aa,stroke:#288,color:#fff
-    style H fill:#4aa,stroke:#288,color:#fff
-    style I fill:#a84,stroke:#862,color:#fff
-    style J fill:#44a,stroke:#22a,color:#fff
-    style K fill:#44a,stroke:#22a,color:#fff
-    style L fill:#a44,stroke:#822,color:#fff
-    style M fill:#a44,stroke:#822,color:#fff
-    style N fill:#4a4,stroke:#2a2,color:#fff
-    style O fill:#a44,stroke:#822,color:#fff
-    style P fill:#a84,stroke:#862,color:#fff
-    style Q fill:#44a,stroke:#22a,color:#fff
-    style R fill:#a84,stroke:#862,color:#fff
+flowchart TD
+    A["📦 Packet Arrives"] --> B["0. MAC Filter<br/>L2 blacklist/whitelist"]
+    B -->|"drop"| D1["❌ DROP"]
+    B -->|"pass"| C["1. Packet Parse<br/>Ethernet, VLAN x2, IPv4/IPv6, L4"]
+    C --> D2{"Malformed?"}
+    D2 -->|"yes"| D3["❌ DROP"]
+    D2 -->|"no"| E{"2. SYNPROXY<br/>kernel ≥ 5.9"}
+    E -->|"flood"| D4["❌ DROP"]
+    E -->|"pass"| F["3. Panic Breaker<br/>per-CPU probabilistic drop"]
+    F -->|"drop"| D5["❌ DROP"]  
+    F -->|"pass"| G{"4. Global Detection<br/>kernel ≥ 6.10"}
+    G --> H["5. Bloom Whitelist<br/>150K entries, k=3 hash"]
+    H -->|"miss"| I["6. HASH Whitelist<br/>per-IP bypass flags"]
+    I -->|"bypass"| P["✅ XDP_PASS"]
+    I -->|"no"| J{"7. Ban Check<br/>single-IP + LPM subnet"}
+    J -->|"banned"| D6["❌ DROP"]
+    J -->|"pass"| K{"8. Validation<br/>bogon, bogus TCP, L4 bounds"}
+    K -->|"fail"| D7["❌ DROP"]
+    K -->|"pass"| L{"9. UDP Amplification<br/>DNS QR-bit + 8-port generic"}
+    L -->|"yes"| D8["❌ DROP"]
+    L -->|"no"| M{"10. L7 Signatures<br/>16 pattern rules"}
+    M -->|"match"| D9["❌ DROP"]
+    M -->|"no"| N["11. IP Stats + New-Source<br/>rate counters, flood detection"]
+    N --> O{"12. Rate Limiting<br/>threshold or token bucket"}
+    O -->|"exceeded"| D10["❌ DROP"]
+    O -->|"pass"| P
 ```
 
 ::: tip Legend

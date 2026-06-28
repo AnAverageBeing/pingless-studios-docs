@@ -34,34 +34,27 @@ Each stage function:
 ## Architecture
 
 ```mermaid
-flowchart TB
-    subgraph Main["Main XDP Program (openshield.bpf.c)"]
-        XDP["openshield_xdp()"]
-        BAN["stage_ban_check()<br/>__attribute__((noinline))"]
-        CT["stage_conn_track()<br/>__attribute__((noinline))"]
-        AMP["stage_amp_check()<br/>__attribute__((noinline))"]
-        L7["stage_l7_filter()<br/>__attribute__((noinline))"]
-        RATE["stage_rate_limit()<br/>__attribute__((noinline))"]
+flowchart TD
+    subgraph MAIN["Main XDP Program"]
+        direction TB
+        A["openshield_xdp()"]
+        S1["stage_ban_check()"]
+        S2["stage_conn_track()"]
+        S3["stage_amp_check()"]
+        S4["stage_l7_filter()"]
+        S5["stage_rate_limit()"]
+        A --> S1 --> S2 --> S3 --> S4 --> S5
     end
-
-    subgraph Replacements["freplace Modules (ebpf/modules/)"]
-        FR_BAN["ban_check_freplace.c<br/>SEC('freplace/stage_ban_check')"]
-        FR_CT["conn_track_freplace.c<br/>SEC('freplace/stage_conn_track')"]
-        FR_AMP["amp_check_freplace.c<br/>SEC('freplace/stage_amp_check')"]
-        FR_L7["l7_filter_freplace.c<br/>SEC('freplace/stage_l7_filter')"]
-        FR_RATE["rate_limit_freplace.c<br/>SEC('freplace/stage_rate_limit')"]
+    subgraph MOD["freplace Modules"]
+        M1["ban_check_freplace.c<br/>SEC(freplace/stage_ban_check)"]
+        M2["4 more stages<br/>noinline ready"]
     end
-
-    subgraph Userspace["Userspace (Go)"]
-        FM["FreplaceManager"]
-        ATTACH["AttachModule()"]
-        DETACH["DetachModule()"]
+    subgraph GO["Go Userspace"]
+        G1["FreplaceManager"]
+        G2["LoadFreplaceModule()"]
     end
-
-    FM --> ATTACH
-    FM --> DETACH
-    ATTACH -. "link.AttachFreplace()" .-> FR_BAN
-    FR_BAN -. "replaces" .-> BAN
+    M1 -..->|"replaces at runtime"| S1
+    G1 --> G2 --> M1
 ```
 
 ## Requirements

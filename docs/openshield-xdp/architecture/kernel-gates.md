@@ -101,20 +101,20 @@ Feature gates are evaluated at **build time**, not at runtime. If you upgrade yo
 ## Feature Gate Summary
 
 ```mermaid
-flowchart TB
-    subgraph "Kernel 5.15"
-        K515["✅ Base minimum<br/>All core features<br/>❌ No SYNPROXY<br/>❌ No L7 multisig<br/>❌ No global detect<br/>❌ No entropy"]
+flowchart LR
+    subgraph K59["Kernel ≥ 5.9"]
+        A["SYNPROXY<br/>rate-based SYN protection"]
     end
-
-    subgraph "Kernel 5.15+"
-        K515P["✅ OPENSHIELD_SYNPROXY<br/>TCP cookie SYN flood protection"]
+    subgraph K511["Kernel ≥ 5.11"]
+        B["freplace<br/>hot-patching"]
     end
-
-    subgraph "Kernel 6.10+"
-        K610["✅ OPENSHIELD_L7_MULTISLOT<br/>✅ OPENSHIELD_GLOBAL_DETECT<br/>✅ OPENSHIELD_ENTROPY<br/>Full feature set"]
+    subgraph K515["Kernel ≥ 5.15"]
+        C["Full feature<br/>baseline"]
     end
-
-    K515 --> K515P --> K610
+    subgraph K610["Kernel ≥ 6.10"]
+        D["L7 Multislot<br/>Global Detection<br/>Entropy Analysis"]
+    end
+    K59 --> K511 --> K515 --> K610
 ```
 
 | Feature Gate | Kernel | Feature |

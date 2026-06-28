@@ -86,17 +86,20 @@ sudo openshield load --stats-minimal
 ### Config editor workflow
 
 ```mermaid
-flowchart LR
-    A[Browse fields] -->|Enter| B[Edit value]
-    B -->|Enter| C[Value saved as pending]
-    B -->|Esc| A
-    C --> A
-    A -->|a| D[Preview changes]
-    D -->|y| E[Confirm dialog]
-    D -->|n| A
-    E -->|y| F[Send to loader via Unix socket]
-    E -->|n| A
-    F --> G[BPF config map updated]
+flowchart TD
+    A["Open Config Screen<br/>key: 6"] --> B["Browse Fields<br/>↑↓ to navigate"]
+    B --> C{"Press Enter<br/>to edit"}
+    C -->|"yes"| D["Edit Mode<br/>type new value"]
+    D --> E{"Valid input?"}
+    E -->|"yes"| F["Preview pending change<br/>highlighted in yellow"]
+    E -->|"no"| G["Show error<br/>stay in edit mode"]
+    G --> D
+    F --> H{"Apply changes?"}
+    H -->|"y: confirm"| I["Send to loader<br/>via Unix socket"]
+    H -->|"n: cancel"| B
+    I --> J{"Loader validates"}
+    J -->|"success"| K["✅ Config updated<br/>BPF maps refreshed"]
+    J -->|"failure"| L["❌ Show error<br/>config unchanged"]
 ```
 
 ## Charts & visualization

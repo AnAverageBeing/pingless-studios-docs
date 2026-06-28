@@ -23,7 +23,9 @@ export default withMermaid({
   themeConfig: {
     logo: '/pingles.png',
     nav: [
-      { text: 'Projects', link: '/projects/' },
+      { text: 'Home', link: '/' },
+      { text: 'OpenShield-XDP', link: '/openshield-xdp/' },
+      { text: 'GitHub', link: 'https://github.com/AnAverageBeing' },
     ],
 
     sidebar: {

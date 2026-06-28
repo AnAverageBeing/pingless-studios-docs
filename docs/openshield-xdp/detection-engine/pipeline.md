@@ -3,39 +3,32 @@
 Packets flow through 16 ordered stages. Order is by cost: cheapest checks run first. Each stage can be independently enabled/disabled via configuration. Five stages support **freplace hot-patching** — alternative implementations can be attached at runtime without unloading the XDP program (kernel ≥ 5.11, `CONFIG_DEBUG_INFO_BTF=y`).
 
 ```mermaid
-graph TD
-    A[Packet at NIC] --> B["0. MAC Filter"]
-    B -->|drop| DROP[DROP]
-    B -->|pass| C["1. Packet Parse"]
-    C -->|malformed| DROP
-    C -->|valid| D["2. SYNPROXY"]
-    D -->|SYN| E[Cookie, XDP_TX]
-    D -->|valid ACK| PASS[XDP_PASS]
-    D -->|invalid ACK| DROP
-    D -->|other TCP / disabled| F["3. Panic Breaker"]
-    F -->|panic drop| DROP
-    F -->|pass| G["4. Global Detection"]
-    G --> H["5. Bloom Filter"]
-    H -->|"maybe (whitelisted?)"| I["6. Whitelist HASH"]
-    H -->|"definitely not"| J["7. Ban Check"]
-    I -->|full bypass| PASS
-    I -->|other / not found| J
-    J -->|banned| DROP
-    J -->|pass| K["8. L3 Validation"]
-    K -->|private/bogon| DROP
-    K -->|pass| L["9. L4 Validation"]
-    L -->|bogus TCP / bounds| DROP
-    L -->|pass| M["10. UDP Amp"]
-    M -->|amplified| DROP
-    M -->|pass| N["11. L7 Signatures"]
-    N -->|matched| DROP
-    N -->|pass| O["12. IP Stats Lookup"]
-    O --> P["13. Per-Pkt Tracking"]
-    P --> Q["14. Conn Track"]
-    Q -->|blind ACK/RST| DROP
-    Q -->|pass| R["15. Rate Limiting"]
-    R -->|rate exceeded| DROP
-    R -->|pass| PASS
+flowchart TD
+    A["📦 Packet Arrives"] --> B["0. MAC Filter<br/>L2 blacklist/whitelist"]
+    B -->|"drop"| D1["❌ DROP"]
+    B -->|"pass"| C["1. Packet Parse<br/>Ethernet, VLAN x2, IPv4/IPv6, L4"]
+    C --> D2{"Malformed?"}
+    D2 -->|"yes"| D3["❌ DROP"]
+    D2 -->|"no"| E{"2. SYNPROXY<br/>kernel ≥ 5.9"}
+    E -->|"flood"| D4["❌ DROP"]
+    E -->|"pass"| F["3. Panic Breaker<br/>per-CPU probabilistic drop"]
+    F -->|"drop"| D5["❌ DROP"]  
+    F -->|"pass"| G{"4. Global Detection<br/>kernel ≥ 6.10"}
+    G --> H["5. Bloom Whitelist<br/>150K entries, k=3 hash"]
+    H -->|"miss"| I["6. HASH Whitelist<br/>per-IP bypass flags"]
+    I -->|"bypass"| P["✅ XDP_PASS"]
+    I -->|"no"| J{"7. Ban Check<br/>single-IP + LPM subnet"}
+    J -->|"banned"| D6["❌ DROP"]
+    J -->|"pass"| K{"8. Validation<br/>bogon, bogus TCP, L4 bounds"}
+    K -->|"fail"| D7["❌ DROP"]
+    K -->|"pass"| L{"9. UDP Amplification<br/>DNS QR-bit + 8-port generic"}
+    L -->|"yes"| D8["❌ DROP"]
+    L -->|"no"| M{"10. L7 Signatures<br/>16 pattern rules"}
+    M -->|"match"| D9["❌ DROP"]
+    M -->|"no"| N["11. IP Stats + New-Source<br/>rate counters, flood detection"]
+    N --> O{"12. Rate Limiting<br/>threshold or token bucket"}
+    O -->|"exceeded"| D10["❌ DROP"]
+    O -->|"pass"| P
 ```
 
 ## Stage table

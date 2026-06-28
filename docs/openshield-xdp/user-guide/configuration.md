@@ -54,16 +54,20 @@ Controls per-source-IP rate limiting with a suspicion scoring system. Each viola
 ### Suspicion scoring explained
 
 ```mermaid
-flowchart LR
-    A[Packet arrives] --> B{Over PPS threshold?}
-    B -->|Yes| C[+20 PPS score]
-    B -->|No| D{Over TCP threshold?}
-    D -->|Yes| E[+15 TCP score]
-    D -->|No| F[Normal pass]
-    C --> G{Total score > 100?}
+flowchart TD
+    A["Packet Received"] --> B{"PPS > threshold?"}
+    B -->|"yes"| C["suspicion_score += pps_score"]
+    B -->|"no"| D{"BPS > threshold?"}
+    D -->|"yes"| E["suspicion_score += bps_score"]
+    D -->|"no"| F["Check next metric..."]
+    C --> G{"score > suspicion_threshold?"}
     E --> G
-    G -->|Yes| H[IP Banned for 3600s]
-    G -->|No| I[Score decays by 50% each window]
+    F --> H["Window Reset<br/>every 1 second"]
+    G -->|"yes"| I["🔴 BAN IP<br/>duration: ban_duration_sec"]
+    G -->|"no"| J["Decay score<br/>suspicion_decay_percent"]
+    I --> K["Repeat offender?<br/>next ban threshold = lower"]
+    J --> H
+    H --> A
 ```
 
 ### Token bucket mode
@@ -235,15 +239,16 @@ Some configuration fields depend on kernel features. OpenShield-XDP auto-detects
 
 ```mermaid
 flowchart TD
-    A[Load config] --> B{Kernel ≥ 5.16?}
-    B -->|Yes| C[Bloom filter enabled]
-    B -->|No| D[Bloom filter disabled - falls back to LRU hashmap]
-    A --> E{Kernel ≥ 5.15 + freplace?}
-    E -->|Yes| F[freplace modules attach as EXT programs]
-    E -->|No| G[All logic in main XDP program]
-    A --> H{Kernel ≥ 5.15 + BPF timers?}
-    H -->|Yes| I[Connection tracking with BPF timers]
-    H -->|No| J[Simpler connection tracking without timers]
+    A["Kernel Version<br/>uname -r"] --> B{"Kernel ≥ 6.10?"}
+    B -->|"yes"| C["✅ All Features<br/>L7 Multislot + Global Detect + Entropy"]
+    B -->|"no"| D{"Kernel ≥ 5.15?"}
+    D -->|"yes"| E["✅ SYNPROXY + Baseline"]
+    D -->|"no"| F{"Kernel ≥ 5.9?"}
+    F -->|"yes"| G["✅ SYNPROXY only"]
+    F -->|"no"| H["⚠️ Unsupported<br/>minimum kernel 5.9"]
+    C --> I["Compile with all flags"]
+    E --> J["Compile with SYNPROXY flag"]
+    G --> K["Compile with SYNPROXY flag"]
 ```
 
 Run `openshield status` after loading to see which features are active. Fields that can't be supported due to kernel limitations are silently disabled with no error — the program degrades gracefully rather than failing to load.
@@ -255,6 +260,11 @@ Fields marked as **runtime-safe** can be changed via `openshield reload` or the 
 **Runtime-safe:** All `static` thresholds, scores, ban duration, rate limit mode, `validation` flags, `dynamic` thresholds, `whitelist.enabled`, `bloom_filter_enabled`
 
 **Read-only:** `interface`, `xdp_mode`, map sizes (`ip_stats_max`, `ban_max`, etc.), `baseline_window`, `baseline_alpha`, `poll_interval`
+
+## Next steps
+
+[CLI Reference](/openshield-xdp/cli/commands) · [Detection Engine](/openshield-xdp/detection-engine/overview) · [TUI Guide](/openshield-xdp/user-guide/tui)
+e_alpha`, `poll_interval`
 
 ## Next steps
 
