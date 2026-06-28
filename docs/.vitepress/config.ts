@@ -25,6 +25,7 @@ export default withMermaid({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'OpenShield-XDP', link: '/openshield-xdp/' },
+      { text: 'RouteX', link: '/routex/' },
       { text: 'GitHub', link: 'https://github.com/AnAverageBeing' },
     ],
 
@@ -145,7 +146,45 @@ export default withMermaid({
           ]
         },
       ],
+      '/routex/': [
+        {
+          text: 'RouteX',
+          collapsible: true,
+          collapsed: false,
+          items: [
+            {
+              text: 'Getting Started',
+              collapsible: true,
+              collapsed: false,
+              items: [
+                { text: 'Overview', link: '/routex/getting-started/overview' },
+                { text: 'Installation', link: '/routex/getting-started/installation' },
+                { text: 'Quick Start', link: '/routex/getting-started/quick-start' },
+                { text: 'FAQ', link: '/routex/getting-started/faq' },
+              ]
+            },
+            {
+              text: 'Reference',
+              collapsible: true,
+              collapsed: true,
+              items: [
+                { text: 'Global Config', link: '/routex/reference/global-config' },
+                { text: 'Proxy Config', link: '/routex/reference/proxy-config' },
+              ]
+            },
+            {
+              text: 'API',
+              collapsible: true,
+              collapsed: true,
+              items: [
+                { text: 'Endpoints', link: '/routex/api/endpoints' },
+              ]
+            },
+          ]
+        },
+      ],
     },
+
 
     socialLinks: [
       { icon: 'github', link: 'https://github.com/AnAverageBeing' },
