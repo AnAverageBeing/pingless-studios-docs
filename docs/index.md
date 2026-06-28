@@ -9,7 +9,7 @@ hero:
     alt: PingLess Studios
   actions:
     - theme: brand
-      text: OpenShield-XDP Docs
+      text: View Docs
       link: /openshield-xdp/
     - theme: alt
       text: GitHub
@@ -20,10 +20,10 @@ features:
     title: OpenShield-XDP
     details: XDP-native DDoS mitigation at line rate. 16-stage pipeline, Bloom filter whitelist acceleration, freplace hot-patching, 42 attack vectors detected.
     link: /openshield-xdp/
-  - icon: ⚡
-    title: mcu-hitter
-    details: High-performance DDoS testing and benchmarking tool. UDP flood, TCP SYN, ICMP, raw packet crafting with IP spoofing. Built for validating mitigation systems.
-    link: https://github.com/AnAverageBeing/OpenShield-XDP/tree/main/tools/mcu-hitter
+  - icon: 🔀
+    title: RouteX Reverse Proxy
+    details: Production-grade L3/L4/L7 reverse proxy. Game protocol detection (MC Java/Bedrock/FiveM/GMod), behavioral scoring, bandwidth quotas, 36 REST API endpoints.
+    link: /routex/
   - icon: 📦
     title: More Coming Soon
     details: PingLess Studios is actively developing new infrastructure and security tools. Follow on GitHub for updates.

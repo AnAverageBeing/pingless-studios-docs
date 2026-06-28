@@ -24,8 +24,7 @@ export default withMermaid({
     logo: '/pingles.png',
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'OpenShield-XDP', link: '/openshield-xdp/' },
-      { text: 'RouteX', link: '/routex/' },
+      { text: 'Docs', link: '/openshield-xdp/' },
       { text: 'GitHub', link: 'https://github.com/AnAverageBeing' },
     ],
 
@@ -145,12 +144,10 @@ export default withMermaid({
             },
           ]
         },
-      ],
-      '/routex/': [
         {
-          text: 'RouteX',
+          text: 'RouteX Reverse Proxy',
           collapsible: true,
-          collapsed: false,
+          collapsed: true,
           items: [
             {
               text: 'Getting Started',
