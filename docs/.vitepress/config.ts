@@ -109,6 +109,7 @@ export default withMermaid({
           items: [
             { text: 'Global Config', link: '/routex/reference/global-config' },
             { text: 'Proxy Config', link: '/routex/reference/proxy-config' },
+              { text: 'Comparison', link: '/routex/reference/comparison' },
           ]
         },
         {
