@@ -26,6 +26,7 @@ export default withMermaid({
       { text: 'Home', link: '/' },
       { text: 'Docs', link: '/openshield-xdp/' },
       { text: 'GitHub', link: 'https://github.com/AnAverageBeing' },
+      { text: 'Bandwidth', link: '/bandwidth-manager/' },
     ],
 
     sidebar: [
@@ -127,7 +128,46 @@ export default withMermaid({
   socialLinks: [
       { icon: 'github', link: 'https://github.com/AnAverageBeing' },
       { icon: 'discord', link: 'https://discord.gg/qgBMREWWgp' },
-    ],
+  
+    {
+      text: 'Bandwidth Manager',
+      collapsed: false,
+      items: [
+        {
+          text: 'Getting Started',
+          collapsed: false,
+          items: [
+            { text: 'Overview', link: '/bandwidth-manager/' },
+            { text: 'Installation', link: '/bandwidth-manager/getting-started/installation' },
+          ]
+        },
+        {
+          text: 'Configuration',
+          collapsed: true,
+          items: [
+            { text: 'Reference', link: '/bandwidth-manager/configuration/reference' },
+          ]
+        },
+        {
+          text: 'User Guide',
+          collapsed: true,
+          items: [
+            { text: 'CLI Reference', link: '/bandwidth-manager/user-guide/cli' },
+            { text: 'TUI Guide', link: '/bandwidth-manager/user-guide/tui' },
+            { text: 'Webhooks', link: '/bandwidth-manager/user-guide/webhooks' },
+          ]
+        },
+        {
+          text: 'Architecture',
+          collapsed: true,
+          items: [
+            { text: 'System Overview', link: '/bandwidth-manager/architecture/overview' },
+            { text: 'TC Deep Dive', link: '/bandwidth-manager/architecture/tc-explained' },
+          ]
+        },
+      ]
+    },
+  ],
 
     footer: {
       message: 'Maintained by <a href="https://github.com/AnAverageBeing">AnAverageBeing</a> — <a href="https://studio.pingless.org">PingLess Studios</a>',
