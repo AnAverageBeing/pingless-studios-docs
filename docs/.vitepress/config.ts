@@ -32,11 +32,11 @@ export default withMermaid({
     sidebar: [
     {
       text: 'OpenShield-XDP',
-      collapsed: false,
+      collapsed: true,
       items: [
         {
           text: 'Getting Started',
-          collapsed: false,
+          collapsed: true,
           items: [
             { text: 'Overview', link: '/openshield-xdp/' },
             { text: 'Installation', link: '/openshield-xdp/getting-started/installation' },
@@ -92,11 +92,11 @@ export default withMermaid({
     },
     {
       text: 'RouteX Reverse Proxy',
-      collapsed: false,
+      collapsed: true,
       items: [
         {
           text: 'Getting Started',
-          collapsed: false,
+          collapsed: true,
           items: [
             { text: 'Overview', link: '/routex/' },
             { text: 'Installation', link: '/routex/getting-started/installation' },
@@ -106,7 +106,7 @@ export default withMermaid({
         },
         {
           text: 'Reference',
-          collapsed: false,
+          collapsed: true,
           items: [
             { text: 'Global Config', link: '/routex/reference/global-config' },
             { text: 'Proxy Config', link: '/routex/reference/proxy-config' },
@@ -124,11 +124,11 @@ export default withMermaid({
     },
     {
       text: 'Bandwidth Manager',
-      collapsed: false,
+      collapsed: true,
       items: [
         {
           text: 'Getting Started',
-          collapsed: false,
+          collapsed: true,
           items: [
             { text: 'Overview', link: '/bandwidth-manager/' },
             { text: 'Installation', link: '/bandwidth-manager/getting-started/installation' },
