@@ -160,6 +160,43 @@ export default withMermaid({
         },
       ]
     },
+    {
+      text: 'S3 Database Storage for VPS',
+      collapsed: true,
+      items: [
+        {
+          text: 'Getting Started',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/s3-database-storage-for-vps/' },
+            { text: 'Installation', link: '/s3-database-storage-for-vps/getting-started/installation' }
+          ]
+        },
+        {
+          text: 'Configuration',
+          collapsed: true,
+          items: [
+            { text: 'Reference', link: '/s3-database-storage-for-vps/configuration/reference' }
+          ]
+        },
+        {
+          text: 'User Guide',
+          collapsed: true,
+          items: [
+            { text: 'CLI Reference', link: '/s3-database-storage-for-vps/user-guide/cli' },
+            { text: 'The Extractor', link: '/s3-database-storage-for-vps/user-guide/extractor' },
+            { text: 'Discord Webhooks', link: '/s3-database-storage-for-vps/user-guide/webhooks' }
+          ]
+        },
+        {
+          text: 'Architecture',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/s3-database-storage-for-vps/architecture/overview' }
+          ]
+        }
+      ]
+    },
   ],
 
   
