@@ -180,8 +180,7 @@ When per-CPU packet rate exceeds `panic_pps_rate`, the panic breaker bulk-drops 
 | Field | Default | Description |
 |-------|---------|-------------|
 | `synproxy_enabled` | `false` | Cookie-based SYN flood mitigation |
-| `synproxy_secret` | `""` | Secret key for SYN cookie generation |
-| `synproxy_timeout_sec` | `10` | SYN cookie timeout |
+| `syn_pps_threshold` | `170` | Per-IP SYN packets/sec before the rate-based SYN gate scores the source |
 
 ### L7 signature drops
 
@@ -242,13 +241,10 @@ flowchart TD
     A["Kernel Version<br/>uname -r"] --> B{"Kernel ≥ 6.10?"}
     B -->|"yes"| C["✅ All Features<br/>L7 Multislot + Global Detect + Entropy"]
     B -->|"no"| D{"Kernel ≥ 5.15?"}
-    D -->|"yes"| E["✅ SYNPROXY + Baseline"]
-    D -->|"no"| F{"Kernel ≥ 5.9?"}
-    F -->|"yes"| G["✅ SYNPROXY only"]
-    F -->|"no"| H["⚠️ Unsupported<br/>minimum kernel 5.9"]
+    D -->|"yes"| E["✅ Baseline + scalar SYNPROXY"]
+    D -->|"no"| H["⚠️ Unsupported<br/>minimum kernel 5.15"]
     C --> I["Compile with all flags"]
     E --> J["Compile with SYNPROXY flag"]
-    G --> K["Compile with SYNPROXY flag"]
 ```
 
 Run `openshield status` after loading to see which features are active. Fields that can't be supported due to kernel limitations are silently disabled with no error — the program degrades gracefully rather than failing to load.

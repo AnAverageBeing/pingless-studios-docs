@@ -232,8 +232,8 @@ Whitelist maps use `BPF_MAP_TYPE_HASH` (not LRU) because whitelist entries must 
 | 22 | `PROF_CONN_RATE` | Connection rate drops |
 | 23 | `PROF_MAC_DROP` | MAC filter drops |
 | 24 | `PROF_ESCALATION` | Auto-escalation subnet bans |
-| 25 | `PROF_SYNPROXY_SYNACK` | SYNPROXY SYN-ACK replies |
-| 26 | `PROF_SYNPROXY_DROP` | SYNPROXY invalid cookie drops |
+| 25 | `PROF_SYNPROXY_SYNACK` | SYNs accounted by the scalar SYN gate |
+| 26 | `PROF_SYNPROXY_DROP` | SYN gate drops (reserved; baseline never drops, used by opt-in freplace) |
 
 ### 7. Event Map
 
@@ -248,21 +248,7 @@ Whitelist maps use `BPF_MAP_TYPE_HASH` (not LRU) because whitelist entries must 
 | **Access** | Kernel: write (rate-limited to `event_rate_limit`/s). Userspace: read (continuous goroutine). |
 | **Purpose** | Event stream for alerting. Full buffer → new writes fail silently → events dropped. Never blocks the packet path. |
 
-### 8. SYNPROXY Map
-
-#### `syn_cookie_map`
-
-| Property | Value |
-|----------|-------|
-| **Type** | `BPF_MAP_TYPE_LRU_HASH` |
-| **Key** | `struct syn_cookie_key` (saddr, daddr, sport, dport) |
-| **Value** | `struct syn_cookie_entry` (cookie, expires_at, client_seq, client_mss, valid) |
-| **Max Entries** | 100,000 |
-| **Memory** | ~4.8 MB |
-| **Feature Gate** | `OPENSHIELD_SYNPROXY` (kernel ≥ 5.15) |
-| **Purpose** | Stores pending SYNPROXY connections. LRU eviction auto-cleans stale entries. |
-
-### 9. L7 Signature Map
+### 8. L7 Signature Map
 
 #### `l7_sig_map`
 
@@ -276,7 +262,7 @@ Whitelist maps use `BPF_MAP_TYPE_HASH` (not LRU) because whitelist entries must 
 | **Feature Gate** | Slots 1-15 require `OPENSHIELD_L7_MULTISLOT` (kernel ≥ 6.10) |
 | **Purpose** | Configurable byte-pattern matching at fixed offsets. Disabled slots have `proto == 0`. |
 
-### 10. Bloom Filter Map
+### 9. Bloom Filter Map
 
 #### `bloom_map`
 
@@ -311,13 +297,12 @@ Whitelist maps use `BPF_MAP_TYPE_HASH` (not LRU) because whitelist entries must 
 | `prof_map` | 27 (per-CPU) | 8 B | ~216 B/CPU |
 | `panic_bucket_map` | 1 (per-CPU) | 16 B | ~16 B/CPU |
 | `events_map` | 256 KB | — | 256 KB |
-| `syn_cookie_map` | 100,000 | ~48 B | ~4.8 MB |
 | `l7_sig_map` | 16 | ~64 B | ~1 KB |
 | `bloom_map` | 150,000 | 8 B | 1.2 MB |
-| **Total** | | | **~37 MB** |
+| **Total** | | | **~32 MB** |
 
 ::: tip Memory is pre-allocated
-BPF maps allocate their full memory at creation time (or at first access for `BPF_F_NO_PREALLOC`). The ~37 MB is reserved in kernel memory and cannot be swapped.
+BPF maps allocate their full memory at creation time (or at first access for `BPF_F_NO_PREALLOC`). The ~32 MB is reserved in kernel memory and cannot be swapped.
 :::
 
 ## Pinning Behavior
@@ -383,6 +368,5 @@ flowchart LR
 
     subgraph "Alert Path"
         EVENTS["events_map<br/>(write)"]
-        SYN["syn_cookie_map<br/>(write)"]
     end
 ```

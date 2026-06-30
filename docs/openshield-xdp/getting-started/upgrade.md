@@ -48,7 +48,7 @@ sudo ./install.sh --update
 | Configuration | Kept unless config format changed |
 | IP statistics | Cleared (fresh start) |
 | Baseline (EMA) | Restored from `baseline.json` |
-| SYNPROXY cookies | Cleared (invalid after restart) |
+| Per-IP SYN counters | Cleared (fresh start; rate-based SYN gate re-learns) |
 
 ## Verification
 

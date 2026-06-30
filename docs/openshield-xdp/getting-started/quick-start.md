@@ -56,7 +56,7 @@ sudo openshield load
 ```
 
 ::: info freplace
-`freplace` is used automatically if your kernel supports it (5.15+). It allows individual BPF modules (ban check, validation, dynamic mitigation) to be attached as `BPF_PROG_TYPE_EXT` programs, linking to the main XDP program. This means a single module can be updated without detaching the main program. The TUI Config screen shows read-only fields that require a full reload; freplace-covered logic can be reloaded via `openshield reload` without unloading XDP.
+`freplace` is an **opt-in** feature: build with `make FREPLACE=1` on **kernel ≥ 6.10**. Default builds inline the pipeline stages so OpenShield loads on every supported kernel (5.15+) with zero fixes. When enabled, individual BPF stages (ban check, rate limit, conn track, amplification, L7) are attached as `BPF_PROG_TYPE_EXT` programs linking to the main XDP program, so a single stage can be hot-patched without detaching the main program. The TUI Config screen shows read-only fields that require a full reload; freplace-covered logic can be reloaded via `openshield reload` without unloading XDP.
 :::
 
 ## Verify

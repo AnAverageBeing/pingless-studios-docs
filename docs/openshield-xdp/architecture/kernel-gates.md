@@ -27,23 +27,21 @@ Feature gates are evaluated at **build time**, not at runtime. If you upgrade yo
 
 | Property | Value |
 |----------|-------|
-| **Minimum kernel** | 5.15 |
-| **Detection** | `test $(KERNEL_MAJOR) -ge 6 -o \( $(KERNEL_MAJOR) -eq 5 -a $(KERNEL_MINOR) -ge 15 \)` |
-| **What it gates** | TCP SYNPROXY cookie-based SYN flood mitigation |
-| **Compiles to** | Full `synproxy_dispatch()` function |
-| **Below threshold** | Compiles out entirely — SYNPROXY stage is skipped |
+| **Minimum kernel** | 5.15 (baseline minimum, not a special requirement) |
+| **Detection** | `test $(KERNEL_MAJOR) -gt 5 -o \( $(KERNEL_MAJOR) -eq 5 -a $(KERNEL_MINOR) -ge 15 \)` |
+| **What it gates** | Scalar, non-terminal SYN classification gate (rate-based) |
+| **Compiles to** | `synproxy_check_listener()` — a scalar-only `__always_inline` hook |
+| **Below threshold** | Compiles out entirely — SYN handling falls back to the rate limiter |
 
 ```c
 // openshield.bpf.c
 #ifdef OPENSHIELD_SYNPROXY
-    int synproxy_ret = synproxy_dispatch(ctx, &info, cfg, now);
-    if (synproxy_ret == XDP_TX)       return XDP_TX;
-    if (synproxy_ret == XDP_DROP)     return XDP_DROP;
-    if (synproxy_ret == XDP_PASS)     return XDP_PASS;
+    if (synproxy_check_listener(ctx, &info, cfg) == STAGE_DROP)
+        return XDP_DROP;
 #endif /* OPENSHIELD_SYNPROXY */
 ```
 
-**Why kernel ≥ 5.15?** The SYNPROXY implementation uses `bpf_tcp_gen_syncookie` and `bpf_tcp_check_syncookie` helpers, which were stabilized in 5.15. Earlier kernels lack these helpers.
+**Why scalar-only?** The gate reads **only** pre-parsed scalar fields from `packet_info` — no packet-pointer access and no version-specific helpers (no `bpf_sk_lookup_tcp`, no cookie crypto, no `XDP_TX`). This guarantees it verifies and loads on **every** supported kernel (5.15 → latest) with zero user fixes. Actual SYN-flood mitigation is delivered by the per-IP `syn_pps_threshold` rate limiter. On kernels ≥ 6.10 an **opt-in** freplace module can hot-patch this hook to add richer listener verification.
 
 ### `OPENSHIELD_L7_MULTISLOT`
 
@@ -102,25 +100,19 @@ Feature gates are evaluated at **build time**, not at runtime. If you upgrade yo
 
 ```mermaid
 flowchart LR
-    subgraph K59["Kernel ≥ 5.9"]
-        A["SYNPROXY<br/>rate-based SYN protection"]
-    end
-    subgraph K511["Kernel ≥ 5.11"]
-        B["freplace<br/>hot-patching"]
-    end
-    subgraph K515["Kernel ≥ 5.15"]
-        C["Full feature<br/>baseline"]
+    subgraph K515["Kernel ≥ 5.15 (baseline)"]
+        C["Full core pipeline<br/>+ scalar rate-based SYNPROXY"]
     end
     subgraph K610["Kernel ≥ 6.10"]
-        D["L7 Multislot<br/>Global Detection<br/>Entropy Analysis"]
+        D["L7 Multislot<br/>Global Detection<br/>Entropy Analysis<br/>freplace hot-patching (opt-in: make FREPLACE=1)"]
     end
-    K59 --> K511 --> K515 --> K610
+    K515 --> K610
 ```
 
 | Feature Gate | Kernel | Feature |
 |-------------|--------|---------|
 | *(none required)* | 5.15+ | Core pipeline: MAC filter, parse, panic breaker, whitelist, ban check, validation, L4, UDP amp, IP stats, new-source flood, connection tracking, window reset, rate limiting |
-| `OPENSHIELD_SYNPROXY` | 5.15+ | SYNPROXY cookie-based TCP SYN flood mitigation |
+| `OPENSHIELD_SYNPROXY` | 5.15+ | Scalar, rate-based SYN gate (no cookies, no helpers) |
 | `OPENSHIELD_L7_MULTISLOT` | 6.10+ | L7 signature slots 1-15 |
 | `OPENSHIELD_GLOBAL_DETECT` | 6.10+ | SYN/FIN ratio + entropy spoofing detection |
 | `OPENSHIELD_ENTROPY` | 6.10+ | Per-packet entropy bucket tracking |
@@ -172,7 +164,6 @@ The rebuilt binary will auto-detect the new kernel version and enable all compat
 
 OpenShield-XDP requires **kernel ≥ 5.15** as the absolute minimum. Below 5.15, several core BPF features are unavailable:
 
-- `bpf_tcp_gen_syncookie` / `bpf_tcp_check_syncookie` (needed for SYNPROXY)
 - `BPF_MAP_TYPE_LRU_HASH` per-CPU pre-allocation improvements
 - `bpf_ktime_get_boot_ns()` precision
 - Various verifier improvements needed for the pipeline complexity

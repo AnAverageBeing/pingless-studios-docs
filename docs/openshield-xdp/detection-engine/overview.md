@@ -12,7 +12,7 @@ OpenShield classifies packets at L2–L7 before the kernel processes them. The d
 | Amplification | 9 | DNS (QR-bit check) + 8-port configurable generic UDP reflection |
 | L7 signature | 16 | Configurable port+protocol+mask rules |
 | Statistical | 5 | SYN/FIN ratio, entropy (16 buckets), TTL, packet size, connection rate |
-| SYNPROXY | 1 | SplitMix64 cookie-based SYN flood mitigation |
+| SYNPROXY | 1 | Scalar SYN gate — flood mitigation via per-IP SYN rate limiter (`syn_pps_threshold`) |
 
 ::: tip All features toggleable
 Each detection vector has a corresponding `enabled` flag in the config. Disable any that produce false positives for your traffic profile.

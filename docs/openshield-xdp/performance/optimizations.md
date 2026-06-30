@@ -78,7 +78,7 @@ Userspace aggregates by reading all CPU slots and summing.
 
 ## LRU Auto-Eviction
 
-`ip_stats_map`, `ban_map`, and `syn_cookie_map` use `BPF_MAP_TYPE_LRU_HASH`:
+`ip_stats_map` and `ban_map` use `BPF_MAP_TYPE_LRU_HASH`:
 
 - **Automatic eviction** of oldest entries under memory pressure — no manual cleanup needed in BPF
 - **No userspace iteration** required for eviction (the kernel handles it)
@@ -139,7 +139,7 @@ graph TD
 The pipeline is ordered by **most-likely-to-drop-first**:
 
 1. MAC filter (L2) — cheapest check, rarely positive
-2. SYNPROXY cookie (if SYN) — handshake, hits only on SYNs
+2. SYNPROXY scalar gate (if SYN) — cheap accounting hook, no packet access
 3. Panic breaker — only active during attacks
 4. Whitelist — most normal traffic passes through here
 5. Ban check — progressively more IPs as attacks continue

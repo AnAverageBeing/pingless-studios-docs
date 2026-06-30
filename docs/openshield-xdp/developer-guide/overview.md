@@ -113,7 +113,7 @@ For loops where `#pragma unroll` is impractical, use a bounded loop with an expl
 
 ### `__always_inline` Rule
 
-Every function in the XDP call chain must be `__always_inline` unless it's a **freplace-able stage** (declared in `stages.h`). Stage functions are real BPF subprograms — they are NOT inlined so that freplace programs can target them.
+Every function in the XDP call chain must be `__always_inline`. The five replaceable stages use the `STAGE_FN` macro (declared in `stages.h`): by **default** it expands to `static __always_inline`, so the stages are inlined and the program loads on every supported kernel. Only in an **opt-in** `make FREPLACE=1` build (kernel ≥ 6.10) does `STAGE_FN` become `__attribute__((noinline))`, turning the stages into real BPF subprograms that freplace programs can target.
 
 ### Map Interactions
 
@@ -258,7 +258,10 @@ New kernel-version-dependent features are added via the feature gate system:
 See [Architecture: freplace](/openshield-xdp/architecture/freplace) for the design overview. The stage declarations live in `ebpf/headers/stages.h`:
 
 ```c
-// stages.h — freplace-able pipeline stages (NOT __always_inline, NOT static)
+// stages.h — replaceable pipeline stages. Linkage is chosen by STAGE_FN:
+//   default build  → static __always_inline (folded in; loads on all kernels)
+//   make FREPLACE=1 → __attribute__((noinline)) global subprogram (kernel ≥ 6.10)
+// The forward declarations below are only emitted in a FREPLACE build.
 int stage_ban_check(struct packet_info *info, const struct config *cfg,
                      u64 now, u8 wl_flags, struct ip6_key *v6_key);
 int stage_rate_limit(struct ip_stats *stats, struct packet_info *info,

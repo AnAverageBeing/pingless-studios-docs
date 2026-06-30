@@ -201,7 +201,7 @@ The pipeline returns standard XDP actions:
 |-------------|---------|--------|
 | `XDP_PASS` | Packet passes | Kernel receives packet normally |
 | `XDP_DROP` | Packet dropped | Silently discarded |
-| `XDP_TX` | Packet bounced back | Sent out same interface (used by SYNPROXY) |
+| `XDP_TX` | Packet bounced back | Sent out same interface (not used by the portable baseline; available to opt-in freplace modules) |
 | `XDP_ABORTED` | Error | Packet dropped + tracepoint |
 
 Stage functions return `0` (continue) or a drop code defined in `dropcodes.h`.

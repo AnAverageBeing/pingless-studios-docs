@@ -2,7 +2,7 @@
 
 ## What kernel version?
 
-Linux ≥ 5.8. ≥ 5.11 for freplace.
+Linux ≥ 5.15. freplace is opt-in (`make FREPLACE=1`, kernel ≥ 6.10).
 
 ## Does this replace iptables?
 
@@ -14,7 +14,7 @@ No. XDP layer (before skb allocation) vs Netfilter (much later). Complementary.
 
 ## Can SYNPROXY break connections?
 
-Off by default. When enabled, only intercepts SYN + ACK. Kernel completes real handshake once cookie verified.
+Off by default. It's a scalar, non-terminal SYN gate — it never drops legitimate traffic itself; SYN-flood mitigation is handled by the per-IP `syn_pps_threshold` rate limiter. No cookies, no SYN-ACK rewriting, so normal handshakes are untouched.
 
 ## Hardware offload?
 

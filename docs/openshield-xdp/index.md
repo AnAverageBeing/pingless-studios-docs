@@ -4,7 +4,7 @@ XDP-native DDoS mitigation at line rate.
 
 Inspects and drops attack traffic inside the NIC driver — before the kernel allocates an skb, before iptables runs, before your application sees anything.
 
-A single attached core handles **10M+ packets per second**. Suspicion scoring, SYN cookies, L7 pattern matching, UDP amplification detection, entropy-based spoofing, and autonomous subnet escalation all run without a context switch.
+A single attached core handles **10M+ packets per second**. Suspicion scoring, rate-based SYN-flood mitigation, L7 pattern matching, UDP amplification detection, entropy-based spoofing, and autonomous subnet escalation all run without a context switch.
 
 ```bash
 git clone https://github.com/AnAverageBeing/OpenShield-XDP.git
@@ -31,7 +31,7 @@ OpenShield classifies **42 attack vectors** across 7 layers.
 - **Ban system** — single IP, LPM subnet, auto /24 escalation, 6-level star system
 - **Rate limiting** — threshold scoring or token bucket
 - **Whitelist** — per-IP flags (full bypass, skip ban, skip rate, skip validation)
-- **SYNPROXY** — cookie-based SYN flood mitigation at XDP line rate
+- **SYNPROXY** — scalar, rate-based SYN flood mitigation at XDP line rate (loads on every supported kernel)
 - **Panic circuit breaker** — per-CPU probabilistic bulk drop
 
 ## Performance

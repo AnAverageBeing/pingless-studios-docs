@@ -1,6 +1,6 @@
 # Packet Processing Pipeline
 
-Packets flow through 16 ordered stages. Order is by cost: cheapest checks run first. Each stage can be independently enabled/disabled via configuration. Five stages support **freplace hot-patching** — alternative implementations can be attached at runtime without unloading the XDP program (kernel ≥ 5.11, `CONFIG_DEBUG_INFO_BTF=y`).
+Packets flow through 16 ordered stages. Order is by cost: cheapest checks run first. Each stage can be independently enabled/disabled via configuration. Five stages support **freplace hot-patching** (opt-in) — with `make FREPLACE=1` on kernel ≥ 6.10, alternative implementations can be attached at runtime without unloading the XDP program. Default builds inline these stages for universal kernel portability.
 
 ```mermaid
 flowchart TD
@@ -9,9 +9,8 @@ flowchart TD
     B -->|"pass"| C["1. Packet Parse<br/>Ethernet, VLAN x2, IPv4/IPv6, L4"]
     C --> D2{"Malformed?"}
     D2 -->|"yes"| D3["❌ DROP"]
-    D2 -->|"no"| E{"2. SYNPROXY<br/>kernel ≥ 5.9"}
-    E -->|"flood"| D4["❌ DROP"]
-    E -->|"pass"| F["3. Panic Breaker<br/>per-CPU probabilistic drop"]
+    D2 -->|"no"| E{"2. SYNPROXY<br/>scalar gate · kernel ≥ 5.15"}
+    E -->|"pass (rate-based ban later)"| F["3. Panic Breaker<br/>per-CPU probabilistic drop"]
     F -->|"drop"| D5["❌ DROP"]  
     F -->|"pass"| G{"4. Global Detection<br/>kernel ≥ 6.10"}
     G --> H["5. Bloom Whitelist<br/>150K entries, k=3 hash"]
@@ -37,7 +36,7 @@ flowchart TD
 |---|-------|------|--------|
 | 0 | MAC filter | ~10 ns | L2 allowlist/blocklist (8 MAC entries) |
 | 1 | Packet parse | ~60 ns | Eth, VLAN (802.1Q/802.1ad/QinQ), IP, extension headers, TCP/UDP |
-| 2 | SYNPROXY | ~200 ns | Cookie generation (SplitMix64), SYN-ACK rewrite, `XDP_TX` response |
+| 2 | SYNPROXY | ~20 ns | Scalar SYN classification hook (non-terminal); flood mitigation handled by per-IP `syn_pps_threshold` in stage 15 |
 | 3 | Panic circuit breaker | ~5 ns | Per-CPU probabilistic drop under PPS overload |
 | 4 | Global detection | ~30 ns | Entropy spoofing (16 buckets) + SYN/FIN ratio, window-based |
 | 5 | **Bloom filter** | ~15 ns | 3-hash probabilistic whitelist membership check, skips HASH lookup on miss |
@@ -58,15 +57,15 @@ Some stages require specific kernel features:
 
 | Stage | Requirement | Why |
 |-------|-------------|-----|
-| SYNPROXY | Kernel ≥ 5.15 | Bounded loops in BPF (`synproxy_timeout_sec` walk) |
+| SYNPROXY (scalar gate) | Kernel ≥ 5.15 (baseline) | Scalar-only, no special helper. Optional freplace listener verification needs ≥ 6.10 |
 | Bloom filter | Kernel ≥ 5.4 | BPF array map as Bloom filter words |
-| freplace stages | Kernel ≥ 5.11 + `CONFIG_DEBUG_INFO_BTF=y` | BTF-based function replacement |
+| freplace stages (opt-in) | `make FREPLACE=1`, kernel ≥ 6.10 + `CONFIG_DEBUG_INFO_BTF=y` | BTF-based function replacement |
 | Panic breaker | Kernel ≥ 5.3 | Per-CPU map support |
 | LPM trie (subnet ban) | Kernel ≥ 4.20 | Longest-prefix-match map type |
 
 ## freplace stages
 
-The following stages are `__attribute__((noinline))` BPF subprograms with BTF type info. A freplace program with `SEC("freplace/stage_<name>")` can replace them at runtime:
+freplace is **opt-in**: in a default build these stages are `static __always_inline` (inlined for universal kernel portability). When built with `make FREPLACE=1` on kernel ≥ 6.10, they become `noinline` BPF subprograms with BTF type info, and a freplace program with `SEC("freplace/stage_<name>")` can replace them at runtime:
 
 | Stage | freplace target | Default location |
 |-------|----------------|------------------|

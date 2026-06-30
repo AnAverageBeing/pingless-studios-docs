@@ -90,7 +90,7 @@ Panic drops are *not* tracked per-IP. Legitimate traffic is dropped alongside at
 
 ## freplace hot-patching
 
-Five mitigation stages support **runtime replacement** via BPF freplace (kernel ≥ 5.11, `CONFIG_DEBUG_INFO_BTF=y`):
+Five mitigation stages support **runtime replacement** via BPF freplace. This is **opt-in** (`make FREPLACE=1`, kernel ≥ 6.10, `CONFIG_DEBUG_INFO_BTF=y`); default builds inline these stages for universal kernel portability:
 
 | Stage | freplace target | Can replace |
 |-------|----------------|-------------|

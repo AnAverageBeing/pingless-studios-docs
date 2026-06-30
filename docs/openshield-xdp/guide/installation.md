@@ -45,6 +45,6 @@ sudo ./install.sh --uninstall
 
 ## Prerequisites
 
-- Linux kernel ≥ 5.8 (≥ 5.11 for freplace)
+- Linux kernel ≥ 5.15 (freplace hot-patching is opt-in: `make FREPLACE=1`, kernel ≥ 6.10)
 - `CONFIG_DEBUG_INFO_BTF=y`
 - XDP-capable NIC driver

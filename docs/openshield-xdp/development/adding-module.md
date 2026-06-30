@@ -11,7 +11,7 @@ OpenShield supports two module patterns:
 | **#include (classic)** | Module is `#include`d directly into `openshield.bpf.c` via `__always_inline` functions | Simple modules, always-on checks, no hot-patching needed |
 | **freplace (new)** | Module is compiled as a standalone BPF program with `SEC("freplace/stage_<name>")`, loaded separately and attached via `BPF_PROG_TYPE_EXT` | Independent modules, hot-patchable, smaller verifier footprint |
 
-Currently all modules use the `#include` approach. freplace support requires kernel ≥ 5.11 with `CONFIG_DEBUG_INFO_BTF=y`.
+The default build uses the `#include` (inline) approach for all stages, so OpenShield loads on every supported kernel. freplace is **opt-in**: build with `make FREPLACE=1` on **kernel ≥ 6.10** with `CONFIG_DEBUG_INFO_BTF=y`.
 
 ## Classic #include Approach
 
@@ -196,7 +196,7 @@ For the freplace approach, see [freplace Design](/openshield-xdp/architecture/fr
 
 ### Key differences from #include:
 
-1. **Stage functions are NOT `__always_inline`** — they are real BPF subprograms
+1. **In a `make FREPLACE=1` build (kernel ≥ 6.10), stage functions are `noinline`** — they become real BPF subprograms (default builds keep them `static __always_inline`)
 2. Declared in `stages.h` as prototypes
 3. Default implementation lives in `openshield.bpf.c`
 4. Alternative implementation goes in `ebpf/modules/` with `SEC("freplace/stage_<name>")`

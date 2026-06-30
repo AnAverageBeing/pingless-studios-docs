@@ -12,7 +12,7 @@ Game servers under UDP reflection floods. Web servers under SYN floods. DNS reso
 
 ## What it does
 
-42 detection vectors across L2–L7. Suspicion scoring, SYNPROXY cookies, rate limiting, subnet bans, Bloom filter for fast whitelist lookups, freplace hot-patching for modular BPF logic. 7-screen TUI dashboard with braille-resolution charts and config editor. Webhook alerts (Discord/Slack).
+42 detection vectors across L2–L7. Suspicion scoring, rate-based SYN-flood mitigation, rate limiting, subnet bans, Bloom filter for fast whitelist lookups, freplace hot-patching for modular BPF logic. 7-screen TUI dashboard with braille-resolution charts and config editor. Webhook alerts (Discord/Slack).
 
 ## What it doesn't do
 

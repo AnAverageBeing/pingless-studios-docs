@@ -11,9 +11,8 @@ flowchart TD
     B -->|"pass"| C["1. Packet Parse<br/>Ethernet, VLAN x2, IPv4/IPv6, L4"]
     C --> D2{"Malformed?"}
     D2 -->|"yes"| D3["❌ DROP"]
-    D2 -->|"no"| E{"2. SYNPROXY<br/>kernel ≥ 5.9"}
-    E -->|"flood"| D4["❌ DROP"]
-    E -->|"pass"| F["3. Panic Breaker<br/>per-CPU probabilistic drop"]
+    D2 -->|"no"| E{"2. SYNPROXY<br/>scalar gate · kernel ≥ 5.15"}
+    E -->|"pass (rate-based ban later)"| F["3. Panic Breaker<br/>per-CPU probabilistic drop"]
     F -->|"drop"| D5["❌ DROP"]  
     F -->|"pass"| G{"4. Global Detection<br/>kernel ≥ 6.10"}
     G --> H["5. Bloom Whitelist<br/>150K entries, k=3 hash"]
@@ -43,7 +42,7 @@ flowchart TD
 |---|-------|--------|:---------:|:------------:|
 | 0 | **MAC Filter** | Whitelist/blacklist by source MAC address (8-slot config). Drops immediately before any IP parsing. | — | — |
 | 1 | **Parse** | Extract Ethernet, IP, and L4 headers into `struct packet_info`. Bails out on non-IP or malformed packets. | — | — |
-| 2 | **SYNPROXY** | Cookie-based TCP SYN flood protection. Replies with SYN-ACK containing a cryptographic cookie. Valid ACKs with correct cookies are passed. | — | `OPENSHIELD_SYNPROXY` (≥ 5.15) |
+| 2 | **SYNPROXY** | Scalar, non-terminal SYN gate. Reads pre-parsed scalars only (no packet access, no helpers); accounts SYNs and continues. Flood mitigation is delivered by the per-IP `syn_pps_threshold` rate limiter. | — | `OPENSHIELD_SYNPROXY` (≥ 5.15) |
 | 3 | **Panic Breaker** | Per-CPU packet rate check with probabilistic drop. When a CPU exceeds `panic_pps_rate`, drops `panic_drop_ratio`% of packets. | — | — |
 | 4 | **Global Detection** | Window-based entropy spoofing detection + SYN/FIN ratio anomaly check. Drops when source IP entropy is high (spoofed flood) or SYN:FIN ratio exceeds threshold. | — | `OPENSHIELD_GLOBAL_DETECT` (≥ 6.10) |
 | 5 | **Bloom Whitelist** | Fast negative-check: if the Bloom filter says "definitely not present", skip the expensive HASH whitelist lookup. Saves ~60-100ns/pkt. | — | — |
@@ -63,18 +62,21 @@ flowchart TD
 
 Two stages are compile-time gated based on the running kernel version:
 
-### SYNPROXY (`OPENSHIELD_SYNPROXY` — kernel ≥ 5.15)
+### SYNPROXY (`OPENSHIELD_SYNPROXY` — scalar, all supported kernels)
 
 ```c
 #ifdef OPENSHIELD_SYNPROXY
-    int synproxy_ret = synproxy_dispatch(ctx, &info, cfg, now);
-    if (synproxy_ret == XDP_TX)       return XDP_TX;   // SYN-ACK sent
-    if (synproxy_ret == XDP_DROP)     return XDP_DROP;  // invalid cookie
-    if (synproxy_ret == XDP_PASS)     return XDP_PASS;  // valid cookie ACK
+    /* Scalar-only, non-terminal SYN gate. Reads ONLY pre-parsed scalar fields
+     * (no packet-pointer access, no version-specific helpers) so it verifies
+     * and loads on every kernel 5.15 → latest with zero user fixes. Actual SYN
+     * flood mitigation is delivered by the per-IP syn_pps_threshold rate
+     * limiter in the rate-limiting stage. */
+    if (synproxy_check_listener(ctx, &info, cfg) == STAGE_DROP)
+        return XDP_DROP;
 #endif
 ```
 
-Below kernel 5.15, the entire SYNPROXY block compiles away — the pipeline jumps directly from parse to panic breaker.
+The baseline gate never drops — it accounts SYNs for profiling and continues. On kernels ≥ 6.10 it provides a hook that an **opt-in** freplace module can hot-patch to add richer listener verification (`bpf_sk_lookup_tcp`). Below kernel 5.15 the block compiles away entirely.
 
 ### L7 Multislot (`OPENSHIELD_L7_MULTISLOT` — kernel ≥ 6.10)
 

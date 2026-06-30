@@ -127,9 +127,7 @@ validation:
 | `dynamic.mac_filter_enabled` | `bool` | `false` | `true` / `false` | L2 MAC address filtering | 🔄 |
 | `dynamic.mac_filter_mode` | `int` | `0` | `0` / `1` / `2` | 0=disabled, 1=whitelist, 2=blacklist | 🔄 |
 | `dynamic.mac_filter_entries` | `[]string` | `[]` | 6-byte hex strings | Up to 8 MAC addresses | 🔄 |
-| `dynamic.synproxy_enabled` | `bool` | `false` | `true` / `false` | TCP SYN cookie proxy | 🔄 |
-| `dynamic.synproxy_secret` | `string` | `""` | 64-bit encoded | Rolling SYN cookie secret (rotated every 5s) | 🔄 |
-| `dynamic.synproxy_timeout_sec` | `int` | `10` | `1` – `300` | SYN cookie validity duration | 🔄 |
+| `dynamic.synproxy_enabled` | `bool` | `false` | `true` / `false` | Enable the scalar SYN gate (rate-based; flood mitigation via `syn_pps_threshold`) | 🔄 |
 | `dynamic.l7_drop_signatures` | `[]L7Signature` | `nil` | array | Layer-7 pattern match rules | 🔄 |
 
 ### L7 Drop Signature Fields
@@ -282,8 +280,7 @@ dynamic:
   mac_filter_mode: 0
   mac_filter_entries: []
   synproxy_enabled: false
-  synproxy_secret: ""
-  synproxy_timeout_sec: 10
+  synproxy_enabled: false
   l7_drop_signatures: []
 
 whitelist:

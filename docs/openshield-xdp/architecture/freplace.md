@@ -2,9 +2,25 @@
 
 OpenShield-XDP supports **runtime replacement** of pipeline stages using the Linux kernel's `freplace` (function replace) BPF mechanism. This allows you to swap mitigation strategies, add debug telemetry, or test experimental filters **without unloading the XDP program** — meaning zero packet loss during the switch.
 
+::: warning Opt-in feature — not on by default
+freplace is an **advanced, opt-in** capability. It is **disabled by default** so that OpenShield loads on every supported kernel (5.15 → latest) with zero user fixes. Enable it explicitly with `make FREPLACE=1`, and only on **kernel ≥ 6.10**.
+
+The reason: older verifiers reject global BPF subprograms that take packet-derived pointer arguments ("Caller passes invalid args into func"). So by default the pipeline stages are compiled as `static __always_inline` and folded directly into the main program — fully portable, just not hot-patchable. The `make FREPLACE=1` build (kernel ≥ 6.10) switches them to global `noinline` subprograms that freplace can target.
+:::
+
 ## How It Works
 
-Five pipeline stages are declared as **`__attribute__((noinline))` global functions** in the main XDP program. These are real BPF subprograms with full BTF type information, making them eligible targets for `freplace`:
+The five replaceable pipeline stages share a single linkage macro, `STAGE_FN`, defined in `ebpf/headers/stages.h`:
+
+```c
+#ifdef OPENSHIELD_FREPLACE
+#define STAGE_FN __attribute__((noinline))   // kernel >= 6.10, make FREPLACE=1
+#else
+#define STAGE_FN static __always_inline       // portable default (all kernels)
+#endif
+```
+
+When built with `FREPLACE=1` on kernel ≥ 6.10, the stages become real BPF subprograms with full BTF type information, making them eligible targets for `freplace`. Their signatures (declared in `stages.h`) are:
 
 ```c
 // ebpf/headers/stages.h — declared as prototypes, implemented in openshield.bpf.c
@@ -61,7 +77,8 @@ flowchart TD
 
 | Requirement | Detail |
 |-------------|--------|
-| **Kernel version** | ≥ 5.11 (where `BPF_LINK_TYPE_FREPLACE` was stabilized) |
+| **Build flag** | `make FREPLACE=1` — opt-in; default builds inline the stages and cannot be hot-patched |
+| **Kernel version** | ≥ 6.10 — older verifiers reject global subprograms with packet-pointer args |
 | **BTF** | `CONFIG_DEBUG_INFO_BTF=y` — provides type information needed to match function signatures |
 | **libbpf** | ≥ 0.3 (for `bpf_link_create` with `BPF_F_REPLACE`) |
 | **cilium/ebpf** | ≥ 0.11 (for `link.AttachFreplace`) |
@@ -199,5 +216,5 @@ openshield-cli freplace detach stage_ban_check
 
 - **Signature must match exactly** — the replacement function must have the identical parameter list and return type as the original. BTF enforces this at attach time.
 - **No freplace-on-freplace** — you cannot replace a replacement. Detach first, then attach the new one (the `FreplaceManager` handles this automatically).
-- **Kernel ≥ 5.11 only** — older kernels do not support `BPF_LINK_TYPE_FREPLACE`.
+- **Opt-in build, kernel ≥ 6.10 only** — requires `make FREPLACE=1`; default builds inline the stages for universal portability and cannot be hot-patched. On kernels below 6.10 freplace is unavailable and everything else works identically.
 - **Map access is shared** — freplace modules access the same pinned maps as the main program. A buggy replacement can corrupt shared state.

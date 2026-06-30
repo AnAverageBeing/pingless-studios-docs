@@ -2,7 +2,7 @@
 
 ## What kernel version do I need?
 
-Linux ≥ 5.8. For freplace support (hot-patching), ≥ 5.11 with `CONFIG_DEBUG_INFO_BTF=y`.
+Linux ≥ 5.15 (loads on every kernel from 5.15 to latest with zero fixes). freplace hot-patching is opt-in: build with `make FREPLACE=1` on kernel ≥ 6.10 with `CONFIG_DEBUG_INFO_BTF=y`.
 
 ## Does this replace iptables/nftables?
 
@@ -14,7 +14,7 @@ No. OpenShield operates at the XDP layer (before kernel skb allocation). iptable
 
 ## Can SYNPROXY break legitimate connections?
 
-SYNPROXY is off by default. When enabled, it intercepts only the initial SYN and returning ACK. The kernel completes the real handshake once the cookie is verified. TCP options are preserved.
+SYNPROXY is off by default and is a **scalar, non-terminal** gate — it never drops legitimate traffic itself. It only accounts SYNs and lets the connection continue; SYN-flood mitigation is handled by the per-IP `syn_pps_threshold` rate limiter, so normal handshakes are untouched. There are no cookies, no SYN-ACK rewriting, and no TCP-option loss.
 
 ## Does this support XDP hardware offload?
 

@@ -37,7 +37,7 @@ flowchart TB
         RATE --> PASS["XDP_PASS"]
     end
 
-    subgraph Freplace["freplace Modules (kernel ≥ 5.11)"]
+    subgraph Freplace["freplace Modules (opt-in, kernel ≥ 6.10)"]
         FR1["stage_ban_check.o"]
         FR2["stage_conn_track.o"]
         FR3["stage_amp_check.o"]
@@ -46,7 +46,7 @@ flowchart TB
     end
 
     subgraph Maps["BPF Maps (pinned to /sys/fs/bpf)"]
-        MAPS["config_map · whitelist_map · bloom_map<br/>ban_map · ip_stats_map · global_stats_map<br/>syn_cookie_map · l7_sig_map · baseline_map<br/>subnet_ban_map · prefix_ban_map · panic_bucket_map<br/>new_source_map · prof_map · events_map"]
+        MAPS["config_map · whitelist_map · bloom_map<br/>ban_map · ip_stats_map · global_stats_map<br/>l7_sig_map · baseline_map<br/>subnet_ban_map · prefix_ban_map · panic_bucket_map<br/>new_source_map · prof_map · events_map"]
     end
 
     CLI --> Loader
@@ -67,7 +67,7 @@ flowchart TB
 |---------|-------------|
 | **16-stage pipeline** | Packets flow through ~16 ordered stages; any stage can drop the packet. |
 | **Bloom filter acceleration** | A 150K-entry Bloom filter does a fast negative-check before the HASH whitelist lookup, saving ~60-100ns per packet for non-whitelisted traffic. |
-| **freplace hot-patching** | Five pipeline stages are declared as `__attribute__((noinline))` global functions — they can be replaced at runtime without unloading the XDP program. |
+| **freplace hot-patching (opt-in)** | With `make FREPLACE=1` on kernel ≥ 6.10, five pipeline stages compile as `noinline` BPF subprograms that can be replaced at runtime without unloading the XDP program. Default builds inline these stages for universal kernel portability. |
 | **Dual-stack** | IPv4 and IPv6 are handled in separate paths with parallel map sets (`ban_map` / `ban_map_v6`, etc). |
 | **Per-CPU zero-lock** | `global_stats_map`, `prof_map`, and `panic_bucket_map` use `BPF_MAP_TYPE_PERCPU_ARRAY` — atomic increments without lock contention. |
 | **Map pinning** | All maps are pinned to `/sys/fs/bpf/openshield/` — they survive loader restarts. |
@@ -95,11 +95,10 @@ flowchart TB
 | `prof_map` | PERCPU_ARRAY | 27 | Profiling path counters (hot-path profiling) |
 | `panic_bucket_map` | PERCPU_ARRAY | 1 | Per-CPU panic circuit breaker counters |
 | `events_map` | RINGBUF | 256 KB | Event ring buffer for userspace alerts |
-| `syn_cookie_map` | LRU_HASH | 100K | SYNPROXY cookie store (kernel ≥ 5.15) |
 | `l7_sig_map` | ARRAY | 16 | L7 byte-pattern signature slots |
 | `bloom_map` | ARRAY | 150K | Bloom filter for fast whitelist membership test |
 
-**Total memory footprint: ~37 MB** (dominated by `ip_stats_map` + `ip_stats_map_v6` at ~17 MB each for 100K LRU_HASH entries).
+**Total memory footprint: ~32 MB** (dominated by `ip_stats_map` + `ip_stats_map_v6` at ~17 MB each for 100K LRU_HASH entries).
 
 ## Fast-Path Flags
 

@@ -22,7 +22,7 @@ Root is required because `/sys/fs/bpf` and `/var/run` need write access.
 - `/sys/fs/bpf/config_map`, `/sys/fs/bpf/global_stats_map`, `/sys/fs/bpf/ip_stats_map`
 - `/sys/fs/bpf/ban_map`, `/sys/fs/bpf/whitelist_map`, `/sys/fs/bpf/baseline_map`
 - `/sys/fs/bpf/panic_bucket_map`, `/sys/fs/bpf/events_map`, `/sys/fs/bpf/prof_map`
-- `/sys/fs/bpf/l7_sig_map`, `/sys/fs/bpf/prefix_ban_map`, `/sys/fs/bpf/syn_cookie_map`
+- `/sys/fs/bpf/l7_sig_map`, `/sys/fs/bpf/prefix_ban_map`, `/sys/fs/bpf/bloom_map`
 - `/sys/fs/bpf/xdp_prog`
 - IPv6 variants: `whitelist_map_v6`, `ip_stats_map_v6`, `ban_map_v6`, `subnet_ban_map`, `subnet_ban_map_v6`
 - Entire `/sys/fs/bpf/openshield` directory
