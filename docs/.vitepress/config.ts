@@ -122,13 +122,6 @@ export default withMermaid({
         },
       ]
     },
-  ],
-
-  
-  socialLinks: [
-      { icon: 'github', link: 'https://github.com/AnAverageBeing' },
-      { icon: 'discord', link: 'https://discord.gg/qgBMREWWgp' },
-  
     {
       text: 'Bandwidth Manager',
       collapsed: false,
@@ -168,6 +161,12 @@ export default withMermaid({
       ]
     },
   ],
+
+  
+  socialLinks: [
+      { icon: 'github', link: 'https://github.com/AnAverageBeing' },
+      { icon: 'discord', link: 'https://discord.gg/qgBMREWWgp' },
+    ],
 
     footer: {
       message: 'Maintained by <a href="https://github.com/AnAverageBeing">AnAverageBeing</a> — <a href="https://studio.pingless.org">PingLess Studios</a>',
