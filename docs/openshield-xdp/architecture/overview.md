@@ -71,7 +71,7 @@ flowchart TB
 | **Dual-stack** | IPv4 and IPv6 are handled in separate paths with parallel map sets (`ban_map` / `ban_map_v6`, etc). |
 | **Per-CPU zero-lock** | `global_stats_map`, `prof_map`, and `panic_bucket_map` use `BPF_MAP_TYPE_PERCPU_ARRAY` — atomic increments without lock contention. |
 | **Map pinning** | All maps are pinned to `/sys/fs/bpf/openshield/` — they survive loader restarts. |
-| **Compile-time feature gating** | `OPENSHIELD_SYNPROXY`, `OPENSHIELD_L7_MULTISLOT`, `OPENSHIELD_GLOBAL_DETECT`, and `OPENSHIELD_ENTROPY` are enabled based on kernel version detection in the Makefile. |
+| **Compile-time feature gating** | `OPENSHIELD_GLOBAL_DETECT` and `OPENSHIELD_ENTROPY` (kernel ≥ 6.10) and `OPENSHIELD_SYNPROXY` (kernel ≥ 5.15) are enabled based on kernel version detection in the Makefile. The L7 matcher and its 16 slots are always compiled (no gate). |
 | **Spinlock-protected global state** | `new_source_map` uses `struct bpf_spin_lock` for safe concurrent access to the new-source flood counter. |
 
 ## Map Catalog

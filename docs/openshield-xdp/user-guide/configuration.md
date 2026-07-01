@@ -82,6 +82,7 @@ Set `rate_limit_mode: token_bucket` to use a token-based approach instead of sco
 | `filter_bogon` | `true` | Drop packets from bogon address ranges |
 | `filter_bogus_tcp` | `true` | Drop packets with impossible TCP flag combinations |
 | `filter_malformed` | `true` | Drop packets with malformed headers |
+| `drop_fragments` | `false` | Drop fragmented IP packets (MF flag or non-zero fragment offset) |
 
 ## `dynamic` — Advanced detection engine
 
@@ -239,7 +240,7 @@ Some configuration fields depend on kernel features. OpenShield-XDP auto-detects
 ```mermaid
 flowchart TD
     A["Kernel Version<br/>uname -r"] --> B{"Kernel ≥ 6.10?"}
-    B -->|"yes"| C["✅ All Features<br/>L7 Multislot + Global Detect + Entropy"]
+    B -->|"yes"| C["✅ All Features<br/>Global Detect + Entropy"]
     B -->|"no"| D{"Kernel ≥ 5.15?"}
     D -->|"yes"| E["✅ Baseline + scalar SYNPROXY"]
     D -->|"no"| H["⚠️ Unsupported<br/>minimum kernel 5.15"]

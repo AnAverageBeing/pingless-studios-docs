@@ -213,12 +213,8 @@ The top-level Makefile auto-detects the running kernel version and sets feature 
 ```makefile
 KERNEL_VER := $(shell uname -r | cut -d. -f1,2)
 
-# L7 multisig (kernel >= 6.10)
-ifneq (...)
-  BPF_FEATURES += -DOPENSHIELD_L7_MULTISLOT
-endif
-
 # Entropy + global detection (kernel >= 6.10)
+# (The L7 signature matcher is NOT gated — all 16 slots compile on every kernel.)
 ifneq (...)
   BPF_FEATURES += -DOPENSHIELD_GLOBAL_DETECT -DOPENSHIELD_ENTROPY
 endif

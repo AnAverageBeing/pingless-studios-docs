@@ -259,7 +259,7 @@ Whitelist maps use `BPF_MAP_TYPE_HASH` (not LRU) because whitelist entries must 
 | **Value** | `struct l7_sig` (proto, port, offset, mask, pattern, min_payload) |
 | **Max Entries** | 16 |
 | **Memory** | ~1 KB |
-| **Feature Gate** | Slots 1-15 require `OPENSHIELD_L7_MULTISLOT` (kernel ≥ 6.10) |
+| **Feature Gate** | None — all 16 slots are always compiled and available on every supported kernel |
 | **Purpose** | Configurable byte-pattern matching at fixed offsets. Disabled slots have `proto == 0`. |
 
 ### 9. Bloom Filter Map

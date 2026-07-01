@@ -73,6 +73,7 @@ Each per-second evaluation window, the suspicion score is multiplied by `suspici
 | `validation.filter_bogon` | `bool` | `true` | `true` / `false` | Drop packets with bogon (unallocated) source IPs | 🔄 |
 | `validation.filter_bogus_tcp` | `bool` | `true` | `true` / `false` | Drop impossible TCP flag combinations (e.g., SYN+FIN) | 🔄 |
 | `validation.filter_malformed` | `bool` | `true` | `true` / `false` | Drop malformed headers (invalid lengths, truncated options) | 🔄 |
+| `validation.drop_fragments` | `bool` | `false` | `true` / `false` | Drop fragmented IP packets (MF flag or non-zero fragment offset). Off by default — enabling can break legitimate large UDP/DNS traffic | 🔄 |
 
 ```yaml
 validation:
@@ -80,6 +81,7 @@ validation:
   filter_bogon: true
   filter_bogus_tcp: true
   filter_malformed: true
+  drop_fragments: false
 ```
 
 ## `dynamic` — Anomaly Detection & Attack Response
@@ -236,6 +238,7 @@ validation:
   filter_bogon: true
   filter_bogus_tcp: true
   filter_malformed: true
+  drop_fragments: false
 
 dynamic:
   enabled: true

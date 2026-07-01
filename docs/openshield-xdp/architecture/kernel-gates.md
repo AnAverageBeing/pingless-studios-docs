@@ -43,29 +43,26 @@ Feature gates are evaluated at **build time**, not at runtime. If you upgrade yo
 
 **Why scalar-only?** The gate reads **only** pre-parsed scalar fields from `packet_info` — no packet-pointer access and no version-specific helpers (no `bpf_sk_lookup_tcp`, no cookie crypto, no `XDP_TX`). This guarantees it verifies and loads on **every** supported kernel (5.15 → latest) with zero user fixes. Actual SYN-flood mitigation is delivered by the per-IP `syn_pps_threshold` rate limiter. On kernels ≥ 6.10 an **opt-in** freplace module can hot-patch this hook to add richer listener verification.
 
-### `OPENSHIELD_L7_MULTISLOT`
+### L7 signatures — not gated (all 16 slots, every kernel)
 
-| Property | Value |
-|----------|-------|
-| **Minimum kernel** | 6.10 |
-| **Detection** | `test $(KERNEL_MAJOR) -ge 7 -o \( $(KERNEL_MAJOR) -eq 6 -a $(KERNEL_MINOR) -ge 10 \)` |
-| **What it gates** | L7 signature slots 1-15 (slot 0 is always available) |
-| **Compiles to** | Full 16-slot unrolled loop |
-| **Below threshold** | Only slot 0 is checked; slots 1-15 silently ignored |
+The L7 signature matcher is **not** behind a kernel gate. It always compiles a single `#pragma unroll` loop over all 16 slots of `l7_sig_map`, and this verifies and loads on every supported kernel from 5.15. There is no "slot 0 only" mode.
 
 ```c
-// Without OPENSHIELD_L7_MULTISLOT: single slot 0 check
-// With OPENSHIELD_L7_MULTISLOT: #pragma unroll for (i = 0; i < 16; i++)
+// openshield.bpf.c — always compiled, all kernels
+#pragma unroll
+for (u32 i = 0; i < 16; i++) { /* check l7_sig_map[i] */ }
 ```
 
-**Why kernel ≥ 6.10?** The 16-slot unrolled loop requires the BPF verifier to handle larger program sizes and more complex control flow. Kernel 6.10 relaxed verifier limits sufficiently for this pattern.
+::: tip Note
+Earlier builds shipped an `OPENSHIELD_L7_MULTISLOT` flag intended to gate slots 1-15 at kernel 6.10. The flag was never referenced by the BPF source (the loop was always 16 slots), so it has been removed to avoid a misleading, dead build gate. L7 protection is identical on every supported kernel.
+:::
 
 ### `OPENSHIELD_GLOBAL_DETECT`
 
 | Property | Value |
 |----------|-------|
 | **Minimum kernel** | 6.10 |
-| **Detection** | Same as `OPENSHIELD_L7_MULTISLOT` (combined check) |
+| **Detection** | `test $(KERNEL_MAJOR) -gt 6 -o \( $(KERNEL_MAJOR) -eq 6 -a $(KERNEL_MINOR) -ge 10 \)` |
 | **What it gates** | SYN/FIN ratio detection + entropy spoofing detection |
 | **Compiles to** | `check_global_detection()` function call |
 | **Below threshold** | No-op — global detection stage skipped |
@@ -104,7 +101,7 @@ flowchart LR
         C["Full core pipeline<br/>+ scalar rate-based SYNPROXY"]
     end
     subgraph K610["Kernel ≥ 6.10"]
-        D["L7 Multislot<br/>Global Detection<br/>Entropy Analysis<br/>freplace hot-patching (opt-in: make FREPLACE=1)"]
+        D["Global Detection<br/>Entropy Analysis<br/>freplace hot-patching (opt-in: make FREPLACE=1)"]
     end
     K515 --> K610
 ```
@@ -113,7 +110,6 @@ flowchart LR
 |-------------|--------|---------|
 | *(none required)* | 5.15+ | Core pipeline: MAC filter, parse, panic breaker, whitelist, ban check, validation, L4, UDP amp, IP stats, new-source flood, connection tracking, window reset, rate limiting |
 | `OPENSHIELD_SYNPROXY` | 5.15+ | Scalar, rate-based SYN gate (no cookies, no helpers) |
-| `OPENSHIELD_L7_MULTISLOT` | 6.10+ | L7 signature slots 1-15 |
 | `OPENSHIELD_GLOBAL_DETECT` | 6.10+ | SYN/FIN ratio + entropy spoofing detection |
 | `OPENSHIELD_ENTROPY` | 6.10+ | Per-packet entropy bucket tracking |
 
@@ -137,7 +133,6 @@ openshield status --features
 # Output:
 #   Kernel: 6.8.0-45-generic
 #   SYNPROXY: enabled
-#   L7 Multislot: disabled (need kernel >= 6.10)
 #   Global Detection: disabled (need kernel >= 6.10)
 #   Entropy: disabled (need kernel >= 6.10)
 ```

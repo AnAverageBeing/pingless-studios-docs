@@ -51,7 +51,7 @@ flowchart TD
 | 8 | **Source Validation** | Private/bogon IP filtering (`10.0.0.0/8`, `127.0.0.0/8`, etc). Controlled by `enable_private_filter`. | — | — |
 | 9 | **L4 Validation** | TCP flag sanity (`enable_bogus_tcp_filter`) and L4 bounds check (`enable_malformed_filter`). Drops SYN+FIN, null flags, and truncated L4 payloads. | — | — |
 | 10 | **UDP Amplification** | Detects amplified DNS responses (`sport=53, QR=1, large payload`) and generic UDP reflection on configurable ports (8 slots). | ✅ | — |
-| 11 | **L7 Signatures** | Byte-pattern matching at configurable offsets. Up to 16 signature slots (slot 0 always available; slots 1-15 require `OPENSHIELD_L7_MULTISLOT`). | ✅ | `OPENSHIELD_L7_MULTISLOT` (≥ 6.10) for slots 1-15 |
+| 11 | **L7 Signatures** | Byte-pattern matching at configurable offsets. All 16 signature slots are always checked (single unrolled loop; no kernel gate). | ✅ | — |
 | 12 | **IP Stats Lookup** | Lookup or create `ip_stats` entry. New IPs get a fresh stats struct with token bucket pre-filled. | — | — |
 | 13 | **New-Source Flood** | If the global new-source creation rate exceeds `new_source_limit`, bans new IPs for `new_source_ban_duration_sec`. Uses spinlock-protected `new_source_map`. | — | — |
 | 14 | **Connection Tracking** | Detects blind TCP ACK/RST floods by tracking `last_syn_seen_ns`. Drops non-SYN TCP packets from IPs that haven't sent a SYN within `ct_syn_timeout_sec`. | ✅ | — |
@@ -60,7 +60,7 @@ flowchart TD
 
 ## Feature-Gated Stages
 
-Two stages are compile-time gated based on the running kernel version:
+Some stages are compile-time gated based on the running kernel version. Note the L7 signature matcher is **not** gated — all 16 slots are always compiled and load on every supported kernel.
 
 ### SYNPROXY (`OPENSHIELD_SYNPROXY` — scalar, all supported kernels)
 
@@ -78,9 +78,9 @@ Two stages are compile-time gated based on the running kernel version:
 
 The baseline gate never drops — it accounts SYNs for profiling and continues. On kernels ≥ 6.10 it provides a hook that an **opt-in** freplace module can hot-patch to add richer listener verification (`bpf_sk_lookup_tcp`). Below kernel 5.15 the block compiles away entirely.
 
-### L7 Multislot (`OPENSHIELD_L7_MULTISLOT` — kernel ≥ 6.10)
+### Global Detection & Entropy (`OPENSHIELD_GLOBAL_DETECT`, `OPENSHIELD_ENTROPY` — kernel ≥ 6.10)
 
-The base L7 filter uses slot 0 only. With `OPENSHIELD_L7_MULTISLOT`, slots 1-15 are also checked via an unrolled loop. Below kernel 6.10, slots 1-15 are silently ignored (the map entries exist but are never read).
+SYN/FIN ratio detection, entropy-based spoof detection, and per-packet entropy bucket tracking are gated at kernel 6.10. Below 6.10 these blocks compile away; the rest of the pipeline (including all 16 L7 signature slots) is unaffected.
 
 ::: warning Kernel Version Detection
 The Makefile detects the running kernel via `uname -r` at build time. Feature gates are **compile-time only** — you must rebuild after a kernel upgrade to enable new features. See [Kernel Feature Gates](./kernel-gates.md) for details.

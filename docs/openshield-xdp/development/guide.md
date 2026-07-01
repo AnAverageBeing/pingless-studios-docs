@@ -82,7 +82,7 @@ Feature flags are auto-detected from your running kernel. To override:
 
 ```bash
 # Force all features on (requires kernel ≥ 6.10)
-BPF_FEATURES="-DOPENSHIELD_L7_MULTISLOT -DOPENSHIELD_GLOBAL_DETECT -DOPENSHIELD_ENTROPY -DOPENSHIELD_SYNPROXY" make all
+BPF_FEATURES="-DOPENSHIELD_GLOBAL_DETECT -DOPENSHIELD_ENTROPY -DOPENSHIELD_SYNPROXY" make all
 
 # Minimum build (no optional features)
 BPF_FEATURES="" make all
