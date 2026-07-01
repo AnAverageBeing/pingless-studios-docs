@@ -10,10 +10,6 @@ head:
       content: Per-container speed limits, daily quotas, kernel-level tc enforcement, webhook notifications. Built for production.
 ---
 
-<script setup>
-import { VPHomeHero, VPHomeFeatures } from 'vitepress'
-</script>
-
 # Bandwidth Manager
 
 **Production-grade Docker bandwidth management** — per-container speed limits, daily traffic quotas, kernel‑level `tc` enforcement.
