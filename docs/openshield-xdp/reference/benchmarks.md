@@ -72,9 +72,8 @@ Use `mcu-hitter` (included in `tools/`):
 ### Step 1: Build and Install
 
 ```bash
-git clone https://github.com/AnAverageBeing/OpenShield-XDP.git
-cd OpenShield-XDP
-./install.sh
+# Clone the repository (requires access)
+# See https://pingless.dev for licensing
 ```
 
 ### Step 2: Configure Test Thresholds

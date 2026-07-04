@@ -35,8 +35,10 @@ ip link show | grep xdp
 ## Cloning the Repository
 
 ```bash
-git clone https://github.com/AnAverageBeing/OpenShield-XDP.git
-cd OpenShield-XDP
+```bash
+# Clone the repository (requires access)
+# See https://pingless.dev for licensing
+```
 ```
 
 ## Building from Source

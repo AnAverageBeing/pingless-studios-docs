@@ -15,9 +15,10 @@
 ## Automated Install
 
 ```bash
-git clone https://github.com/AnAverageBeing/OpenShield-XDP.git
-cd OpenShield-XDP
-sudo ./install.sh
+```bash
+# Clone the repository (requires access)
+# See https://pingless.dev for licensing
+```
 ```
 
 Installs clang, llvm, bpftool, libbpf, Go (if missing), compiles BPF + Go, generates config, sets up systemd service. Runs `openshield fix` as a post-install step.
