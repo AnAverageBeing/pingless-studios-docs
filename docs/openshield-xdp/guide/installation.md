@@ -17,7 +17,7 @@
 ```bash
 ```bash
 # Clone the repository (requires access)
-# See https://pingless.dev for licensing
+# See https://studio.pingless.org for licensing
 ```
 ```
 

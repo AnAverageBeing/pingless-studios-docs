@@ -73,7 +73,7 @@ Use `mcu-hitter` (included in `tools/`):
 
 ```bash
 # Clone the repository (requires access)
-# See https://pingless.dev for licensing
+# See https://studio.pingless.org for licensing
 ```
 
 ### Step 2: Configure Test Thresholds
