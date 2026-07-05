@@ -1,39 +1,46 @@
 ---
 layout: home
+
 hero:
   name: "PingLess Studios"
-  text: "Open-source infrastructure tools"
-  tagline: High-performance, security-focused software for the modern internet
+  text: "Open-source infrastructure & security"
+  tagline: High-performance tools for servers, networks, and applications
   image:
     src: /pingles.png
     alt: PingLess Studios
   actions:
     - theme: brand
-      text: View Docs
-      link: /openshield-xdp/
+      text: Explore Projects
+      link: /projects/
+    - theme: alt
+      text: Contact Us
+      link: https://studio.pingless.org
     - theme: alt
       text: GitHub
       link: https://github.com/AnAverageBeing
 
 features:
   -
-    title: OpenShield-XDP
-    details: XDP-native DDoS mitigation at line rate. 16-stage pipeline, Bloom filter whitelist acceleration, freplace hot-patching, 42 attack vectors detected.
+    title: 🔒 OpenShield-XDP
+    details: XDP-native DDoS mitigation at line rate. 16-stage pipeline, 42 attack vectors, Bloom filter acceleration, freplace hot-patching, 10 protection profiles with zero-tune presets.
     link: /openshield-xdp/
   -
-    title: RouteX Reverse Proxy
+    title: 🔀 RouteX Reverse Proxy
     details: Production-grade L3/L4/L7 reverse proxy. Game protocol detection (MC Java/Bedrock/FiveM/GMod), behavioral scoring, bandwidth quotas, 36 REST API endpoints.
     link: /routex/
   -
-    title: Bandwidth Manager
-    details: Production-grade Docker container bandwidth management. Per-container speed limits, daily quotas, kernel-level tc enforcement, modern TUI, webhook alerts, zero external dependencies.
+    title: 📊 Bandwidth Manager
+    details: Per-container Docker bandwidth management. Speed limits, daily quotas, kernel-level tc enforcement, modern TUI, webhook alerts, zero external dependencies.
     link: /bandwidth-manager/
   -
-    title: S3 Database Storage for VPS
-    details: Automatic PostgreSQL and MySQL/MariaDB backups to any S3-compatible storage. Interactive setup, systemd scheduling, retention, off-site + local copies, Discord alerts, and a built-in extractor.
+    title: 💾 S3 Database Storage for VPS
+    details: Automatic PostgreSQL and MySQL/MariaDB backups to any S3-compatible storage. Interactive setup, systemd scheduling, retention, off-site + local copies, Discord alerts, extractor.
     link: /s3-database-storage-for-vps/
   -
-    title: More Coming Soon
+    title: 📡 More Coming Soon
     details: PingLess Studios is actively developing new infrastructure and security tools. Follow on GitHub for updates.
     link: https://github.com/AnAverageBeing
+
+footer:
+  message: "© 2025-2026 PingLess Studios — <a href='https://studio.pingless.org'>studio.pingless.org</a>"
 ---

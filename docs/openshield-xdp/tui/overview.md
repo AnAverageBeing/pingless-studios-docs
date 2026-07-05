@@ -53,16 +53,17 @@ flowchart TD
 The TUI renders one of 7 screens at a time. Each screen's view function accesses the current `Snapshot` data and produces a styled string using lipgloss:
 
 ```mermaid
-flowchart LR
-    S[Snapshot received] --> U[Update: store snapshot, push charts]
-    U --> V[View: render current screen]
-    V --> D[Dashboard]
-    V --> T[Traffic]
-    V --> A[Attacks]
-    V --> B[Bans]
-    V --> L[Logs]
-    V --> ST[Status]
-    V --> C[Config]
+flowchart TD
+    S["Snapshot received"]
+    S --> U["Update: store snapshot,<br/>push charts"]
+    U --> V["View: render current screen"]
+    V --> D["1. Dashboard"]
+    V --> T["2. Traffic"]
+    V --> A["3. Attacks"]
+    V --> B["4. Bans"]
+    V --> L["5. Logs"]
+    V --> ST["6. Status"]
+    V --> C["7. Config Editor"]
 ```
 
 The **status bar** (top of every screen) shows: title, attack state (green/red), interface name, current PPS, current BPS, uptime — with a gradient color based on attack intensity.

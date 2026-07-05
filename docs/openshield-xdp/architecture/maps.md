@@ -338,7 +338,7 @@ These flags are checked at the **start of each relevant pipeline section** befor
 ## Map Access Patterns
 
 ```mermaid
-flowchart LR
+flowchart TD
     subgraph "Every Packet"
         CFG["config_map<br/>(read)"] 
         WL["whitelist_map<br/>(read)"]

@@ -108,29 +108,32 @@ That's it. The script installs the binary, drops in a systemd unit, and starts t
 ## Architecture
 
 ```mermaid
-flowchart LR
-    subgraph Host
+flowchart TD
+    subgraph Host["Host (Container Runtime)"]
         direction TB
-        DE[Docker Engine /containerd] -->|"event stream (start / stop / die)"| DISC[Container Discovery]
-        DISC -->|"label parsing"| RULES[Rule Builder]
-        RULES -->|"htb + fq_codel"| TC[tc Subsystem]
-        TC -->|"attached to"| VETH[veth Pairs]
-        VETH --> C1[Container A]
-        VETH --> C2[Container B]
-        VETH --> C3[Container C]
+        DE["Docker Engine /containerd"]
+        DE -->|"event stream"| DISC["Container Discovery"]
+        DISC -->|"label parsing"| RULES["Rule Builder"]
+        RULES -->|"htb + fq_codel"| TC["tc Subsystem"]
+        TC -->|"attached to"| VETH["veth Pairs"]
+        VETH --> C1["Container A"]
+        VETH --> C2["Container B"]
+        VETH --> C3["Container C"]
     end
 
-    subgraph Userspace
-        CLI[bwm CLI] -->|"gRPC / HTTP"| SOCKET[Unix Socket]
-        TUI[bwm tui] --> SOCKET
-        SOCKET --> DAEMON[bwm-daemon]
+    subgraph Userspace["Userspace Layer"]
+        direction TB
+        CLI["bwm CLI"] -->|"gRPC / HTTP"| SOCKET["Unix Socket"]
+        TUI["bwm tui"] --> SOCKET
+        SOCKET --> DAEMON["bwm-daemon"]
         DAEMON --> DE
-        DAEMON --> SQLITE[(bandwidth.db)]
-        DAEMON --> WEBHOOK[Webhook Dispatcher]
+        DAEMON --> SQLITE["bandwidth.db"]
+        DAEMON --> WEBHOOK["Webhook Dispatcher"]
     end
 
-    WEBHOOK --> DISCORD[Discord]
-    WEBHOOK --> SLACK[Slack]
+    Host --> Userspace
+    WEBHOOK --> DISCORD["Discord"]
+    WEBHOOK --> SLACK["Slack"]
 ```
 
 ### Control Flow

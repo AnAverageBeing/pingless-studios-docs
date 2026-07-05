@@ -96,19 +96,15 @@ Earlier builds shipped an `OPENSHIELD_L7_MULTISLOT` flag intended to gate slots 
 ## Feature Gate Summary
 
 ```mermaid
-flowchart LR
-    subgraph K515["Kernel ≥ 5.15 (baseline)"]
-        C["Full core pipeline<br/>+ scalar rate-based SYNPROXY"]
-    end
-    subgraph K610["Kernel ≥ 6.10"]
-        D["Global Detection<br/>Entropy Analysis<br/>freplace hot-patching (opt-in: make FREPLACE=1)"]
-    end
+flowchart TD
+    K515["Kernel ≥ 5.15 (baseline)<br/>Full core pipeline<br/>Scalar rate-based SYNPROXY<br/>16-slot L7 always compiled"]
+    K610["Kernel ≥ 6.10<br/>Global Detection: SYN/FIN ratio + entropy<br/>Entropy Analysis: per-packet bucket tracking<br/>freplace hot-patching (opt-in: make FREPLACE=1)"]
     K515 --> K610
 ```
 
 | Feature Gate | Kernel | Feature |
 |-------------|--------|---------|
-| *(none required)* | 5.15+ | Core pipeline: MAC filter, parse, panic breaker, whitelist, ban check, validation, L4, UDP amp, IP stats, new-source flood, connection tracking, window reset, rate limiting |
+| *(none required)* | 5.15+ | Core pipeline: MAC filter, parse, panic breaker, whitelist, ban check, validation, L4, UDP amp, L7 (16 slots), IP stats, new-source flood, connection tracking, window reset, rate limiting |
 | `OPENSHIELD_SYNPROXY` | 5.15+ | Scalar, rate-based SYN gate (no cookies, no helpers) |
 | `OPENSHIELD_GLOBAL_DETECT` | 6.10+ | SYN/FIN ratio + entropy spoofing detection |
 | `OPENSHIELD_ENTROPY` | 6.10+ | Per-packet entropy bucket tracking |
