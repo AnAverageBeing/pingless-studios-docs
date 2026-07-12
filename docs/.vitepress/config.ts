@@ -197,6 +197,42 @@ export default withMermaid({
         }
       ]
     },
+    {
+      text: 'Penetration-v3',
+      collapsed: true,
+      items: [
+        {
+          text: 'Getting Started',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/pentest-v3/' },
+            { text: 'Installation', link: '/pentest-v3/getting-started/installation' }
+          ]
+        },
+        {
+          text: 'Configuration',
+          collapsed: true,
+          items: [
+            { text: 'Reference', link: '/pentest-v3/configuration/reference' }
+          ]
+        },
+        {
+          text: 'User Guide',
+          collapsed: true,
+          items: [
+            { text: 'CLI Reference', link: '/pentest-v3/user-guide/cli' },
+            { text: 'Methods', link: '/pentest-v3/user-guide/methods' }
+          ]
+        },
+        {
+          text: 'Architecture',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/pentest-v3/architecture/overview' }
+          ]
+        }
+      ]
+    },
   ],
 
   

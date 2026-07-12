@@ -37,6 +37,10 @@ features:
     details: Automatic PostgreSQL and MySQL/MariaDB backups to any S3-compatible storage. Interactive setup, systemd scheduling, retention, off-site + local copies, Discord alerts, extractor.
     link: /s3-database-storage-for-vps/
   -
+    title: ⚡ Penetration-v3
+    details: Advanced traffic generation and packet crafting tool for authorized penetration testing. 38 methods, IPv6 raw sockets, HTTP/2 Rapid Reset, amplification scanning, and auto proxy rotation.
+    link: /pentest-v3/
+  -
     title: 📡 More Coming Soon
     details: PingLess Studios is actively developing new infrastructure and security tools. Follow on GitHub for updates.
     link: https://github.com/AnAverageBeing
