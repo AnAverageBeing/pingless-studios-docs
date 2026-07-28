@@ -233,6 +233,45 @@ export default withMermaid({
         }
       ]
     },
+    {
+      text: 'Bandwidth Monitor (Pterodactyl)',
+      collapsed: true,
+      items: [
+        {
+          text: 'Getting Started',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/pterodactyl-bandwidth-monitor/' },
+            { text: 'Installation', link: '/pterodactyl-bandwidth-monitor/getting-started/installation' },
+            { text: 'Quick Start', link: '/pterodactyl-bandwidth-monitor/getting-started/quick-start' },
+          ]
+        },
+        {
+          text: 'Configuration',
+          collapsed: true,
+          items: [
+            { text: 'Reference', link: '/pterodactyl-bandwidth-monitor/configuration/reference' }
+          ]
+        },
+        {
+          text: 'User Guide',
+          collapsed: true,
+          items: [
+            { text: 'Admin Panel', link: '/pterodactyl-bandwidth-monitor/user-guide/admin-panel' },
+            { text: 'CLI Reference', link: '/pterodactyl-bandwidth-monitor/user-guide/cli' },
+            { text: 'REST API', link: '/pterodactyl-bandwidth-monitor/user-guide/api' },
+          ]
+        },
+        {
+          text: 'Architecture',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/pterodactyl-bandwidth-monitor/architecture/overview' },
+            { text: 'Enforcement Engine', link: '/pterodactyl-bandwidth-monitor/architecture/enforcement' },
+          ]
+        }
+      ]
+    },
   ],
 
   

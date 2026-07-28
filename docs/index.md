@@ -41,6 +41,10 @@ features:
     details: Advanced traffic generation and packet crafting tool for authorized penetration testing. 38 methods, IPv6 raw sockets, HTTP/2 Rapid Reset, amplification scanning, and auto proxy rotation.
     link: /pentest-v3/
   -
+    title: 🎮 Bandwidth Monitor for Pterodactyl
+    details: Per-server network monitoring and bandwidth control for Pterodactyl panels. RX/TX speed caps, day/week/month quotas, throttle or suspend on exceed, pairing-token node agents, dashboards, reports and predictions in the admin UI.
+    link: /pterodactyl-bandwidth-monitor/
+  -
     title: 📡 More Coming Soon
     details: PingLess Studios is actively developing new infrastructure and security tools. Follow on GitHub for updates.
     link: https://github.com/AnAverageBeing

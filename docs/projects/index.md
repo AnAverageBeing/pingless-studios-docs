@@ -30,5 +30,10 @@ Advanced traffic generation and packet crafting tool for authorized penetration 
 
 [Documentation →](/pentest-v3/) · [GitHub →](https://github.com/AnAverageBeing/Penetration-v3)
 
+## 🎮 Bandwidth Monitor for Pterodactyl
+Per-server network monitoring and bandwidth control for Pterodactyl panels. A Blueprint panel extension plus a Go agent on each Wings node: RX/TX speed caps via tc, day/week/month quotas per direction, throttle/suspend/log-only exceed actions, per-node pairing tokens, hourly/daily rollups, usage predictions, and reports in a native AdminLTE admin UI.
+
+[Documentation →](/pterodactyl-bandwidth-monitor/) · [Contact →](https://studio.pingless.org)
+
 ## 📦 More Projects
 Follow [PingLess Studios on GitHub](https://github.com/AnAverageBeing) for new projects and updates.
