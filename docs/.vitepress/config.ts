@@ -91,6 +91,42 @@ export default withMermaid({
       ]
     },
     {
+      text: 'LiteShield-XDP',
+      collapsed: true,
+      items: [
+        {
+          text: 'Getting Started',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/liteshield-xdp/' },
+            { text: 'Installation', link: '/liteshield-xdp/getting-started/installation' },
+          ]
+        },
+        {
+          text: 'Configuration',
+          collapsed: true,
+          items: [
+            { text: 'Reference', link: '/liteshield-xdp/configuration/reference' },
+          ]
+        },
+        {
+          text: 'User Guide',
+          collapsed: true,
+          items: [
+            { text: 'CLI Reference', link: '/liteshield-xdp/user-guide/cli' },
+            { text: 'TUI Guide', link: '/liteshield-xdp/user-guide/tui' },
+          ]
+        },
+        {
+          text: 'Architecture',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/liteshield-xdp/architecture/overview' },
+          ]
+        },
+      ]
+    },
+    {
       text: 'RouteX Reverse Proxy',
       collapsed: true,
       items: [

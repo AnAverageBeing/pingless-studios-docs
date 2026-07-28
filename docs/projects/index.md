@@ -40,5 +40,10 @@ A calm, Apple-grade sidebar theme for Pterodactyl Panel, built on Blueprint. Rep
 
 [Documentation →](/glacier/) · [Contact →](https://studio.pingless.org)
 
+## 🛡️ LiteShield-XDP
+Free, minimal XDP (eBPF) firewall for Linux 5.15+. One XDP program, one Go binary, one YAML config — per-source-IP rate limits, auto-ban, live whitelist/blacklist, built-in status TUI, and Discord webhook alerts. No license server, no daemons, MIT-licensed.
+
+[Documentation →](/liteshield-xdp/) · [GitHub →](https://github.com/AnAverageBeing/LiteShield-XDP)
+
 ## 📦 More Projects
 Follow [PingLess Studios on GitHub](https://github.com/AnAverageBeing) for new projects and updates.

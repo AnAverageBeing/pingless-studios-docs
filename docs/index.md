@@ -49,6 +49,10 @@ features:
     details: A calm, Apple-grade sidebar theme for Pterodactyl Panel. Dark and light palettes, glass, 16 background patterns, console zones editor, dashboard cards, tab manager and Ctrl+K search — zero core-file replacement.
     link: /glacier/
   -
+    title: 🛡️ LiteShield-XDP
+    details: Free, minimal XDP (eBPF) firewall for Linux 5.15+. One XDP program, one Go binary, one YAML config — per-IP rate limiting, auto-ban, live TUI, Discord alerts.
+    link: /liteshield-xdp/
+  -
     title: 📡 More Coming Soon
     details: PingLess Studios is actively developing new infrastructure and security tools. Follow on GitHub for updates.
     link: https://github.com/AnAverageBeing
