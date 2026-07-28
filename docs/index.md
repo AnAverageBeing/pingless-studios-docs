@@ -45,6 +45,10 @@ features:
     details: Per-server network monitoring and bandwidth control for Pterodactyl panels. RX/TX speed caps, day/week/month quotas, throttle or suspend on exceed, pairing-token node agents, dashboards, reports and predictions in the admin UI.
     link: /pterodactyl-bandwidth-monitor/
   -
+    title: Glacier Theme for Pterodactyl
+    details: A calm, Apple-grade sidebar theme for Pterodactyl Panel. Dark and light palettes, glass, 16 background patterns, console zones editor, dashboard cards, tab manager and Ctrl+K search — zero core-file replacement.
+    link: /glacier/
+  -
     title: 📡 More Coming Soon
     details: PingLess Studios is actively developing new infrastructure and security tools. Follow on GitHub for updates.
     link: https://github.com/AnAverageBeing

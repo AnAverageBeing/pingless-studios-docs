@@ -35,5 +35,10 @@ Per-server network monitoring and bandwidth control for Pterodactyl panels. A Bl
 
 [Documentation →](/pterodactyl-bandwidth-monitor/) · [Contact →](https://studio.pingless.org)
 
+## Glacier Theme for Pterodactyl
+A calm, Apple-grade sidebar theme for Pterodactyl Panel, built on Blueprint. Replaces the stock top navigation with a customizable sidebar in three docks, reskins every page in dark and light mode with full per-mode palettes, and adds a console zones editor, dashboard cover-image cards, a visual tab manager, Ctrl+K search, 16 pure-CSS background patterns, announcements, and per-user privacy mode — all configured from a live-preview admin hub, with zero core-file replacement and zero external assets.
+
+[Documentation →](/glacier/) · [Contact →](https://studio.pingless.org)
+
 ## 📦 More Projects
 Follow [PingLess Studios on GitHub](https://github.com/AnAverageBeing) for new projects and updates.

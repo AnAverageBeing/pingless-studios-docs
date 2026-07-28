@@ -272,6 +272,43 @@ export default withMermaid({
         }
       ]
     },
+    {
+      text: 'Glacier Theme (Pterodactyl)',
+      collapsed: true,
+      items: [
+        {
+          text: 'Getting Started',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/glacier/' },
+            { text: 'Installation', link: '/glacier/getting-started/installation' }
+          ]
+        },
+        {
+          text: 'Configuration',
+          collapsed: true,
+          items: [
+            { text: 'Reference', link: '/glacier/configuration/reference' }
+          ]
+        },
+        {
+          text: 'User Guide',
+          collapsed: true,
+          items: [
+            { text: 'Admin Hub', link: '/glacier/user-guide/admin-hub' },
+            { text: 'Tab Manager', link: '/glacier/user-guide/tabs' },
+            { text: 'Per-User Settings', link: '/glacier/user-guide/user-settings' }
+          ]
+        },
+        {
+          text: 'Architecture',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/glacier/architecture/overview' }
+          ]
+        }
+      ]
+    },
   ],
 
   
