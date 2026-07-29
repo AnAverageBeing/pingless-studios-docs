@@ -345,6 +345,47 @@ export default withMermaid({
         }
       ]
     },
+    {
+      text: 'Protection Plus',
+      collapsed: true,
+      items: [
+        {
+          text: 'Getting Started',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/protection/' },
+            { text: 'Installation', link: '/protection/getting-started/installation' },
+            { text: 'Quick Start', link: '/protection/getting-started/quick-start' },
+            { text: 'FAQ', link: '/protection/getting-started/faq' },
+          ]
+        },
+        {
+          text: 'Configuration',
+          collapsed: true,
+          items: [
+            { text: 'Reference', link: '/protection/configuration/reference' },
+          ]
+        },
+        {
+          text: 'User Guide',
+          collapsed: true,
+          items: [
+            { text: 'CLI Reference', link: '/protection/user-guide/cli' },
+            { text: 'Detection Methods', link: '/protection/user-guide/detection' },
+            { text: 'Antivirus', link: '/protection/user-guide/antivirus' },
+            { text: 'Alerts', link: '/protection/user-guide/alerts' },
+            { text: 'Actions & Rules', link: '/protection/user-guide/actions-rules' },
+          ]
+        },
+        {
+          text: 'Architecture',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/protection/architecture/overview' },
+          ]
+        },
+      ]
+    },
   ],
 
   

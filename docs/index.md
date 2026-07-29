@@ -41,6 +41,10 @@ features:
     details: Advanced traffic generation and packet crafting tool for authorized penetration testing. 38 methods, IPv6 raw sockets, HTTP/2 Rapid Reset, amplification scanning, and auto proxy rotation.
     link: /pentest-v3/
   -
+    title: 🛡️ Protection Plus
+    details: Host-level abuse protection and antivirus for hosting providers. Miners, outbound DDoS, Tor exits, port scans, webshells, zip bombs and exploits — detected, attributed to the exact container or Pterodactyl server, and shut down automatically. One static binary.
+    link: /protection/
+  -
     title: 🎮 Bandwidth Monitor for Pterodactyl
     details: Per-server network monitoring and bandwidth control for Pterodactyl panels. RX/TX speed caps, day/week/month quotas, throttle or suspend on exceed, pairing-token node agents, dashboards, reports and predictions in the admin UI.
     link: /pterodactyl-bandwidth-monitor/

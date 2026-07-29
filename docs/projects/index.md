@@ -10,8 +10,8 @@ Production-grade Docker container bandwidth management. Per-container speed limi
 
 [Documentation →](/bandwidth-manager/) · [GitHub →](https://github.com/AnAverageBeing/Bandwidth-flow-maintainer)
 
-## 🛡️ Protection
-Kernel-level abuse protection for container hosts. Detects and stops cryptocurrency miners, outbound DDoS, port scans, decompression bombs and exploits on Pterodactyl/Docker/VPS nodes — with full container network visibility, Discord/email/webhook alerts, and automatic enforcement.
+## 🛡️ Protection Plus
+Host-level abuse protection and antivirus for hosting providers. Catches miners, outbound DDoS, Tor exits and proxies, port scans, webshells and malware uploads, zip bombs and exploits on Pterodactyl/Docker/VPS nodes — with per-container network visibility, on-access YARA + hash-blocklist scanning, Discord/email/webhook alerts, and automatic enforcement (kill, suspend, quarantine).
 
 [Documentation →](/protection/) · [GitHub →](https://github.com/AnAverageBeing/protection)
 
