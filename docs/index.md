@@ -57,6 +57,10 @@ features:
     details: Free, minimal XDP (eBPF) firewall for Linux 5.15+. One XDP program, one Go binary, one YAML config — per-IP rate limiting, auto-ban, live TUI, Discord alerts.
     link: /liteshield-xdp/
   -
+    title: 🚀 NitroCord
+    details: Velocity-compatible Minecraft proxy with built-in attack prevention. Kernel ipset firewall, TCP fingerprinting, anti-bot verification, anti-VPN/GeoIP, attack-mode adaptation — drop-in plugin compatible.
+    link: /nitrocord/
+  -
     title: 📡 More Coming Soon
     details: PingLess Studios is actively developing new infrastructure and security tools. Follow on GitHub for updates.
     link: https://github.com/AnAverageBeing

@@ -386,6 +386,45 @@ export default withMermaid({
         },
       ]
     },
+    {
+      text: 'NitroCord',
+      collapsed: true,
+      items: [
+        {
+          text: 'Getting Started',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/nitrocord/' },
+            { text: 'Installation', link: '/nitrocord/getting-started/installation' },
+            { text: 'Quick Start', link: '/nitrocord/getting-started/quick-start' },
+            { text: 'Licensing', link: '/nitrocord/getting-started/licensing' },
+          ]
+        },
+        {
+          text: 'Configuration',
+          collapsed: true,
+          items: [
+            { text: 'Reference', link: '/nitrocord/configuration/reference' },
+          ]
+        },
+        {
+          text: 'User Guide',
+          collapsed: true,
+          items: [
+            { text: 'Command Reference', link: '/nitrocord/user-guide/cli' },
+            { text: 'Plugin API', link: '/nitrocord/user-guide/api' },
+          ]
+        },
+        {
+          text: 'Architecture',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/nitrocord/architecture/overview' },
+            { text: 'Attack Mode', link: '/nitrocord/architecture/attack-mode' },
+          ]
+        },
+      ]
+    },
   ],
 
   

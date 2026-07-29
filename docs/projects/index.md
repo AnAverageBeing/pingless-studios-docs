@@ -45,5 +45,10 @@ Free, minimal XDP (eBPF) firewall for Linux 5.15+. One XDP program, one Go binar
 
 [Documentation →](/liteshield-xdp/) · [GitHub →](https://github.com/AnAverageBeing/LiteShield-XDP)
 
+## 🚀 NitroCord
+Velocity-compatible Minecraft proxy with built-in, license-gated attack prevention — kernel ipset firewall, TCP fingerprinting, anti-bot verification, anti-VPN/GeoIP, packet flood scoring, null-ping-proof MOTD caching, exploit filters, and an attack-mode engine that adapts the whole proxy under load. Drop-in replacement for Velocity: all plugins work unchanged.
+
+[Documentation →](/nitrocord/) · [Contact →](https://studio.pingless.org)
+
 ## 📦 More Projects
 Follow [PingLess Studios on GitHub](https://github.com/AnAverageBeing) for new projects and updates.
