@@ -35,7 +35,7 @@ Two practical consequences for admins:
   snapshot on every invocation, so `/nitrocord reload` takes effect immediately
   — no restart, no gap in protection.
 - **Everything self-gates on the license.** Without a valid license key
-  (community mode) every gate, check and handler passes traffic through
+  (license enforcement happens before bind, and if a background re-check later denies the key) every gate, check and handler passes traffic through
   untouched, and the proxy behaves like stock Velocity.
 
 ---

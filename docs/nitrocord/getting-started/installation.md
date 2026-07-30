@@ -68,7 +68,7 @@ These are not required for installation, but unlock optional features later:
    license-key = "PL-XXXX-XXXX-XXXX-XXXX"
    ```
 
-   Leave it empty only if you intentionally want the free community edition (protection disabled). See [Licensing](/nitrocord/getting-started/licensing).
+   A key is required — without one the proxy refuses to start. See [Licensing](/nitrocord/getting-started/licensing).
 5. **Restart the proxy.** Protection services only start when a valid license is present, so this restart is what activates them.
 6. **Watch the console.** A successful activation shows:
 
@@ -96,7 +96,7 @@ Run through this once after the restart:
 - **License line** — the console shows `License verified - thank you for supporting NitroCord.` (it appears a few seconds after the bind, the check runs in the background).
 - **Firewall line** — the console shows `Kernel firewall active: dropping sources of ipset 'nitrocord-firewall' in iptables.` when running as root with ipset available.
 - **Kernel set exists** — `sudo ipset list nitrocord-firewall` lists the set (empty is fine; entries appear as bans happen).
-- **Bootstrap banner** — the themed `attack prevention is now active.` line confirms the NitroCord bootstrap ran (it prints in community mode too; the license line above is what confirms protection).
+- **Bootstrap banner** — the themed `attack prevention is now active.` line confirms the NitroCord bootstrap ran (it only prints when a license key is configured).
 - **Admin command works** — from the proxy console or in-game with the `nitrocord.admin` permission:
 
   ```text
@@ -111,7 +111,8 @@ Run through this once after the restart:
 | Symptom | Cause | Fix |
 | ------- | ----- | --- |
 | `Address already in use` at startup | Another process holds the bind port | Change `bind` in `velocity.toml` (default `0.0.0.0:25565`) or stop the conflicting process |
-| `NitroCord protection is inactive (community mode): no valid license.` | License key missing or invalid | Re-check `license-key` in `nitrocord.toml` for typos/truncation, confirm the key in your Altis dashboard, restart |
+| `License Not Found - set license-key in nitrocord.toml ... The server will now stop.` | License key missing | Paste your key from the Altis dashboard into `nitrocord.toml`, start again |
+| `NitroCord could not verify a license (...) Shutting down.` | Key invalid, or license server unreachable with no grace cache | Re-check the key for typos/truncation, confirm it in your Altis dashboard; check outbound network access to `license.altis.host` |
 | `Could not create the 'nitrocord-firewall' ipset ...` | `ipset`/`iptables` missing or not running as root | Install both packages and run the proxy as root — or do nothing and accept the in-memory firewall |
 | GeoLite2 database download fails | Wrong MaxMind key or no outbound network access | Verify `country.maxmind-license-key`, check the host can reach MaxMind, look at the logged download error |
 | Bedrock (Geyser) players kicked by nickname/account checks | Bedrock exemption needs Floodgate/Geyser detected | `compat.geyser` is `true` by default — make sure Floodgate (or Geyser) is actually installed as a proxy plugin |

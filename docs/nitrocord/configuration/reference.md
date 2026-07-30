@@ -21,7 +21,7 @@ If a file fails to parse, NitroCord logs an error and runs on the bundled defaul
 :::
 
 ::: info Community edition
-Without a valid `license-key`, NitroCord runs in community mode: all protection is disabled and the settings in `protection.toml` have no effect. Branding and messages still apply.
+Without a valid `license-key`, NitroCord refuses to start: the proxy logs the reason and exits before binding, so the settings in `protection.toml` only take effect with a valid license.
 :::
 
 ---
@@ -35,7 +35,7 @@ Branding, theme, messages, and the license key.
 | Key | Type | Default | What it does |
 | --- | --- | --- | --- |
 | `server-name` | string | `"NitroCord"` | Proxy name shown in the server list ping version brand and in `/nitrocord` command output. Purely cosmetic — does not affect plugin compatibility. Also feeds the `<prefix>` message tag. |
-| `license-key` | string | `""` (empty) | Your commercial license key, format `PL-XXXX-...`, as issued by the Altis dashboard after purchase. Verified online and cryptographically cached for offline grace; binds one activation seat to this server's hostname. Leave empty to run the free community edition with attack prevention disabled. |
+| `license-key` | string | `""` (empty) | Your commercial license key, format `PL-XXXX-...`, as issued by the Altis dashboard after purchase. Verified online and cryptographically cached for offline grace; binds one activation seat to this server's hostname. **Required** — the proxy refuses to start without a valid key. |
 
 ::: danger Keep your license key private
 Treat `license-key` like a password: it activates seats on your account. Never share the file, commit it to a public repository, or post it in support chats — share the key itself only with PingLess Studios support when asked.
@@ -130,7 +130,7 @@ Messages are parsed with [MiniMessage](https://docs.advntr.dev/minimessage/) —
 
 ## protection.toml
 
-Every attack-prevention knob, in file order. All of these require a valid license; in community mode they are inert.
+Every attack-prevention knob, in file order. All of these require a valid license (the proxy will not start without one).
 
 ### [attack]
 
@@ -451,7 +451,7 @@ server-name = "NitroCord"
 # online against the Altis license platform (hardcoded into the software, not
 # changeable here) and cryptographically cached for offline grace; it binds one
 # activation seat to this server's hostname.
-# Leave empty to run the free community edition with attack prevention disabled.
+# Required: the proxy refuses to start without a valid key.
 license-key = ""
 
 [theme]

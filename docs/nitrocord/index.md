@@ -18,7 +18,7 @@ head:
 
 NitroCord is a fork of [Velocity](https://papermc.io/software/velocity) 4.1.0 and a drop-in replacement for it: plugins compiled against the Velocity API keep working unchanged, and `velocity.toml` plus every upstream feature behaves exactly as before. On top of that, NitroCord ships a built-in protection engine that vanilla Velocity does not have — an accept-time kernel firewall, TCP fingerprinting, an attack-mode state machine, anti-bot verification, anti-VPN and GeoIP blocking, packet flood scoring, a null-ping-proof MOTD cache and exploit filters for Log4Shell and tab-completion abuse.
 
-The engine is configured through two standalone TOML files created next to `velocity.toml` on first start: `nitrocord.toml` (branding, theme colors, every message, license key) and `protection.toml` (every protection knob). Protection is unlocked by a commercial license key from [Altis](https://altis.host); with an empty key, NitroCord runs as the free community edition — attack prevention disabled, behavior identical to vanilla Velocity.
+The engine is configured through two standalone TOML files created next to `velocity.toml` on first start: `nitrocord.toml` (branding, theme colors, every message, license key) and `protection.toml` (every protection knob). Protection is unlocked by a commercial license key from [Altis](https://altis.host) — and because NitroCord is a commercial product, the proxy refuses to start without a valid key (startup prints `License Found` → `License Key Verified` and finishes with the pink/white `Protection Enabled` banner listing every active protection).
 
 ## Key Features
 
@@ -91,7 +91,7 @@ Addresses that complete a full login are remembered for 30 days (`[whitelist]` i
 | Packet limits | ✅ per-byte/per-packet violation scoring | Frame length caps only | ✅ vls-style scoring |
 | MOTD flood protection | ✅ null-ping-proof cache, no backend contact | ❌ | Partial (ping rate limit) |
 | Maintained upstream | ✅ tracks Velocity 4.1.0 (active) | ✅ PaperMC | ❌ Waterfall EOL March 2024 |
-| License | Commercial key (Altis); free community mode | GPLv3, free | FlameCord paid; MangoCord free (MIT), unmaintained since 2023 |
+| License | Commercial key (Altis), required to run | GPLv3, free | FlameCord paid; MangoCord free (MIT), unmaintained since 2023 |
 
 NitroCord keeps the Velocity ecosystem you already run and adds the protection layer Waterfall-era forks pioneered — on a maintained upstream, with TCP fingerprinting and attack-mode adaptation they never had.
 

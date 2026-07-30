@@ -23,7 +23,7 @@ flowchart LR
 Events are posted through Velocity's normal `EventManager` — subscribe with `@Subscribe` exactly like any built-in Velocity event. No plugin dependency declaration is needed: NitroCord is the proxy itself, so the API classes are always present at runtime.
 
 ::: info License required
-Events only fire while a valid license keeps the protection engine enabled. In community mode every check short-circuits to vanilla behavior, so no events are produced.
+Events only fire while a valid license keeps the protection engine enabled (a valid license is required for the proxy to start at all; if a later background re-check denies the key, protection — and with it these events — turns off until resolved).
 :::
 
 ## The `Verdict` enum
@@ -240,4 +240,4 @@ No `dependencies` entry is needed — NitroCord is the proxy, not a plugin, so i
 
 - [Command Reference](/nitrocord/user-guide/cli) — the `/nitrocord` admin command for stats, reloads and manual firewall entries.
 - [Quick Start](/nitrocord/getting-started/quick-start) — tune the checks your plugin will be observing.
-- [Licensing](/nitrocord/getting-started/licensing) — community mode disables protection, and with it these events.
+- [Licensing](/nitrocord/getting-started/licensing) — the license gates the protection engine, and with it these events.
