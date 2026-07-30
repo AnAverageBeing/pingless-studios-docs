@@ -124,6 +124,13 @@ export default withMermaid({
             { text: 'Overview', link: '/liteshield-xdp/architecture/overview' },
           ]
         },
+        {
+          text: 'Performance',
+          collapsed: true,
+          items: [
+            { text: 'Benchmarks', link: '/liteshield-xdp/performance/benchmarks' },
+          ]
+        },
       ]
     },
     {
