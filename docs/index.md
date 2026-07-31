@@ -65,7 +65,6 @@ features:
     details: Velocity-compatible Minecraft proxy with built-in attack prevention. Kernel ipset firewall, TCP fingerprinting, anti-bot verification, anti-VPN/GeoIP, attack-mode adaptation — drop-in plugin compatible.
     link: /nitrocord/
   -
-    icon:
     title: Firewall-Plus for Pterodactyl
     details: Production-grade per-container iptables firewall for Pterodactyl Panel (Blueprint or standalone addon) plus a Wings node daemon, with DDoS SMART detection and automatic mitigation.
     link: /firewall-plus/
@@ -74,20 +73,21 @@ features:
     details: 24 standalone addons for Pterodactyl Panel plus the Glacier Pack hub — one custom dashboard hosting every addon's complete admin UI. Recycle bin, URL downloads, Minecraft installers, backups, subdomains, staff roles and more, all Glacier-native.
     link: /glacier-pack/
   -
-    icon:
     title: Pterodactyl Revamp
     details: Enterprise operations layer for Pterodactyl Panel — bulk server operations, multi-server creation, tagging, server templates, an allocation port picker, metrics and analytics, node/server health scoring, global search, and a full audit log.
     link: /pterodactyl-revamp/
   -
-    icon:
     title: Sentinel for Pterodactyl
     details: Fleet-wide security monitoring and enforcement for Pterodactyl — a Laravel panel addon (the brain) plus a static Go agent on each Wings node (the sensor/enforcer), with 12 detectors, graduated enforcement and central threat intel.
     link: /pterodactyl-sentinel/
   -
-    icon:
     title: Ask Access for Pterodactyl
     details: Server access requests for Pterodactyl Panel — users ask for access by server ID or owner email, owners approve with permission presets and optional time limits, with blocking, delegated managers, and a full audit trail.
     link: /ask-access/
+  -
+    title: Trash Bin Pro for Pterodactyl
+    details: Recoverable file deletion for Pterodactyl Panel. Soft-delete trash bin with per-server quotas, per-egg retention windows, collision-safe restores, subuser permissions and a full admin panel.
+    link: /trash-bin-pro/
   -
     title: 📡 More Coming Soon
     details: PingLess Studios is actively developing new infrastructure and security tools. Follow on GitHub for updates.

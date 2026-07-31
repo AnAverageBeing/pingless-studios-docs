@@ -767,6 +767,44 @@ export default withMermaid({
         }
       ]
     },
+    {
+      text: 'Trash Bin Pro (Pterodactyl)',
+      collapsed: true,
+      items: [
+        {
+          text: 'Getting Started',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/trash-bin-pro/' },
+            { text: 'Installation', link: '/trash-bin-pro/getting-started/installation' },
+            { text: 'FAQ', link: '/trash-bin-pro/getting-started/faq' },
+          ]
+        },
+        {
+          text: 'Configuration',
+          collapsed: true,
+          items: [
+            { text: 'Reference', link: '/trash-bin-pro/configuration/reference' }
+          ]
+        },
+        {
+          text: 'User Guide',
+          collapsed: true,
+          items: [
+            { text: 'File Manager', link: '/trash-bin-pro/user-guide/file-manager' },
+            { text: 'REST API', link: '/trash-bin-pro/user-guide/api' },
+            { text: 'CLI Reference', link: '/trash-bin-pro/user-guide/cli' },
+          ]
+        },
+        {
+          text: 'Architecture',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/trash-bin-pro/architecture/overview' }
+          ]
+        }
+      ]
+    },
   ],
 
   

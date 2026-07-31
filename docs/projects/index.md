@@ -80,5 +80,10 @@ Server access requests for Pterodactyl Panel, as a Blueprint addon or standalone
 
 [Documentation →](/ask-access/) · [GitHub →](https://github.com/AnAverageBeing/Ask-Access)
 
+## Trash Bin Pro for Pterodactyl
+Recoverable file deletion for Pterodactyl Panel (Blueprint or standalone addon). Deleted files move to a hidden /.trash folder instead of vanishing — with per-server trash quotas, per-egg retention windows, an hourly fault-tolerant purge, collision-safe restores, a trashbinpro.access subuser permission, quota-aware delete flows in the file manager, activity logging, and a full admin panel for global settings, egg overrides and manual purges.
+
+[Documentation →](/trash-bin-pro/) · [GitHub →](https://github.com/AnAverageBeing/pterodactyl-trash-bin-pro)
+
 ## 📦 More Projects
 Follow [PingLess Studios on GitHub](https://github.com/AnAverageBeing) for new projects and updates.
