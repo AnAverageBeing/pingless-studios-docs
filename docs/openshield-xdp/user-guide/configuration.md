@@ -105,8 +105,8 @@ Adaptive baseline, attack detection, new-source flood prevention, amplification 
 | Field | Default | Description |
 |-------|---------|-------------|
 | `spike_percentage` | `200` | % above baseline that triggers spike detection (200 = 3× baseline) |
-| `spike_recovery_factor` | `1.2` | Multiplier below which spike is considered recovered |
-| `spike_recovery_time` | `30` | Seconds below recovery factor before clearing |
+| `spike_recovery_factor` | `0.7` | Fraction of spike threshold below which attack state clears (must be < 1.0) |
+| `spike_recovery_time` | `10` | Seconds below recovery factor before clearing |
 | `attack_threshold_multiplier` | `0.5` | Threshold multiplier during attack (0.5 = 50% of normal) |
 | `attack_pps_threshold` | `0` | Global PPS to trigger attack state (0 = disabled, uses baseline) |
 | `attack_bps_threshold` | `0` | Global BPS to trigger attack state (0 = disabled) |

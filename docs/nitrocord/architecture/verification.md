@@ -204,6 +204,32 @@ exactly once a month; only genuinely new addresses fall.
 
 ---
 
+## Second stages (optional)
+
+After the physics check passes, two optional verification stages can run before the backend handoff — both off by default, both skipped for verified-whitelist and Geyser-exempt players:
+
+### Hand-captcha (`verify.captcha.enabled`)
+
+The player receives a map item showing a generated captcha image (random code, arithmetic, or spelled number — obfuscated with sine-warp, rotation, strike-through and noise) and types the answer in chat. Single-use images from a pre-generated pool, wrong answers draw a fresh one, `max-attempts` failures kick. Generation and packet encoding happen once per image, so per-player cost is effectively zero.
+
+### Framed-captcha (`verify.framed-captcha.enabled`)
+
+A 3×3 wall of item frames appears, each holding one tile of a 384×384 captcha image — but several tiles arrive pre-rotated, scrambling the picture. The player punches frames to rotate tiles until the image reads correctly, then types the code.
+
+The anti-bot property that makes this stage special: **every tile click is raytraced against the player's recorded view direction.** At answer time, each interact packet is matched to the closest look sample within ±100 ms and raytraced from eye height along yaw/pitch against the frame's bounding box. Bots that fire interact packets without actually aiming at the wall fail `framed-captcha.direction-threshold` (default 60% of clicks must match) even with the right answer. Rotations faster than `rotation-cooldown-ms` are rejected, and `rotation-violations` strikes end the attempt.
+
+```mermaid
+flowchart LR
+    A[Fall check passed] --> B{Second stage?}
+    B -->|none| P[Backend handoff]
+    B -->|hand-captcha| C[Map image + chat answer]
+    B -->|framed| D[3x3 puzzle wall<br/>rotate tiles + chat code]
+    C -->|correct| P
+    D -->|solved + aim ok| P
+    C -->|attempts out| K[kick-verify-failed]
+    D -->|attempts out / bad aim| K
+```
+
 ## Related pages
 
 - [Architecture Overview →](/nitrocord/architecture/overview) — the three

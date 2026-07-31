@@ -99,6 +99,7 @@ Every user-facing NitroCord message in MiniMessage format. The section is a flat
 
 | Key | Extra placeholders | Default | Shown when |
 | --- | --- | --- | --- |
+| `verify-framed-captcha-prompt` | Chat prompt shown when the item-frame puzzle wall appears. |
 | `verify-falling` | — | `<prefix><secondary>Verifying your connection...` | Action bar while the client falls in the verification world. |
 
 **Command and stats messages:**
@@ -260,6 +261,15 @@ Fall-check client verification: joining clients are held in a fake void world on
 | `spawn-height` | int | `200` | Height in blocks from which the client is dropped for the fall check (clamped to 32–250, the fake world's height is 256). Higher values mean a longer fall and a stronger physics sample, at a few more seconds per verification. |
 | `max-free-resets` | int | `1` | Lag-tolerant free resets before a failed fall counts against the client: the first gravity mismatch restarts the fall instead of failing. Raise to `2`–`3` if laggy players report verification kicks. |
 | `geyser-skip` | boolean | `true` | Skip verification for Geyser/Floodgate Bedrock players — Bedrock clients cannot emulate Java physics and would always fail. Turn off only if you proxy Java clients through something that fakes the Bedrock prefix. |
+
+| `captcha.enabled` | boolean | `false` | Optional second stage after the fall check: the player must read a generated captcha image shown on a map item and type the answer in chat. Off by default — enable for networks under persistent human-level bot attacks. |
+| `captcha.max-attempts` | int | `2` | Wrong-answer attempts before the verification fails with `kick-verify-failed`. Each captcha is single-use; a fresh one is generated on failure. |
+| `captcha.answer-prefix` | string | `""` | Optional prefix the player must type before the answer (e.g. `/captcha ` style). Empty means the bare answer. |
+| `framed-captcha.enabled` | boolean | `false` | Alternative second stage (takes precedence over `captcha.enabled`): a 3×3 item-frame puzzle wall — the player rotates scrambled map tiles until the image reads correctly, then types the code. Every click is raytraced against the player's aim, so scripted interact-packet bots fail geometrically. |
+| `framed-captcha.rotate-count` | int | `5` | How many of the 9 tiles arrive pre-rotated (scrambled). |
+| `framed-captcha.rotation-cooldown-ms` | long | `150` | Minimum milliseconds between accepted tile rotations; faster clicks are rejected and counted as violations. |
+| `framed-captcha.rotation-violations` | int | `5` | Cooldown violations tolerated before the attempt fails with `kick-verify-failed`. |
+| `framed-captcha.direction-threshold` | double | `0.6` | Fraction of tile clicks that must geometrically match the player's recorded view direction (raytraced from eye height against the frame within ±100 ms). Bots firing interact packets without aiming fail below this. |
 
 ::: warning Verified players skip the check
 A client that passes once marks its address verified for `[whitelist] survive-days` (default 30 days) and never sees the fake world again while the entry lives — the check costs each real player about one fall a month. Whitelisted addresses skip the gate even with `only-during-attack = false`.

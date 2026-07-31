@@ -78,6 +78,7 @@ export default withMermaid({
           items: [
             { text: 'Overview', link: '/openshield-xdp/performance/overview' },
             { text: 'Tuning', link: '/openshield-xdp/performance/tuning' },
+            { text: 'Attack Testing Analysis', link: '/openshield-xdp/performance/attack-testing' },
           ]
         },
         {

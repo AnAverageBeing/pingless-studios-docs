@@ -96,8 +96,8 @@ validation:
 | `dynamic.baseline_alpha_max` | `float64` | `0.50` | `0.0` – `1.0` | Maximum adaptive EMA alpha | 🔄 |
 | `dynamic.baseline_alpha_variance_scale` | `float64` | `0.1` | `0.0` – `1.0` | How much variance adjusts alpha | 🔄 |
 | `dynamic.spike_percentage` | `int` | `200` | `10` – `10,000` | % above baseline that triggers spike detection (200 = 3× baseline) | 🔄 |
-| `dynamic.spike_recovery_factor` | `float64` | `1.2` | `1.0` – `10.0` | Multiplier below baseline to clear spike status | 🔄 |
-| `dynamic.spike_recovery_time` | `int` | `30` | `1` – `600` | Seconds below recovery factor before clearing | 🔄 |
+| `dynamic.spike_recovery_factor` | `float64` | `0.7` | `0.3` – `0.95` | Fraction of spike threshold below which attack state clears (must be < 1.0) | 🔄 |
+| `dynamic.spike_recovery_time` | `int` | `10` | `3` – `120` | Seconds below recovery factor before clearing | 🔄 |
 | `dynamic.new_source_limit` | `int` | `100` | `1` – `100,000` | New unique IPs/s before new-source flood mode | 🔄 |
 | `dynamic.new_source_ban_duration` | `int` | `30` | `1` – `3600` | Ban duration for new-source flood IPs | 🔄 |
 | `dynamic.attack_threshold_multiplier` | `float64` | `0.5` | `0.1` – `1.0` | Threshold multiplier during attack (0.5 = 50% of normal thresholds) | 🔄 |
@@ -249,8 +249,8 @@ dynamic:
   baseline_alpha_max: 0.50
   baseline_alpha_variance_scale: 0.1
   spike_percentage: 200
-  spike_recovery_factor: 1.2
-  spike_recovery_time: 30
+  spike_recovery_factor: 0.7
+  spike_recovery_time: 10
   new_source_limit: 100
   new_source_ban_duration: 30
   attack_threshold_multiplier: 0.5
