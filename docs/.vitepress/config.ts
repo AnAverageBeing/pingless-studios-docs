@@ -428,6 +428,7 @@ export default withMermaid({
           items: [
             { text: 'Overview', link: '/nitrocord/architecture/overview' },
             { text: 'Attack Mode', link: '/nitrocord/architecture/attack-mode' },
+            { text: 'Fall-Check Verification', link: '/nitrocord/architecture/verification' },
           ]
         },
       ]

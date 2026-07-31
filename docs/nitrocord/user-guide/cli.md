@@ -1,11 +1,11 @@
 ---
 title: Command Reference
-description: The /nitrocord admin command (alias /nc) — protection statistics, live config reload, and manual firewall add/remove. Syntax, example output and day-to-day workflows.
+description: The /nitrocord admin command (alias /nc) — protection statistics, live config reload, manual firewall add/remove, and anti-VPN diagnostics. Syntax, example output and day-to-day workflows.
 ---
 
 # Command Reference
 
-NitroCord ships one administration command, `/nitrocord` (alias `/nc`), registered by the proxy itself. It works identically from the server console and in-game, and covers the three things you need while watching the proxy: protection statistics, configuration reloads, and manual firewall entries.
+NitroCord ships one administration command, `/nitrocord` (alias `/nc`), registered by the proxy itself. It works identically from the server console and in-game, and covers the four things you need while watching the proxy: protection statistics, configuration reloads, manual firewall entries, and anti-VPN diagnostics.
 
 ::: info Permission
 Every subcommand requires `nitrocord.admin`. The console always has it; in-game, grant it with your permission plugin (e.g. `lpv user <you> permission set nitrocord.admin`). Senders without the permission see the configured `messages.no-permission` message, not Velocity's generic unknown-command error.
@@ -19,6 +19,7 @@ NitroCord » commands
   /nitrocord reload - reload the configuration
   /nitrocord firewall add <ip> - add an address to the firewall
   /nitrocord firewall remove <ip> - remove an address from the firewall
+  /nitrocord antivpn test <ip> - test an address against the anti-VPN checks
 ```
 
 All output goes through the messages in `nitrocord.toml`, so the pink/white theme shown here is just the default — recolor or reword every line under `[messages]` and `[theme]`.
@@ -141,6 +142,43 @@ NitroCord » 203.0.113.50 removed from the firewall.
 Lifts a ban early: clears the in-memory state and, when the kernel firewall is active, queues the `ipset` removal. The removal is announced to plugins through `NitroFirewallEvent`.
 
 **When to use:** false positives — a legitimate player firewalled by an aggressive check, or an address you banned by mistake. If a source keeps getting banned legitimately, exempt it in `[firewall] whitelist` instead of repeatedly removing it.
+
+---
+
+## `/nitrocord antivpn test <ip>`
+
+```text
+/nc antivpn test 203.0.113.50
+```
+
+```text
+NitroCord » anti-vpn test for 203.0.113.50
+  offline blocklist: clean
+  cached verdict: none
+  overall: VPN/proxy
+  getipintel: VPN/proxy
+  proxycheck: VPN/proxy
+  iphub: not configured (abstained)
+  vpnapi: clean
+  ipqualityscore: rate-limited (abstained)
+```
+
+Runs the anti-VPN stack against one address and prints every layer's answer:
+
+| Line | Meaning |
+| ---- | ------- |
+| `offline blocklist` | Whether the address is on the downloaded blocklists (`BLOCKED` or `clean`). |
+| `cached verdict` | The remembered verdict, if any (`VPN`, `clean`, or `none`) — this is what the accept-time gate acts on. |
+| `overall` | The full verdict of the online check: the cached answer if known, otherwise a live provider quorum. |
+| one line per provider | The provider's own answer from a fresh parallel query: `VPN/proxy`, `clean`, or an abstention (`rate-limited`, `not configured`, `connection error`, `unintelligible answer`). |
+
+The first two lines print immediately; `overall` and the per-provider lines arrive a moment later once the parallel provider queries finish. The fresh per-provider votes are settled into the verdict cache and the persisted journal exactly like a post-login recheck, so the test also refreshes what future joins will see.
+
+**When to use:** the tool for "was this player really on a VPN?" — run it against the address from a `Blocked <ip> (<name>): VPN/proxy` log line before whitelisting anyone, and against a known-VPN address after entering API keys to confirm your providers actually answer. A provider that keeps showing an abstention is misconfigured or out of quota (three abstentions in a row also log a console warning).
+
+::: tip No providers configured, no breakdown
+With every provider key empty, the online check has nothing to query: the command prints the blocklist and cached verdicts, an `overall: clean` fail-open answer, and no per-provider lines. The same happens for loopback and `[antivpn] whitelist`ed addresses, which always pass. And when anti-VPN itself is off (or the license is inactive), the command says so: every check fails open.
+:::
 
 ---
 

@@ -55,7 +55,9 @@ Mechanics, exactly as implemented:
   `attack.activate-connections-per-second`.
 - **Disengage** only after the rate has stayed below the threshold for
   `attack.deactivate-delay-seconds` consecutive seconds — a brief dip in a
-  long flood does not flap the state.
+  long flood does not flap the state. With `attack.early-stop` enabled, a
+  collapsed join rate disengages sooner; see
+  [early stop](#early-stop-when-the-flood-collapses).
 - **Evaluated constantly.** The state is re-evaluated lazily on every
   `isAttackMode()` query and once per second on the `nitrocord-attack-mode`
   daemon thread, so transitions are detected even when no new connections are
@@ -75,6 +77,10 @@ Mechanics, exactly as implemented:
 | `attack.enabled` | `true` | Master switch for the state machine |
 | `attack.activate-connections-per-second` | `40` | Proxy-wide new connections per second that engage attack mode |
 | `attack.deactivate-delay-seconds` | `60` | Consecutive seconds below the threshold before disengaging |
+| `attack.early-stop` | `true` | Allow disengaging early when the join rate collapses |
+| `attack.early-stop-joins-per-window` | `8` | Joins per window below which the early stop triggers |
+| `attack.early-stop-window-seconds` | `5` | Rolling window size (seconds) joins are counted in |
+| `attack.early-stop-sustain-seconds` | `3` | Consecutive quiet windows required before disengaging early |
 | `antiddos.kick-suppression-connections-per-second` | `150` | During attack mode, rate at which kicks turn into silent RSTs |
 
 ::: info Ping floods don't flip the switch
@@ -114,7 +120,11 @@ exists (younger than `motd.cache-seconds`, default 5 s):
    another synthesized ping. A NitroCord proxy always answers the server list.
 
 Your custom MOTD rotation and fake player count keep applying throughout —
-cached responses are passed through the same synthesizer.
+cached responses are passed through the same synthesizer. The one thing that
+does **not** survive is the favicon: it is by far the largest field of a ping
+response and bots do not render it, so every attack-mode answer is served
+without it, shrinking each reply to a ping flood. The favicon returns the
+moment attack mode disengages.
 
 ### Silent closes instead of kicks
 
@@ -254,6 +264,114 @@ start.
 The whitelist persists to `nitrocord/whitelist.txt`, survives proxy restarts,
 and purges entries not seen within the configured window. Genuine players only
 ever experience the strict gates once: on their very first join.
+
+---
+
+## Early stop: when the flood collapses
+
+The 60-second deactivation delay is deliberately conservative — it exists so
+a bursty attack cannot flap the mode. But many real floods end abruptly: the
+botnet is firewalled faster than it rotates addresses, or the attacker simply
+gives up. Waiting a full extra minute with every check escalated punishes
+nobody but new players.
+
+With `attack.early-stop = true` (default), the once-per-second evaluation
+tick also feeds the measured join rate into a rolling
+`attack.early-stop-window-seconds` window (default 5). When the windowed
+join count stays below `attack.early-stop-joins-per-window` (default 8) for
+`attack.early-stop-sustain-seconds` (default 3) consecutive seconds, attack
+mode disengages through the **same transition** as the normal path —
+logged, and announced through `NitroAttackModeEvent` like any other
+disengage.
+
+- The two conditions coexist; **whichever fires first wins.** Early stop
+  only ever shortens an attack, never extends it.
+- The window resets on every transition, so a re-engaged attack always
+  starts with fresh samples.
+- While a force-engage pin holds (the [amazon real-client
+  gate](/nitrocord/configuration/reference#amazon) pinning attack mode on
+  its own evidence), early-stop evaluation is skipped — the two mechanisms
+  never fight over the engaged state. The remaining lockdown time shown by
+  `kick-lockdown` counts the pin first, then the normal deactivation delay,
+  and the actual disengage may happen sooner than the estimate when early
+  stop is enabled.
+
+::: warning Wave attacks and early stop
+An attacker who fires short, intense waves with pauses in between can ride
+the early stop: the mode disengages in a pause and re-engages on the next
+wave. The dormant checks re-arm on each transition, so protection is not
+lost — but if you see the mode flapping in your logs, raise
+`early-stop-sustain-seconds` (or lower `early-stop-joins-per-window`) rather
+than disabling the feature.
+:::
+
+---
+
+## Likeliness scoring
+
+Rate-based attack mode answers "are we under attack?". Likeliness scoring
+(BotSentry's weighted model) answers the per-IP follow-up: "is *this*
+address part of it?". While attack mode is engaged, every join is evaluated
+against a set of weighted conditions; each condition contributes its weight
+to the address's score **at most once per attack**, and the moment the sum
+reaches `scoring.score-threshold` the address is firewalled with the reason
+`attack likeliness score`.
+
+| Condition | Key | Default weight | Awarded when |
+| --------- | --- | -------------- | ------------ |
+| Unknown location | `scoring.score-unknown-location` | `50` | GeoIP has no answer for the address *and* anti-VPN has no verdict (see the caveat below) |
+| Join velocity | `scoring.score-join-velocity` | `25` | The address joined ≥ `score-join-velocity-threshold` (35) times within a fixed 60-second window |
+| Cloned names | `scoring.score-cloned-names` | `50` | ≥ `score-cloned-names-threshold` (3) distinct usernames joined from the address |
+| Denied country | `scoring.score-denied-country` | `50` | The address geolocates to a `[country] blacklist`ed country |
+| Denied VPN | `scoring.score-denied-vpn` | `50` | The address is on the anti-VPN offline blocklist or holds a cached positive verdict |
+
+The firewall threshold is `scoring.score-threshold` (default `50`): with the
+stock weights any single 50-point condition is decisive, while join velocity
+needs to combine with a second signal. All lookups are in-memory — the
+country code comes from the GeoIP cache, the VPN side only consults the
+offline blocklist and the verdict cache — so scoring never blocks a login on
+a network call.
+
+::: info The unknown-location caveat
+`UNKNOWN_LOCATION` deliberately requires both intelligence services to
+actually run: the GeoIP database loaded and `antivpn.enabled` set. With
+either of them unconfigured, *every* address would look "unknown" — and at
+the default weight (50, equal to the threshold) that alone would firewall
+legitimate players during an attack. If you run without GeoIP or anti-VPN,
+this condition silently never fires.
+:::
+
+Per-attack state (score cards, join windows) is held in memory with a
+ten-minute idle bound and is wiped when attack mode disengages — every
+attack scores from a clean slate. Scoring is a no-op outside attack mode, so
+it costs nothing on a normal day.
+
+---
+
+## The attack log
+
+Every likeliness-scoring firewall decision is journaled to
+`nitrocord/attack-log.jsonl` in the proxy run directory — one JSON object
+per line, appended by a daemon thread that batches writes twice a second.
+Two record shapes exist:
+
+```json
+{"ip":"203.0.113.50","score":75,"conditions":[{"name":"JOIN_VELOCITY","points":25},{"name":"CLONED_NAMES","points":50}],"time":"2026-07-30T21:15:04.123Z"}
+{"type":"summary","event":"attack-end","firewalled":261,"time":"2026-07-30T21:18:41.006Z"}
+```
+
+- A **firewall record** carries the address, the final score and every
+  condition that contributed points, in award order — the exact evidence for
+  each ban.
+- One **summary record** is written when attack mode disengages, counting
+  the addresses scoring firewalled during that attack. An attack that
+  tripped nothing writes no summary, keeping quiet attacks out of the
+  journal.
+
+The journal is forensics, not enforcement: the in-memory firewall stays
+authoritative, and under an extreme flood the bounded write queue drops
+records rather than slowing a Netty event loop. Records still queued at
+proxy shutdown are flushed synchronously, so a clean stop loses nothing.
 
 ---
 

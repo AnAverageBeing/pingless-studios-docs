@@ -29,7 +29,8 @@ The engine is configured through two standalone TOML files created next to `velo
 - **Attack-Mode State Machine**: Engages at 40 connections/s, disengages after 60 calm seconds; escalates checks and suppresses kick messages (silent TCP RST) under heavy load
 - **Graduated Violations**: 19 violation reasons tracked per IP — repeated strikes escalate from a plain kick to a timed firewall ban
 - **Anti-Bot Verification**: Ping-before-join reconnect check, accounts-per-IP limit, nickname blacklist, fastchat and shared-password detection, name-pattern and strange-name heuristics — with automatic Geyser/Floodgate exemption for Bedrock players
-- **Anti-VPN**: 7 offline blocklists refreshed in the background, an optional online API chain (getipintel, proxycheck.io, IPHub), a persistent on-disk cache and a post-login recheck
+- **Fall-Check Client Verification**: Joining clients are held in a fake void world and must fall with exact vanilla physics onto a trap platform before ever reaching a backend — wall-clock anti-precompute, lag-tolerant free resets, boot-random session challenges, Geyser skip and verified-IP whitelist integration (protocols 1.8–26.2)
+- **Anti-VPN**: 7 offline blocklists refreshed in the background, an online provider quorum (getipintel, proxycheck.io, IPHub, vpnapi.io, IPQualityScore) that flags only when `flagged-threshold` providers agree — rate-limited providers abstain — with per-provider votes persisted on disk and a post-login recheck
 - **GeoIP Country Blocking**: MaxMind GeoLite2 country lookups with automatic database updates
 - **Packet Flood Scoring**: Anti-cheat-style violation levels per byte and per packet — cancel, then kick
 - **Null-Ping-Proof MOTD Cache**: During attacks, server list pings are answered from a synthesized cache without firing `ProxyPingEvent` or contacting backend servers
@@ -85,7 +86,7 @@ Addresses that complete a full login are remembered for 30 days (`[whitelist]` i
 | Kernel firewall | ✅ ipset + iptables, in-memory fallback | ❌ | FlameCord only (iptables/ipset) |
 | TCP fingerprinting | ✅ kernel `tcp_info` (MSS/TTL/window) | ❌ | ❌ |
 | Attack-mode adaptation | ✅ state machine + kick suppression | ❌ | ❌ |
-| Anti-bot checks | ✅ reconnect, accounts, nickname, fastchat, password, name heuristics | ❌ | ✅ similar check set |
+| Anti-bot checks | ✅ client physics verification (fall-check), reconnect, accounts, nickname, fastchat, password, name heuristics | ❌ | ✅ similar check set |
 | Anti-VPN | ✅ 7 blocklists + online APIs + persistent cache | ❌ | ✅ blocklists |
 | GeoIP | ✅ GeoLite2, auto-update | ❌ | ✅ GeoLite2 |
 | Packet limits | ✅ per-byte/per-packet violation scoring | Frame length caps only | ✅ vls-style scoring |

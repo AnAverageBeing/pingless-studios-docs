@@ -60,6 +60,8 @@ iphub-key = ""
 
 The seven offline blocklists are already active. Add a [proxycheck.io](https://proxycheck.io/) or [IPHub](https://iphub.info/) API key and set `online-check = true` to also query those providers for IPs the local lists miss. Results are cached per IP (`cache-minutes = 60`) and persisted across restarts.
 
+Providers vote in a quorum: an IP is only flagged when `flagged-threshold` (default `2`) providers agree, so configure at least two of them — [vpnapi.io](https://vpnapi.io/) (`vpnapi-key`) and [IPQualityScore](https://www.ipqualityscore.com/) (`ipqualityscore-key`) work too — or the threshold is lowered to your provider count with a console warning.
+
 ### 4. Country blocking
 
 ```toml
