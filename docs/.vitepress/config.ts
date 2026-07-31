@@ -475,6 +475,262 @@ export default withMermaid({
         }
       ]
     },
+    {
+      text: 'Glacier Pack (Pterodactyl)',
+      collapsed: true,
+      items: [
+        {
+          text: 'Getting Started',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/glacier-pack/' },
+            { text: 'Installation', link: '/glacier-pack/getting-started/installation' },
+            { text: 'Quick Start', link: '/glacier-pack/getting-started/quick-start' }
+          ]
+        },
+        {
+          text: 'Configuration',
+          collapsed: true,
+          items: [
+            { text: 'Reference', link: '/glacier-pack/configuration/reference' }
+          ]
+        },
+        {
+          text: 'User Guide',
+          collapsed: true,
+          items: [
+            { text: 'The Dashboard', link: '/glacier-pack/user-guide/dashboard' },
+            { text: 'Addon Guides', link: '/glacier-pack/user-guide/addons' }
+          ]
+        },
+        {
+          text: 'Architecture',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/glacier-pack/architecture/overview' }
+          ]
+        }
+      ]
+    },
+    {
+      text: 'Pterodactyl Revamp',
+      collapsed: true,
+      items: [
+        {
+          text: 'Getting Started',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/pterodactyl-revamp/' },
+            { text: 'Installation', link: '/pterodactyl-revamp/getting-started/installation' },
+            { text: 'FAQ', link: '/pterodactyl-revamp/getting-started/faq' }
+          ]
+        },
+        {
+          text: 'Configuration',
+          collapsed: true,
+          items: [
+            { text: 'Reference', link: '/pterodactyl-revamp/configuration/reference' }
+          ]
+        },
+        {
+          text: 'User Guide',
+          collapsed: true,
+          items: [
+            { text: 'CLI Reference', link: '/pterodactyl-revamp/user-guide/cli' },
+            { text: 'REST API', link: '/pterodactyl-revamp/user-guide/api' }
+          ]
+        },
+        {
+          text: 'Architecture',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/pterodactyl-revamp/architecture/overview' }
+          ]
+        }
+      ]
+    },
+    {
+      text: 'Apple Theme (Pterodactyl Admin)',
+      collapsed: true,
+      items: [
+        {
+          text: 'Getting Started',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/apple/' },
+            { text: 'Installation', link: '/apple/getting-started/installation' },
+            { text: 'FAQ', link: '/apple/getting-started/faq' },
+          ]
+        },
+        {
+          text: 'Configuration',
+          collapsed: true,
+          items: [
+            { text: 'Reference', link: '/apple/configuration/reference' }
+          ]
+        },
+        {
+          text: 'User Guide',
+          collapsed: true,
+          items: [
+            { text: 'Using the Theme', link: '/apple/user-guide/using-the-theme' },
+            { text: 'Extension Compatibility', link: '/apple/user-guide/compatibility' }
+          ]
+        },
+        {
+          text: 'Architecture',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/apple/architecture/overview' }
+          ]
+        }
+      ]
+    },
+    {
+      text: 'Sentinel (Pterodactyl)',
+      collapsed: true,
+      items: [
+        {
+          text: 'Getting Started',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/pterodactyl-sentinel/' },
+            { text: 'Installation', link: '/pterodactyl-sentinel/getting-started/installation' },
+            { text: 'Quick Start', link: '/pterodactyl-sentinel/getting-started/quick-start' },
+          ]
+        },
+        {
+          text: 'Configuration',
+          collapsed: true,
+          items: [
+            { text: 'Reference', link: '/pterodactyl-sentinel/configuration/reference' }
+          ]
+        },
+        {
+          text: 'User Guide',
+          collapsed: true,
+          items: [
+            { text: 'Admin Panel', link: '/pterodactyl-sentinel/user-guide/admin-panel' },
+            { text: 'CLI Reference', link: '/pterodactyl-sentinel/user-guide/cli' },
+            { text: 'REST API', link: '/pterodactyl-sentinel/user-guide/api' },
+            { text: 'Webhooks & Alerts', link: '/pterodactyl-sentinel/user-guide/webhooks' },
+          ]
+        },
+        {
+          text: 'Architecture',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/pterodactyl-sentinel/architecture/overview' },
+            { text: 'Detectors', link: '/pterodactyl-sentinel/architecture/detectors' },
+          ]
+        }
+      ]
+    },
+    {
+      text: 'Blue Mod Installer (Pterodactyl)',
+      collapsed: true,
+      items: [
+        {
+          text: 'Getting Started',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/blue-mod-installer/' },
+            { text: 'Installation', link: '/blue-mod-installer/getting-started/installation' }
+          ]
+        },
+        {
+          text: 'Configuration',
+          collapsed: true,
+          items: [
+            { text: 'Reference', link: '/blue-mod-installer/configuration/reference' }
+          ]
+        },
+        {
+          text: 'User Guide',
+          collapsed: true,
+          items: [
+            { text: 'API Reference', link: '/blue-mod-installer/user-guide/api' }
+          ]
+        },
+        {
+          text: 'Architecture',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/blue-mod-installer/architecture/overview' }
+          ]
+        }
+      ]
+    },
+    {
+      text: 'Blue Plugin Installer (Pterodactyl)',
+      collapsed: true,
+      items: [
+        {
+          text: 'Getting Started',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/blue-plugin-installer/' },
+            { text: 'Installation', link: '/blue-plugin-installer/getting-started/installation' }
+          ]
+        },
+        {
+          text: 'Configuration',
+          collapsed: true,
+          items: [
+            { text: 'Reference', link: '/blue-plugin-installer/configuration/reference' }
+          ]
+        },
+        {
+          text: 'User Guide',
+          collapsed: true,
+          items: [
+            { text: 'API Reference', link: '/blue-plugin-installer/user-guide/api' }
+          ]
+        },
+        {
+          text: 'Architecture',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/blue-plugin-installer/architecture/overview' }
+          ]
+        }
+      ]
+    },
+    {
+      text: 'Blue Server Properties (Pterodactyl)',
+      collapsed: true,
+      items: [
+        {
+          text: 'Getting Started',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/blue-server-properties/' },
+            { text: 'Installation', link: '/blue-server-properties/getting-started/installation' }
+          ]
+        },
+        {
+          text: 'Configuration',
+          collapsed: true,
+          items: [
+            { text: 'Reference', link: '/blue-server-properties/configuration/reference' }
+          ]
+        },
+        {
+          text: 'User Guide',
+          collapsed: true,
+          items: [
+            { text: 'API Reference', link: '/blue-server-properties/user-guide/api' }
+          ]
+        },
+        {
+          text: 'Architecture',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/blue-server-properties/architecture/overview' }
+          ]
+        }
+      ]
+    },
   ],
 
   

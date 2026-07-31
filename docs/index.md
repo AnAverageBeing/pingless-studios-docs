@@ -53,6 +53,10 @@ features:
     details: A calm, Apple-grade sidebar theme for Pterodactyl Panel. Dark and light palettes, glass, 16 background patterns, console zones editor, dashboard cards, tab manager and Ctrl+K search — zero core-file replacement.
     link: /glacier/
   -
+    title: Apple Theme for Pterodactyl Admin
+    details: An iOS-grade matte glass admin theme for Pterodactyl Panel. Catppuccin Latte and Mocha with 12 accents, a runtime-harvested sidebar that adapts to every extension, bento dashboard, branded boot loader — zero core-file replacement.
+    link: /apple/
+  -
     title: 🛡️ LiteShield-XDP
     details: Free, minimal XDP (eBPF) firewall for Linux 5.15+. One XDP program, one Go binary, one YAML config — per-IP rate limiting, auto-ban, live TUI, Discord alerts.
     link: /liteshield-xdp/
@@ -65,6 +69,20 @@ features:
     title: Firewall-Plus for Pterodactyl
     details: Production-grade per-container iptables firewall for Pterodactyl Panel (Blueprint or standalone addon) plus a Wings node daemon, with DDoS SMART detection and automatic mitigation.
     link: /firewall-plus/
+  -
+    title: Glacier Pack for Pterodactyl
+    details: 24 standalone addons for Pterodactyl Panel plus the Glacier Pack hub — one custom dashboard hosting every addon's complete admin UI. Recycle bin, URL downloads, Minecraft installers, backups, subdomains, staff roles and more, all Glacier-native.
+    link: /glacier-pack/
+  -
+    icon:
+    title: Pterodactyl Revamp
+    details: Enterprise operations layer for Pterodactyl Panel — bulk server operations, multi-server creation, tagging, server templates, an allocation port picker, metrics and analytics, node/server health scoring, global search, and a full audit log.
+    link: /pterodactyl-revamp/
+  -
+    icon:
+    title: Sentinel for Pterodactyl
+    details: Fleet-wide security monitoring and enforcement for Pterodactyl — a Laravel panel addon (the brain) plus a static Go agent on each Wings node (the sensor/enforcer), with 12 detectors, graduated enforcement and central threat intel.
+    link: /pterodactyl-sentinel/
   -
     title: 📡 More Coming Soon
     details: PingLess Studios is actively developing new infrastructure and security tools. Follow on GitHub for updates.
