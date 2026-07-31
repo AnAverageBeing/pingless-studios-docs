@@ -25,10 +25,38 @@ This is expected XDP behavior (XDP hooks are per-interface, at driver ingress), 
 
 Some provider pairs block or heavily filter inter-network traffic (ICMP, UDP, or whole prefixes). Verify plain TCP connectivity between attacker and target **before** drawing conclusions from a missing flood.
 
-### What actually works
+### 4. External floods can get YOU banned
 
-- A real external host on a normal residential/cloud connection sending **uns spoofed** floods (`hping3 -i u100..u500`), with the attacker's IP whitelisted so management access survives the test.
-- Watching `total_*_packets` counters in `global_stats_map` (or the telemetry socket) to confirm arrival — "packets sent" on the attacker proves nothing.
+Flooding your own server from another host looks like an attack to **both** providers (outbound from the attacker, inbound to you). Don't do it. Use the internal rig below.
+
+### The safe way: an internal veth rig (recommended)
+
+All test traffic stays on the host — nothing ever reaches the provider network:
+
+```bash
+# veth pair + namespace; public-range IPs so the bogon filter doesn't
+# drop the test traffic (10.x sources are dropped by design).
+ip link add veth-os0 type veth peer name veth-os1
+ip netns add atk
+ip link set veth-os0 netns atk
+ip netns exec atk ip addr add 11.0.0.1/24 dev veth-os0
+ip addr add 11.0.0.2/24 dev veth-os1
+ip netns exec atk ip link set veth-os0 up
+ip netns exec atk ip link set lo up
+ip link set veth-os1 up
+
+# Attach the SAME pinned XDP program to the veth end (generic mode).
+# NOTE: loader restarts unload the program — re-attach after each restart.
+PID=$(bpftool prog show | grep "name openshield_xdp" | head -1 | cut -d: -f1)
+bpftool net attach xdpgeneric id $PID dev veth-os1
+
+# Flood — never leaves the machine:
+ip netns exec atk hping3 --udp -p 53 -i u500 11.0.0.2
+```
+
+Two gotchas we hit: private `10.x` sources are dropped by the bogon filter (use `11.0.0.x`), and a loader restart silently invalidates the veth attach (the attach references the old program, which keeps dropping packets into dead maps — detach first, then attach the new program id).
+
+Also verify arrival in the firewall's own counters (`total_*_packets` in `global_stats_map`, or the telemetry socket) — "packets sent" on the attacker proves nothing.
 
 ## Bugs Found by Testing
 
@@ -80,25 +108,97 @@ All of these were found by the test campaign and are fixed in the current build.
 
 **Fix:** each client now has its own buffered outbound queue (depth 16) drained by a dedicated writer goroutine. `Broadcast` does a non-blocking send per client — a client that falls behind simply misses intermediate snapshots and can never stall others. All writes are serialized through a per-client mutex, eliminating the race.
 
-## Configuration Parameter Impact Analysis
+### F8 — Mitigation bypass against services on ports > 32768
 
-What we observed changing each value on a live server (baseline ≈ 60 pps, noisy game-server background):
+**Symptom:** floods aimed at services listening on high ports (custom apps, some game/panel allocations) were never rate-limited and never gained suspicion score — traffic "climbed slowly and never got mitigated".
 
-| Parameter | Default | Observed effect |
-|-----------|---------|-----------------|
-| `attack_pps_threshold` | `0` (auto) | `0` = use the learned spike threshold (≈ 4× baseline, floored by `attack_min_pps`). Set explicitly (e.g. `2000`) on busy servers to stop legit burst false-positives. |
-| `attack_min_pps` | `1000` | Absolute floor for the trigger threshold. Prevents a freshly-seeded low baseline from making the threshold tiny. Real bursts (package downloads at 5–8k pps) still exceed it — see note below. |
-| `attack_trigger_time` | `3` (s) | Consecutive seconds above threshold before attack state. `3` catches floods fast but also 3-second legit spikes; `5–8` absorbs short download bursts at the cost of slower detection. |
-| `spike_recovery_factor` | `0.7` | Fraction of the spike threshold below which the attack ends. **Must be < 1.0.** `0.5` = ends sooner (flappier), `0.9` = ends later (smoother). Values ≥ 1.0 are clamped to `0.7`. |
-| `spike_recovery_time` | `10` (s) | Consecutive seconds in the recovery band before the attack ends. `60` (old default) left the firewall reporting "under attack" a full minute after the flood stopped; `10–15` tracks reality. |
-| `attack_max_duration` | `300` (s) | Hard cap on attack state. After it fires, the cooldown (10 s) prevents instant re-trigger loops. |
-| `new_src_pps` / suspicion engine | profile | Drives per-source scoring and bans; unaffected by the attack-state fixes — bans keep dropping traffic regardless of the global state. |
+**Root cause:** to avoid throttling legitimate outbound traffic (apt, curl, downloads), both `stage_rate_limit` and the suspicion scorer skipped **every** packet with `dport > 32768`. That blanket rule also exempted inbound floods targeting high-port services.
+
+**Fix:** a proper `is_outbound_response()` discriminator now decides what skips scoring/rate-limiting:
+
+- `dport <= 32768` — service port, always inspected.
+- TCP **bare SYN** to any port — inbound connection attempt, always inspected (responses never carry SYN without ACK).
+- TCP non-SYN to an ephemeral port — treated as outbound response (accepted gap: ACK floods to high-port services are indistinguishable from downloads without connection state).
+- UDP to an ephemeral port — treated as a response only when the **source port** is well-known (`<= 1024`: DNS, NTP). Random-sport UDP floods to high ports are inspected again.
+
+Legitimate responses (apt from `mirror:80 → you:45123`, DNS from `resolver:53 → you:5xxxx`) still bypass mitigation exactly as before.
+
+### F9 — Userspace map keys were byte-swapped: whitelist and manual bans never matched
+
+**Symptom:** `openshield whitelist add <ip>` printed success but the IP was **not** actually protected — it could still be scored and banned. Manual `blacklist add`, forensics-loaded ban lists, GeoIP-triggered bans, and subnet bans had the same problem: inserted, but never matched a single packet.
+
+**Root cause:** the XDP program keys its maps with the on-wire address verbatim (`ip->saddr`, network byte order). Every userspace writer (CLI, TUI access handlers, startup whitelist populate, ban manager) instead composed the key as a big-endian integer — which on a little-endian host stores the bytes reversed, so BPF lookups never hit. Auto-bans inserted by the BPF program itself used the correct order — which is also why ban IPs displayed in the TUI/Discord were byte-reversed (the userspace *read* path made the same mistake in reverse).
+
+**Fix:** canonical `bpf.IPToU32` / `bpf.U32ToIP` helpers (network byte order) now used by every writer and reader — whitelist add/remove, blacklist add/remove, CIDR expansion, subnet bans, GeoIP bans, ban events, top-offender and access-list display. The CLI Bloom-filter writer was additionally overwriting whole 64-bit words (erasing other entries' bits) and hashing with a different algorithm than the BPF checker; it now mirrors `bloom_hash()` exactly and ORs bits in.
+
+**Impact if you used the whitelist before this fix:** your whitelist never worked. Re-add your trusted IPs after upgrading (startup repopulation from config applies the fix automatically). Related gap fixed at the same time: the startup loader silently **skipped CIDR entries** in `whitelist.ips` (only plain IPs loaded) — CIDRs are now expanded per-IP (bounded at 10,000), matching the CLI behavior.
+
+### F10 — Kernel and userspace fought over `attack_state` (alert storms, stuck state)
+
+**Symptom:** firewall showed `UNDER ATTACK` (type MIXED) at ~100 pps of pure admin traffic; Discord fired repeated attack alerts; after a loader restart the state could persist indefinitely.
+
+**Root cause:** two kernel-side detectors (entropy spoofing, SYN/FIN ratio) wrote `attack_state = 1` directly into the baseline map — the SYN/FIN one using **cumulative** counters, so a handful of SSH sessions (SYNs that end in RST, not FIN) tripped it permanently. Meanwhile the userspace baseline writer rebuilt the whole baseline struct every interval, zeroing the state back. The two writers fought: the collector saw repeated 0→1→0 transitions and started/ended attack tracking (and webhooks) over and over. Separately, a loader killed mid-attack left `attack_state=1` in the pinned map with no one to clear it, since the classifier only writes on transitions.
+
+**Fix:** the userspace attack classifier is now the **single owner** of `attack_state`:
+
+- Kernel detectors keep their `prof` counters but no longer write attack state.
+- The baseline writer preserves the classifier-owned fields (read-modify-write) instead of rebuilding from scratch.
+- Loader startup explicitly resets any stale `attack_state` left by a previous run.
+
+### F11 — `attack_pps_threshold` could never *raise* the trigger
+
+**Symptom:** setting `attack_pps_threshold: 5000` to stop false positives had no effect — a 2,000 pps flood still triggered an attack.
+
+**Root cause:** the override only applied when current traffic **already exceeded** the explicit threshold (`if currentPPS > attackPPSThreshold { spikePPS = attackPPSThreshold }`), so the learned/floored threshold (~1,000) kept triggering first. Verified live: flood at 1,800 pps triggered with threshold=5000 before the fix, and stayed quiet after it.
+
+**Fix:** an explicit threshold now overrides the learned one outright (`if attackPPSThreshold > 0 { spikePPS = attackPPSThreshold }`).
+
+### F12 — Baseline inflation: undetected floods trained the baseline upward ("slow climb" bypass)
+
+**Symptom:** back-to-back or slow-ramping floods progressively stopped being detected — traffic "climbed slowly and shut the attack off", exactly as reported in production.
+
+**Root cause:** the baseline learner folded *all* traffic into the EMA whenever `attack_state` was 0. A flood below the (inflated) trigger never set attack state, so learning continued **through the flood**, inflating the baseline in real time and chasing the spike threshold above the flood rate — the flood made itself permanently invisible. Measured live: baseline 621 → 1,695 (spike threshold 2,483 → 6,778) in 14 seconds of flooding; a 2,836 pps flood then failed to trigger because the spike threshold had reached 2,907.
+
+**Fix:** the learner now never folds in traffic above the **effective trigger ceiling** (`max(spike_threshold, attack_min_pps)`), regardless of attack state. Organic traffic growth below the trigger is still learned normally. Verified live: with the clamp, the baseline stayed frozen for the whole flood and detection fired in ~2 s.
+
+## Attack Type Matrix (measured, internal rig)
+
+Each flood ran ~12 s from the veth rig. Detection latency measured from flood start to `under_attack`; recovery from flood stop to `normal`.
+
+| Attack | Rate | Detected as | Detection latency | Recovery |
+|--------|------|-------------|-------------------|----------|
+| SYN flood | ~2,800 pps | `SYN_FLOOD` | ~2–3 s | ~10–12 s |
+| UDP flood | ~2,800 pps | `UDP_FLOOD` | ~2–3 s | ~10–12 s |
+| ICMP flood | ~2,700 pps | `ICMP_FLOOD` | ~2–3 s | ~10–12 s |
+| Mixed SYN+UDP | ~3,200 pps | `MIXED` | ~2–3 s | ~10–12 s |
+| SYN-ACK reflector | ~2,800 pps | `MIXED` (via SYN-ACK counter) | ~2–3 s | ~10–12 s |
+| Fragmented UDP | ~1,800 pps | `UDP_FLOOD` | ~5 s | ~10–12 s |
+| Heavy UDP | ~7,400 pps | `UDP_FLOOD` | ~2 s | ~10 s |
+| Below explicit threshold (1,800 pps, threshold=5000) | 1,800 pps | — (no attack, correct) | — | — |
+
+In every case the attacking source was banned within ~1–2 s by the per-source engine, independently of the global attack state.
+
+**CPU cost during a 7,200 pps flood (single vCPU, shared VPS):** loader process 0.3% CPU, softirq time 0.0% — the XDP path cost is negligible at these rates; detection and banning added no measurable load.
+
+## Configuration Parameter Impact Analysis (measured)
+
+| Parameter | Value tested | Observed behavior |
+|-----------|--------------|-------------------|
+| `attack_pps_threshold` | `5000` with 1,800 pps flood | **Before F11 fix:** triggered anyway (bug). **After:** no attack — threshold respected. Packets still counted, source still banned per-source. |
+| `attack_pps_threshold` | `1000`–`2000` with 1,800–7,400 pps floods | Triggers in 2–3 s as expected. |
+| `attack_trigger_time` | `3` (default) | Detection 2–3 s after flood start. |
+| `attack_trigger_time` | `6` (hot-reload) | Detection ~5–6 s after flood start; a 4 s flood never triggered. Runtime reload works, no restart needed. |
+| `spike_recovery_factor` | `0.7` (default) | Attack state clears ~10–12 s after flood stops. |
+| `spike_recovery_factor` | `0.9` | State holds slightly longer (recovery band sits closer to the trigger); still clears promptly after the tail drops below `0.9 × spike`. |
+| `spike_recovery_time` | `10` (new default) | State clears ~10 s after traffic falls into the recovery band. Old `60` + baseline-relative recovery = hours of stuck state (F1). |
+| `attack_max_duration` | `300` | Hard cap works; post-end cooldown (10 s) stops end→re-detect loops (F2). |
+| baseline learning | floods below trigger | **Before F12 fix:** baseline inflated 2–3× in seconds, threshold chased the flood up, later floods invisible. **After:** baseline frozen during floods. |
 
 ### False positives you should expect
 
 **High-speed downloads look like floods.** A `apt`/`wget` at 5–8k pps from 2–3 mirror IPs trips the spike detector (`TCP_FLOOD`) on a server whose baseline is ~60 pps. This is inherent to any spike detector on a quiet server. Mitigations:
 
-- Raise `attack_pps_threshold` to a value above your normal burst level (e.g. `2000`–`5000`).
+- Raise `attack_pps_threshold` to a value above your normal burst level (e.g. `2000`–`5000`) — now actually works (F11).
 - Raise `attack_trigger_time` to `5`–`8` so short downloads never trip it.
 - Whitelist your package mirrors/CDN ranges.
 - Note that detection does not equal impact: state changes and alerts fire, but legit flows only get dropped if they also trip the per-source suspicion engine.
@@ -110,3 +210,9 @@ What we observed changing each value on a live server (baseline ≈ 60 pps, nois
 | Quiet (APIs, small sites) | `0` (auto) | `3` | `0.7` | `10` |
 | Game server (noisy baseline) | `2000`–`3000` | `4` | `0.7` | `10` |
 | Heavy download/CDN origin | `5000`+ | `6` | `0.6` | `15` |
+
+## Operational Notes from Live Testing
+
+- **Whitelist your admin IPs before anything else.** With `ban_duration: 3600` (1 h default), a burst of SSH connections, an SCP transfer, or a test flood from your own IP earns a one-hour ban — locking you out mid-session. Transfers to the server at line rate can themselves trip per-source scoring; throttle (`pv -L 100k`) when pushing large files to a protected host.
+- **Docker/bridge traffic to the host's own IP bypasses XDP entirely** (see methodology) — XDP only protects traffic that physically ingresses the attached interface. Services reached only via a bridge need the program attached to that bridge instead (separate instance).
+- After changing `dynamic:` detection values, use `openshield-loader reload` — the detection fields are runtime-safe, no restart needed.

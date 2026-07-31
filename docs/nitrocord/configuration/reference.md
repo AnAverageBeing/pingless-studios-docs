@@ -150,7 +150,7 @@ The global attack-mode state machine. While the proxy-wide connection rate stays
 | Key | Type | Default | What it does |
 | --- | --- | --- | --- |
 | `enabled` | boolean | `true` | Master switch for attack mode. Disable only if you want all checks to run at their normal (non-escalated) strength permanently. |
-| `activate-connections-per-second` | int | `40` | New connections per second (proxy-wide) at which attack mode engages. Lower it on small networks that never see 40 legit joins/s; raise it on large networks to avoid mode flapping during login storms (e.g. after a restart). |
+| `activate-connections-per-second` | int | `40` | New connections per second (proxy-wide) at which attack mode engages. Lower it on small networks that never see 40 legit joins/s; raise it on large networks to avoid mode flapping during login storms (e.g. after a restart). Values below `1` are clamped to `1`. |
 | `deactivate-delay-seconds` | long | `60` | Attack mode disengages after this many consecutive seconds below the activation threshold. Keep it well above a few seconds so a bursty attack cannot flip the mode rapidly. |
 | `early-stop` | boolean | `true` | Disengage attack mode early when the join rate collapses, instead of waiting out the full `deactivate-delay-seconds`. Both conditions coexist — whichever fires first wins. |
 | `early-stop-joins-per-window` | int | `8` | Joins per window below which the early stop triggers, counted proxy-wide during attack mode. |
@@ -216,8 +216,8 @@ Per-IP connection and ping rate limiting — the first line of defense.
 | Key | Type | Default | What it does |
 | --- | --- | --- | --- |
 | `enabled` | boolean | `true` | Master switch for rate limiting. |
-| `connections-per-second` | int | `3` | Maximum new connections per second from a single IP. |
-| `pings-per-second` | int | `8` | Maximum server list pings per second from a single IP. |
+| `connections-per-second` | int | `3` | Maximum new connections per second from a single IP. Exactly this many connections pass within the one-second window; the next one is denied. Values below `1` are clamped to `1`. |
+| `pings-per-second` | int | `8` | Maximum server list pings per second from a single IP. Exactly this many pings pass within the one-second window; the next one is denied. Values below `1` are clamped to `1`. |
 | `firewall-on-trigger` | boolean | `true` | Also firewall an IP that trips the rate limit (uses `[firewall]` `ban-time-seconds`), instead of only refusing the excess connections. |
 | `whitelist` | string list | `["127.0.0.1"]` | IPs exempt from rate limiting. |
 
@@ -289,11 +289,12 @@ Bedrock players are exempted automatically when `[compat] geyser` is on and Floo
 
 ### [nickname]
 
-Kicks joining players whose name contains a known bot substring.
+Kicks joining players whose name contains a known bot substring, and can validate the username itself against the vanilla charset.
 
 | Key | Type | Default | What it does |
 | --- | --- | --- | --- |
 | `enabled` | boolean | `true` | Master switch for the nickname blacklist. |
+| `strict-charset` | boolean | `true` | Vanilla-style username charset validation: names must be 1–16 characters of `[a-zA-Z0-9_.]` (the dot keeps Floodgate's Bedrock prefix working); anything else — spaces, control characters, unicode, emoji — is kicked with `kick-nickname`. This blocks log-injection usernames that forge console lines, which offline-mode Velocity would otherwise accept. Bedrock players are exempt when `[compat] geyser` is on. Runs before every other username-stage check. |
 | `blacklist` | string list | `["mcstorm", "mcdown", "mcbot", "theresa_bot", "dropbot", "kingbot"]` | Case-insensitive substrings that mark a nickname as a bot. Matching is substring-based — adding `"bot"` would also catch `Talbot`, so prefer specific bot-tool names. |
 
 ### [fastchat]
@@ -347,7 +348,7 @@ Blocks known proxy, VPN, and Tor exit node IPs using downloadable blocklists plu
 | `list-refresh-hours` | long | `12` | How often the blocklists are re-downloaded, in hours. |
 | `whitelist` | string list | `["127.0.0.1"]` | IPs exempt from VPN/proxy checks. |
 | `lists` | string list | 7 URLs (see example below) | Blocklist URLs downloaded on startup and every `list-refresh-hours`. Dead or unreachable lists are skipped with a warning. Remove lists that false-positive for your audience rather than disabling the whole check. |
-| `persist-cache` | boolean | `true` | Persist the VPN check cache to disk so it survives proxy restarts. |
+| `persist-cache` | boolean | `true` | Persist the VPN check cache to `nitrocord/antivpn-cache.txt` so it survives proxy restarts. The journal is decoded with replacement characters and parsed line by line, so one malformed or binary line is skipped instead of wiping every cached verdict. |
 | `purge-age-days` | long | `30` | Persisted cache entries older than this many days are purged on load — IP reputations change, so stale verdicts are discarded. |
 | `post-login-recheck` | boolean | `true` | Re-check a player's address once the login completes, catching VPNs that only become visible after the handshake. |
 | `proxycheck-key` | string | `""` (empty) | Optional proxycheck.io API key enabling that provider for online checks. |
@@ -470,6 +471,10 @@ The verified-IP whitelist: remembers addresses that joined legitimately and lets
 
 ::: info Not the same as the other whitelists
 This is the *learned* list of verified players. The static exemption lists live at `[firewall] whitelist`, `[ratelimit] whitelist`, and `[antivpn] whitelist` — those you fill by hand, this one fills itself.
+:::
+
+::: info Corrupt lines and future dates are never trusted
+`nitrocord/whitelist.txt` is decoded with replacement characters and parsed line by line, so one malformed or binary line never wipes the rest of the list. Entries dated in the future (beyond a five-minute clock-skew tolerance) count as corrupt: they are dropped on load and never grant verification.
 :::
 
 ### [timeout-flood]
@@ -841,6 +846,10 @@ firewall-on-trigger = true
 
 # Kicks joining players whose name contains a known bot substring.
 enabled = true
+
+# Vanilla-style username charset check (1-16 of [a-zA-Z0-9_.], Bedrock exempt).
+# Blocks control characters and unicode that could inject fake console log lines.
+strict-charset = true
 
 # Case-insensitive substrings that mark a nickname as a bot.
 blacklist = ["mcstorm", "mcdown", "mcbot", "theresa_bot", "dropbot", "kingbot"]

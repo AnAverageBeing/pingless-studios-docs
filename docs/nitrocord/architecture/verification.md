@@ -104,6 +104,10 @@ On top of the fall itself, [session invariants](/nitrocord/configuration/referen
 challenge the login/config stages with boot-random keep-alive and transaction
 ids: unsolicited or mismatched answers kick with `kick-verify-failed`, and a
 challenge left unanswered for 12 seconds kicks with `kick-verify-timeout`.
+The verification session also observes the client-settings and
+`minecraft:brand` packets a genuine client sends and counts them as proof for
+the [amazon real-client gate](/nitrocord/configuration/reference#amazon), so a
+player who passes the check is never flagged as an unproven client afterwards.
 
 ---
 
