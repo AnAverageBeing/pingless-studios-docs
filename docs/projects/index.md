@@ -50,5 +50,10 @@ Velocity-compatible Minecraft proxy with built-in, license-gated attack preventi
 
 [Documentation →](/nitrocord/) · [Contact →](https://studio.pingless.org)
 
+## Firewall-Plus for Pterodactyl
+Production-grade per-container iptables firewall for Pterodactyl Panel (Blueprint or standalone addon) plus a Wings node daemon, with DDoS SMART detection and automatic mitigation. 13 rule types, ipset whitelist/blacklist, per-port or global scopes, game presets, queued atomic applies with snapshots and rollback, drift detection, an emergency operations page, and a full client UI with dashboards, charts, presets, AbuseIPDB, and owner Discord/email attack alerts.
+
+[Documentation →](/firewall-plus/) · [GitHub →](https://github.com/AnAverageBeing/pterodactyl-firewall-plus)
+
 ## 📦 More Projects
 Follow [PingLess Studios on GitHub](https://github.com/AnAverageBeing) for new projects and updates.

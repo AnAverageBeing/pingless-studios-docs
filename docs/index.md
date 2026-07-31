@@ -61,6 +61,11 @@ features:
     details: Velocity-compatible Minecraft proxy with built-in attack prevention. Kernel ipset firewall, TCP fingerprinting, anti-bot verification, anti-VPN/GeoIP, attack-mode adaptation — drop-in plugin compatible.
     link: /nitrocord/
   -
+    icon:
+    title: Firewall-Plus for Pterodactyl
+    details: Production-grade per-container iptables firewall for Pterodactyl Panel (Blueprint or standalone addon) plus a Wings node daemon, with DDoS SMART detection and automatic mitigation.
+    link: /firewall-plus/
+  -
     title: 📡 More Coming Soon
     details: PingLess Studios is actively developing new infrastructure and security tools. Follow on GitHub for updates.
     link: https://github.com/AnAverageBeing

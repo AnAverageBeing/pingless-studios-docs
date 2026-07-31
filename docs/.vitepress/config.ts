@@ -434,6 +434,46 @@ export default withMermaid({
         },
       ]
     },
+    {
+      text: 'Firewall-Plus (Pterodactyl)',
+      collapsed: true,
+      items: [
+        {
+          text: 'Getting Started',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/firewall-plus/' },
+            { text: 'Installation', link: '/firewall-plus/getting-started/installation' },
+            { text: 'Quick Start', link: '/firewall-plus/getting-started/quick-start' },
+            { text: 'FAQ', link: '/firewall-plus/getting-started/faq' },
+          ]
+        },
+        {
+          text: 'Configuration',
+          collapsed: true,
+          items: [
+            { text: 'Reference', link: '/firewall-plus/configuration/reference' }
+          ]
+        },
+        {
+          text: 'User Guide',
+          collapsed: true,
+          items: [
+            { text: 'Rule Types', link: '/firewall-plus/user-guide/rules' },
+            { text: 'API Reference', link: '/firewall-plus/user-guide/api' },
+            { text: 'CLI Reference', link: '/firewall-plus/user-guide/cli' },
+            { text: 'Webhooks & Alerts', link: '/firewall-plus/user-guide/webhooks' },
+          ]
+        },
+        {
+          text: 'Architecture',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/firewall-plus/architecture/overview' }
+          ]
+        }
+      ]
+    },
   ],
 
   
