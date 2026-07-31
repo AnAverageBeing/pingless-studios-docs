@@ -75,5 +75,10 @@ Fleet-wide security monitoring and enforcement for Pterodactyl panels — a Lara
 
 [Documentation →](/pterodactyl-sentinel/) · [GitHub →](https://github.com/AnAverageBeing/pterodactyl-sentinel)
 
+## Ask Access for Pterodactyl
+Server access requests for Pterodactyl Panel, as a Blueprint addon or standalone extension. Users request access to a server by ID or to all of someone's servers by email; owners approve, deny, or revoke from a built-in account page with Read-only/Standard/Full permission presets, temporary auto-expiring grants, delegated access managers, user blocking, admin allowlist/blacklist policy, and a full audit trail.
+
+[Documentation →](/ask-access/) · [GitHub →](https://github.com/AnAverageBeing/Ask-Access)
+
 ## 📦 More Projects
 Follow [PingLess Studios on GitHub](https://github.com/AnAverageBeing) for new projects and updates.

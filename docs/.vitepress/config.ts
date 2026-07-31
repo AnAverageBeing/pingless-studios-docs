@@ -731,6 +731,42 @@ export default withMermaid({
         }
       ]
     },
+    {
+      text: 'Ask Access (Pterodactyl)',
+      collapsed: true,
+      items: [
+        {
+          text: 'Getting Started',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/ask-access/' },
+            { text: 'Installation', link: '/ask-access/getting-started/installation' }
+          ]
+        },
+        {
+          text: 'Configuration',
+          collapsed: true,
+          items: [
+            { text: 'Reference', link: '/ask-access/configuration/reference' }
+          ]
+        },
+        {
+          text: 'User Guide',
+          collapsed: true,
+          items: [
+            { text: 'Server Access Page', link: '/ask-access/user-guide/server-access-page' },
+            { text: 'Client API', link: '/ask-access/user-guide/api' }
+          ]
+        },
+        {
+          text: 'Architecture',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/ask-access/architecture/overview' }
+          ]
+        }
+      ]
+    },
   ],
 
   

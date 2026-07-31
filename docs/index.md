@@ -84,6 +84,11 @@ features:
     details: Fleet-wide security monitoring and enforcement for Pterodactyl — a Laravel panel addon (the brain) plus a static Go agent on each Wings node (the sensor/enforcer), with 12 detectors, graduated enforcement and central threat intel.
     link: /pterodactyl-sentinel/
   -
+    icon:
+    title: Ask Access for Pterodactyl
+    details: Server access requests for Pterodactyl Panel — users ask for access by server ID or owner email, owners approve with permission presets and optional time limits, with blocking, delegated managers, and a full audit trail.
+    link: /ask-access/
+  -
     title: 📡 More Coming Soon
     details: PingLess Studios is actively developing new infrastructure and security tools. Follow on GitHub for updates.
     link: https://github.com/AnAverageBeing
