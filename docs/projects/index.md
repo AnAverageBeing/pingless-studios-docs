@@ -84,6 +84,20 @@ Server access requests for Pterodactyl Panel, as a Blueprint addon or standalone
 Recoverable file deletion for Pterodactyl Panel (Blueprint or standalone addon). Deleted files move to a hidden /.trash folder instead of vanishing — with per-server trash quotas, per-egg retention windows, an hourly fault-tolerant purge, collision-safe restores, a trashbinpro.access subuser permission, quota-aware delete flows in the file manager, activity logging, and a full admin panel for global settings, egg overrides and manual purges.
 
 [Documentation →](/trash-bin-pro/) · [GitHub →](https://github.com/AnAverageBeing/pterodactyl-trash-bin-pro)
+## Blue Mod Installer for Pterodactyl
+A mod installer for Minecraft servers with support for CurseForge & Modrinth, built as a Blueprint extension. Adds a Mod Installer tab to every server's sidebar: search with loader/version filters, browse every version of a mod, and install in one click — the panel resolves the file through the provider API (your CurseForge key stays server-side) and Wings pulls it into `/mods`. Blueprint or standalone manual install.
+
+[Documentation →](/blue-mod-installer/) · [GitHub →](https://github.com/AnAverageBeing/blue-mod-installer)
+
+## Blue Plugin Installer for Pterodactyl
+Browse, install, and manage Minecraft plugins from five providers — Modrinth, CurseForge, Hangar, SpigotMC, and Polymart — as a Blueprint extension. Adds a Plugin Installer tab to every server's sidebar with type/version filtering and a version browser; the panel downloads the chosen file server-side and uploads it into `/plugins` through Wings. Blueprint or standalone manual install.
+
+[Documentation →](/blue-plugin-installer/) · [GitHub →](https://github.com/AnAverageBeing/blue-plugin-installer)
+
+## Blue Server Properties Editor for Pterodactyl
+A modern `server.properties` editor for Minecraft servers (nest ID 1), built as a Blueprint extension with an additional genuinely Blueprint-free variant. Every key rendered with the right control — toggles for booleans, dropdowns for difficulty/gamemode — in a 3-column grid with category filtering, read and written live through Wings with comments preserved. Customizable sidebar label from the admin page.
+
+[Documentation →](/blue-server-properties/) · [GitHub →](https://github.com/AnAverageBeing/blue-server-properties)
 
 ## 🛡️ Panel Firewall for Pterodactyl
 Host-level firewall and DDoS mitigation for the Pterodactyl Panel host itself. An admin-only panel UI drives a privileged, HMAC-authenticated Node.js daemon: L3/L4 packet hygiene and per-IP rate limits with 5 presets, EWMA-based SMART auto-mitigation, L7 HTTP-flood detection from web-server access logs, whitelist/blacklist ipsets — all applied transactionally with checkpoints and 60-second auto-rollback.
