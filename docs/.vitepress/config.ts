@@ -476,6 +476,43 @@ export default withMermaid({
       ]
     },
     {
+      text: 'Panel Firewall (Pterodactyl)',
+      collapsed: true,
+      items: [
+        {
+          text: 'Getting Started',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/panel-firewall/' },
+            { text: 'Installation', link: '/panel-firewall/getting-started/installation' }
+          ]
+        },
+        {
+          text: 'Configuration',
+          collapsed: true,
+          items: [
+            { text: 'Reference', link: '/panel-firewall/configuration/reference' }
+          ]
+        },
+        {
+          text: 'User Guide',
+          collapsed: true,
+          items: [
+            { text: 'Daemon API', link: '/panel-firewall/user-guide/api' },
+            { text: 'Webhooks & Alerts', link: '/panel-firewall/user-guide/webhooks' }
+          ]
+        },
+        {
+          text: 'Architecture',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/panel-firewall/architecture/overview' },
+            { text: 'Protection Layers', link: '/panel-firewall/architecture/protection-layers' }
+          ]
+        }
+      ]
+    },
+    {
       text: 'Glacier Pack (Pterodactyl)',
       collapsed: true,
       items: [

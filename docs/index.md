@@ -69,6 +69,10 @@ features:
     details: Production-grade per-container iptables firewall for Pterodactyl Panel (Blueprint or standalone addon) plus a Wings node daemon, with DDoS SMART detection and automatic mitigation.
     link: /firewall-plus/
   -
+    title: Panel Firewall for Pterodactyl
+    details: Host-level DDoS protection for the Pterodactyl Panel host itself — L3/L4 iptables presets, EWMA auto-mitigation, and L7 access-log HTTP-flood bans via an HMAC-authenticated daemon with transactional rollback.
+    link: /panel-firewall/
+  -
     title: Glacier Pack for Pterodactyl
     details: 24 standalone addons for Pterodactyl Panel plus the Glacier Pack hub — one custom dashboard hosting every addon's complete admin UI. Recycle bin, URL downloads, Minecraft installers, backups, subdomains, staff roles and more, all Glacier-native.
     link: /glacier-pack/

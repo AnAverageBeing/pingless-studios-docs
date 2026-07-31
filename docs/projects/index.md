@@ -85,5 +85,10 @@ Recoverable file deletion for Pterodactyl Panel (Blueprint or standalone addon).
 
 [Documentation →](/trash-bin-pro/) · [GitHub →](https://github.com/AnAverageBeing/pterodactyl-trash-bin-pro)
 
+## 🛡️ Panel Firewall for Pterodactyl
+Host-level firewall and DDoS mitigation for the Pterodactyl Panel host itself. An admin-only panel UI drives a privileged, HMAC-authenticated Node.js daemon: L3/L4 packet hygiene and per-IP rate limits with 5 presets, EWMA-based SMART auto-mitigation, L7 HTTP-flood detection from web-server access logs, whitelist/blacklist ipsets — all applied transactionally with checkpoints and 60-second auto-rollback.
+
+[Documentation →](/panel-firewall/) · [GitHub →](https://github.com/AnAverageBeing/pterodactyl-panel-firewall)
+
 ## 📦 More Projects
 Follow [PingLess Studios on GitHub](https://github.com/AnAverageBeing) for new projects and updates.
