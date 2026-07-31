@@ -93,6 +93,18 @@ features:
     details: Recoverable file deletion for Pterodactyl Panel. Soft-delete trash bin with per-server quotas, per-egg retention windows, collision-safe restores, subuser permissions and a full admin panel.
     link: /trash-bin-pro/
   -
+    title: Blue Mod Installer for Pterodactyl
+    details: One-click Minecraft mod installer in the server sidebar — search Modrinth and CurseForge with loader/version filters and version browser, installed straight into /mods via Wings.
+    link: /blue-mod-installer/
+  -
+    title: Blue Plugin Installer for Pterodactyl
+    details: One-click Minecraft plugin installer in the server sidebar — browse Modrinth, CurseForge, Hangar, SpigotMC, and Polymart, with panel-side download and Wings upload into /plugins.
+    link: /blue-plugin-installer/
+  -
+    title: Blue Server Properties Editor
+    details: Modern categorized server.properties editor for Minecraft servers — toggles, dropdowns and 3-column grid with live Wings read/write, customizable sidebar label, Blueprint or Blueprint-free install.
+    link: /blue-server-properties/
+  -
     title: 📡 More Coming Soon
     details: PingLess Studios is actively developing new infrastructure and security tools. Follow on GitHub for updates.
     link: https://github.com/AnAverageBeing
