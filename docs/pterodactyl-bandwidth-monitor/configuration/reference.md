@@ -270,6 +270,8 @@ On a live panel + Wings node: a 1 GiB quota exceeded throttled the server to 5 M
 | `poll_interval_seconds` | int | `60` | 15–3600 | How often node agents heartbeat; also used as the panel-side stats poll interval (the panel polls each online node and stores rollups). |
 | `retention_days_hourly` | int | `90` | 1–3650 | Days that hourly usage rollups (`bandwidth_usage_hourly`) are kept before pruning. |
 | `retention_days_daily` | int | `730` | 1–7300 | Days that daily usage rollups (`bandwidth_usage_daily`) are kept. Two years covers most billing disputes. |
+| `events_retention_days` | int | `180` | 1+ | Days that enforcement events (`bandwidth_events`) are kept by the daily prune job. |
+| `rename_on_quota_suspend` | bool | `0` | 0/1 | When `1`, a server suspended for a quota violation is renamed to `(Bandwidth Quota Exceeded) <name>` (and its description prefixed) until it is unsuspended. See Admin Panel → Quota Suspension Tagging. |
 
 ### `config_version` — how changes propagate
 

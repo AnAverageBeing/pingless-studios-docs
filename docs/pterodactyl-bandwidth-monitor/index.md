@@ -68,11 +68,13 @@ The node agent authenticates to the panel with a per-node 64-hex bearer token; t
 - **📅 Day / week / month quotas, per direction.** Independent RX and TX quotas for each period, in GiB. Periods reset at calendar boundaries (midnight, Monday 00:00, 1st 00:00) in a configurable timezone.
 - **⚖️ Configurable exceed actions.** When a quota trips, the node applies the server's action: **throttle** (re-apply `tc` at low throttle speeds), **suspend** (panel callback suspends the Pterodactyl server, then throttle to 1 Mbps), or **log-only** (event recorded, no enforcement).
 - **🔑 Per-node pairing tokens.** Every Pterodactyl node gets a 64-hex pairing token on the Nodes page — viewable and resettable from the UI. Resetting a token kills the old one immediately.
-- **🖥️ Native admin UI.** Six AdminLTE pages inside your panel — Dashboard, Nodes, Servers, Reports, Events, Settings — with bundled Chart.js dashboards (fleet bandwidth over time, top consumers).
+- **🖥️ Native admin UI.** Seven AdminLTE pages inside your panel — Dashboard, a full **Analytics** tab (period comparisons, per-node/per-user consumption, quota watch, projections), Nodes, Servers, Reports, Events, Settings — with bundled Chart.js served from `public/ext/` (build-proof), and searchable, sortable, paginated tables throughout.
 - **📈 Hourly + daily rollups.** The panel polls each online node for counters every minute and stores per-server hourly and daily usage buckets for fast charting and reporting.
 - **🔮 Usage predictions.** Linear projection per server (current usage + average rate × remaining time, cross-checked against the 7-day daily average) surfaces "projected to exceed quota on \<date\>" before it happens.
 - **📄 Reports with CSV export.** Date-ranged per-server usage reports, downloadable as CSV for billing or finance tooling.
 - **🧩 Server build-config integration.** Bandwidth fields (enabled, speed caps, six quota fields, exceed action, throttle speeds) are added directly to the server build configuration, with admin defaults from **Settings** prefilling every new server.
+- **🏷️ Optional quota-suspension tagging.** Servers suspended for exceeding a quota can be renamed to `(Bandwidth Quota Exceeded) <name>` until they're unsuspended — manually, on period reset, or via Unthrottle. Servers suspended by anything else are never touched.
+- **🔀 Lifecycle-aware.** Server deletion cascades limits/usage cleanly (events kept as an audit trail); transfers push the fresh limits to both the old and new node so caps follow the server instantly.
 - **💾 Crash-safe enforcement.** Counters, limits and the outbound event queue persist in SQLite on the node; `tc` rules are re-applied on boot, so enforcement survives agent restarts.
 
 ---

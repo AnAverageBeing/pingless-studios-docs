@@ -235,6 +235,10 @@ bash remove.sh --purge-data   # also drops the bandwidth_* tables
 
 Both paths remove the provider from `config/app.php`, revert the sidebar and build-view patches, delete exactly the files the installer shipped, and clear the panel caches. By default your historical usage data, events and settings in the `bandwidth_*` tables are kept — pass `--purge-data` (standalone) only if you want them gone.
 
+::: warning ASSET PATH NOTE
+The bundled Chart.js lives at `public/ext/bandwidth/chart.min.js` — deliberately **outside** `public/assets/`, which the panel's `yarn build:production` wipes on every frontend rebuild. If you ever see blank charts after a frontend rebuild, check that file still exists; everything else in the addon is build-proof.
+:::
+
 ### Node agent
 
 On each Wings node, as root:

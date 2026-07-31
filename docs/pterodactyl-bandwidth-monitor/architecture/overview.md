@@ -7,7 +7,7 @@ description: How Bandwidth Monitor is built — the two-half panel + node design
 
 Bandwidth Monitor is two cooperating halves with a strict wire contract between them:
 
-- **Panel addon** (`pterodactylbandwidth`) — a Blueprint extension inside the Pterodactyl panel (PHP/Laravel). Owns the admin UI, pairing tokens, per-server limits, usage rollups, reports, predictions, and settings. State lives in the panel's MySQL database in seven `bandwidth_*` tables.
+- **Panel addon** (`pterodactylbandwidth`) — a Blueprint extension inside the Pterodactyl panel (PHP/Laravel). Owns the admin UI, pairing tokens, per-server limits, usage rollups, reports, predictions, and settings. State lives in the panel's MySQL database in eight `bandwidth_*` tables.
 - **Node agent** (`bandwidth-noded`) — a Go daemon on every Wings node. Discovers server containers, counts bytes on their veth interfaces, enforces speed caps and quotas with `tc`, and syncs with the panel. State lives in a local SQLite database.
 
 The halves never share a database. Everything crosses the wire through the documented [API contract](../user-guide/api.md): the node calls the panel (register, heartbeat, limits pull, events, suspend), and the panel calls the node (stats, history, limits push, unthrottle).
@@ -166,7 +166,7 @@ Two binaries are installed: `bandwidth-noded` (the systemd service) and `bandwid
 
 Unparseable ("poison") event payloads are dropped on read so a single bad row can never block the queue.
 
-### Panel side — MySQL (seven `bandwidth_*` tables)
+### Panel side — MySQL (eight `bandwidth_*` tables)
 
 | Table | Purpose | Notable columns |
 | --- | --- | --- |
@@ -177,10 +177,17 @@ Unparseable ("poison") event payloads are dropped on read so a single bad row ca
 | `bandwidth_usage_daily` | Daily rollups (from the 48h aggregation) | same shape as hourly |
 | `bandwidth_events` | Enforcement audit log | `server_id`, `node_id` (nullable), `type`, `period`, `direction`, `message`, `created_at` |
 | `bandwidth_server_state` | Last-seen cumulative counters per server | `server_id` (unique), `last_rx_total`, `last_tx_total`, `last_polled_at` |
+| `bandwidth_quota_suspensions` | Marker for addon-initiated quota suspensions (gates the name-tag feature) | `server_id` (unique), `original_name`, `original_description`, `created_at` |
 
 All usage/events tables cascade (or null) on server/node deletion, so deleting a Pterodactyl server cleans up its rows.
 
 ---
+
+## Server lifecycle: deletion & transfer
+
+**Server deleted.** Limits, poll baselines, and usage history (`bandwidth_server_limits`, `bandwidth_server_state`, `bandwidth_usage_hourly/daily`) cascade-delete with the server — no orphans. `bandwidth_events` keeps its rows with `server_id = NULL` as an audit trail. On the node, the next discovery scan (~10 s) marks the container stopped and strips its `tc` rules; the record is purged after 72 h by the cleanup job. The panel poll job silently skips stats for UUIDs it no longer knows.
+
+**Server transferred to another node.** Limits and usage history follow the server (keyed by `server_id`, unchanged). The `Server\Updated` listener detects the `node_id` change, bumps `config_version`, and pushes the fresh payload to **both** nodes: the new node's agent applies the server's caps on its next pull, and the old node's full-replace payload drops the server and removes its `tc` rules.
 
 ## Concurrency & locking model (node agent)
 
