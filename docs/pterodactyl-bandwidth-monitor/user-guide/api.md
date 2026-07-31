@@ -434,6 +434,19 @@ curl -s -X POST -H "Authorization: Bearer <64-hex token>" \
 
 ---
 
+## Admin session JSON endpoints
+
+A small set of session-authed (admin web session, same middleware as the admin pages) JSON endpoints powers the dashboard UI. These are for the panel's own JavaScript — not part of the node contract, but stable enough to script against:
+
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /admin/bandwidth/api/timeseries?hours=&node_id=&server_id=` | Bucketed fleet In/Out series for charts (`hours` 1–2160) |
+| `GET /admin/bandwidth/api/top-consumers?hours=&node_id=` | Top 10 servers by combined bytes in range |
+| `GET /admin/bandwidth/nodes/poll` | Database-backed node card fields (no node call) |
+| `GET /admin/bandwidth/nodes/{node}/live` | Near-real-time In/Out rates for one node — the panel proxies the agent's `GET /api/v1/stats` with a 3-second cache. Feeds the node-card sparklines |
+
+All five return plain JSON (the admin UI consumes them with `fetch`). Chart endpoints use the envelope-less chart shapes shown in the Admin Panel guide; the live endpoint returns `{ "ok": true, "rx_rate_bps": 0, "tx_rate_bps": 0, "throttled": 0, "quota_exceeded": 0, "containers": 0 }`.
+
 ## Versioning & compatibility
 
 - The addon/agent version (`1.0.0`) is reported in every envelope's `meta.version` and in the `version` field of register/heartbeat calls.
