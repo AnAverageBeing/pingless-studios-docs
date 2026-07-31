@@ -459,6 +459,7 @@ export default withMermaid({
           text: 'User Guide',
           collapsed: true,
           items: [
+            { text: 'For Server Owners', link: '/firewall-plus/user-guide/for-server-owners' },
             { text: 'Rule Types', link: '/firewall-plus/user-guide/rules' },
             { text: 'API Reference', link: '/firewall-plus/user-guide/api' },
             { text: 'CLI Reference', link: '/firewall-plus/user-guide/cli' },
