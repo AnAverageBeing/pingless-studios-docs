@@ -161,6 +161,29 @@ Legitimate responses (apt from `mirror:80 → you:45123`, DNS from `resolver:53 
 
 **Fix:** the learner now never folds in traffic above the **effective trigger ceiling** (`max(spike_threshold, attack_min_pps)`), regardless of attack state. Organic traffic growth below the trigger is still learned normally. Verified live: with the clamp, the baseline stayed frozen for the whole flood and detection fired in ~2 s.
 
+### F13 — Baseline-anchor scoring false-banned busy legit workloads in seconds
+
+**Symptom:** legitimate game-server traffic (~2,000 pps UDP from one IP — 40 players behind NAT) was banned in ~2 seconds on the Gaming preset, even with correct thresholds and no attack active.
+
+**Root cause:** the baseline-anchored detector awarded partial suspicion (40% of metric score, up to 7 points) to any source exceeding `baseline × anchor_mult` (3–6×), and it ran at the 256-packet cadence (~8 evaluations/s at 2k pps). On a quiet server (baseline ~75 pps), any busy service exceeds the anchor — accruing ~56+ points/s and banning in ~2 s. Additionally, the attack-state threshold tightening (50%) halved thresholds globally during any attack, so legit sources above the halved threshold were swept up; and `attack_min_pps` (default 1,000) let a 2k pps game server enter attack state in the first place.
+
+**Fix (validated live — score stays 0 for 2k pps game traffic, floods still ban in ~2 s):**
+
+- Anchor partials now fire **only during a declared attack** and **only once per window**, at 10% weight with higher multipliers (5/8/10/12 by tier).
+- Profiles now set per-category `attack_min_pps`/`attack_min_bps` (Gaming 5,000, Hosting 5,000, CDN 10,000) so normal workload rates never enter attack state.
+- New per-category `attack_threshold_multiplier` (0.7–0.75 for Gaming/Hosting/CDN) so tightening is gentler where legit traffic is heavy.
+- Scoring is now **magnitude-scaled** (8× cap): sources far over a threshold ban in 1–2 windows; marginal violators accrue slowly.
+
+### F14 — Global pps threshold below per-protocol thresholds (preset invariant)
+
+**Symptom:** a pure-UDP game server exceeded the global `pps_threshold` (1,200) while staying under `udp_pps_threshold` (2,000) — the global limit fired first.
+
+**Fix:** preset invariant enforced — global pps ≥ ~1.2× the largest per-protocol threshold for every category (Gaming 3,000, Database 2,000, Hosting 2,000).
+
+### F15 — XDP auto-select preferred slower modes
+
+**Fix:** auto attach now tries **offload → native → generic** (earliest drop point first), and the actual attached mode is reported in status/TUI instead of the opaque `auto`.
+
 ## Attack Type Matrix (measured, internal rig)
 
 Each flood ran ~12 s from the veth rig. Detection latency measured from flood start to `under_attack`; recovery from flood stop to `normal`.
@@ -210,6 +233,29 @@ In every case the attacking source was banned within ~1–2 s by the per-source 
 | Quiet (APIs, small sites) | `0` (auto) | `3` | `0.7` | `10` |
 | Game server (noisy baseline) | `2000`–`3000` | `4` | `0.7` | `10` |
 | Heavy download/CDN origin | `5000`+ | `6` | `0.6` | `15` |
+
+## Preset Values (v1.6.1, validated by simulation)
+
+Per-IP thresholds at `Balanced` level, from live simulation of each workload at NAT scale (all legit workloads passed with zero scoring; floods banned in ~2 s):
+
+| Category | pps | bps | tcp_pps | udp_pps | syn_pps | susp | attack_min_pps | attack tightening |
+|----------|-----|-----|---------|---------|---------|------|----------------|-------------------|
+| Ultra Strict | 250 | 2 MB/s | 150 | 100 | 50 | 40 | 500 | 0.40× |
+| Strict | 350 | 3 MB/s | 225 | 175 | 75 | 50 | 800 | 0.45× |
+| Balanced (default) | 500 | 6 MB/s | 375 | 300 | 120 | 80 | 2,000 | 0.50× |
+| Performance | 850 | 12 MB/s | 640 | 600 | 250 | 120 | 3,000 | 0.60× |
+| Hosting | 2,000 | 24 MB/s | 1,200 | 1,200 | 500 | 200 | 5,000 | 0.70× |
+| Gaming | 3,000 | 18 MB/s | 1,500 | 2,500 | 350 | 150 | 5,000 | 0.75× |
+| Enterprise | 700 | 10 MB/s | 525 | 450 | 170 | 100 | 2,000 | 0.50× |
+| CDN / Edge | 2,500 | 40 MB/s | 2,000 | 1,800 | 800 | 300 | 10,000 | 0.70× |
+| Database | 2,000 | 24 MB/s | 1,500 | 280 | 100 | 90 | 3,000 | 0.60× |
+
+Key tuning rules learned from simulation:
+
+- **Global pps ≥ 1.2× the largest per-protocol threshold** — or UDP/TCP-heavy services trip the global limit first.
+- **`attack_min_pps` must exceed the workload's normal rate** — a 2k pps game server at the old 1k default entered attack state, halved thresholds, and mass-banned its own players.
+- **NAT aggregation is per-IP reality**: N players behind one IP multiply per-source rates — Gaming/Hosting thresholds assume up to ~50 clients per IP.
+- Detection latency is ~2–3 s for clear floods (magnitude-scaled scoring), ~30–60 s for low-and-slow (anchor, attack-state only).
 
 ## Operational Notes from Live Testing
 

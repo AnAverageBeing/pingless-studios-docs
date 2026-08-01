@@ -117,6 +117,64 @@ openshield version
 
 Also accessible via `openshield --version` or `openshield -v`.
 
+### `openshield behavior`
+
+Show the adaptive behavior engine's live state: learned per-port baselines
+(observations, median PPS, average packet size) and candidate clusters with
+confidence scores and reasons. See
+[Adaptive Behavior](/openshield-xdp/detection-engine/behavior).
+
+```bash
+openshield behavior
+```
+
+### `openshield schedule`
+
+Manage suppression windows for baseline learning and auto pattern blocking —
+use ahead of a known legitimate traffic spike (launch, match start) so the
+surge neither poisons baselines nor gets auto-blocked. Schedules persist
+across restarts and expire automatically.
+
+```bash
+openshield schedule list                          # show active windows
+sudo openshield schedule suppress baseline 2h     # pause baseline learning 2h
+sudo openshield schedule suppress auto-block 90m  # pause auto-blocking 90m
+sudo openshield schedule clear baseline           # remove one window
+sudo openshield schedule clear all                # remove all windows
+```
+
+### `openshield whitelist` / `openshield blacklist`
+
+```bash
+sudo openshield whitelist add 1.2.3.4            # or a CIDR, or a file of entries
+sudo openshield whitelist remove 1.2.3.4
+openshield whitelist list
+sudo openshield blacklist add 5.6.7.8 3600       # manual ban (default 24h)
+sudo openshield blacklist remove 5.6.7.8
+openshield blacklist list
+```
+
+### `openshield license`
+
+```bash
+sudo openshield license activate <key>           # save and activate a license key
+sudo openshield license refresh                  # force a re-check now
+openshield license status                        # tier, HWID, expiry, grace
+```
+
+### `openshield report`
+
+Print a network analysis report (daily by default; weekly/monthly optional).
+
+```bash
+openshield report [daily|weekly|monthly]
+```
+
+### `openshield webhook-test` / `openshield alert test`
+
+Send a dummy attack alert to the configured webhook to verify delivery and
+formatting.
+
 ## `openshield-loader` commands
 
 The `openshield-loader` binary is a minimal daemon-oriented CLI used by the systemd service. It has fewer commands and no TUI integration.

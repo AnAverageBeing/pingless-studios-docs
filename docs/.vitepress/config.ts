@@ -70,6 +70,7 @@ export default withMermaid({
             { text: 'Overview', link: '/openshield-xdp/detection-engine/overview' },
             { text: 'L3/L4 Validation', link: '/openshield-xdp/detection-engine/l3-l4' },
             { text: 'Rate-Based Scoring', link: '/openshield-xdp/detection-engine/rate-based' },
+            { text: 'Adaptive Behavior', link: '/openshield-xdp/detection-engine/behavior' },
           ]
         },
         {
