@@ -68,7 +68,7 @@ A family of 24 standalone addons for Pterodactyl Panel v1.12.x plus the Glacier 
 ## Pterodactyl Revamp
 Enterprise operations layer for Pterodactyl Panel 1.12.x–1.14.x, installable as a Blueprint extension or a standalone PanelFiles merge. Bulk server operations, multi-server creation, tagging, server templates, an allocation port picker, metrics and analytics dashboards, node/server health scoring, global search, and a full audit log — all from a dedicated `/admin/revamp` hub.
 
-[Documentation →](/pterodactyl-revamp/) · [GitHub →](https://github.com/PingLess/pterodactyl-revamp)
+[Documentation →](/pterodactyl-revamp/) · [GitHub →](https://github.com/AnAverageBeing/pterodactyl-revamp)
 
 ## Sentinel for Pterodactyl
 Fleet-wide security monitoring and enforcement for Pterodactyl panels — a Laravel panel addon (the brain) plus a static Go agent on each Wings node (the sensor/enforcer). Twelve detectors catch cryptominers, port scans, outbound DDoS, zip bombs, privilege escalation, abuse tooling and malware; a graduated rules engine kills processes, quarantines files, pauses or stops containers, and suspends servers panel-side. Threat intel is shared across the fleet — a hash confirmed by enough nodes is blocked everywhere — and the whole config is edited once in the admin UI and pushed, versioned, to every node.

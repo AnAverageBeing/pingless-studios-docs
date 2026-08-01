@@ -8,7 +8,7 @@ description: Enterprise operations layer for Pterodactyl Panel — bulk server o
 Pterodactyl Revamp is an enterprise operations layer for **Pterodactyl Panel 1.12.x – 1.14.x** that adds bulk server operations, multi-server creation, tagging, templates, metrics, health scoring, global search, and audit logging on top of the stock admin panel.
 
 ::: info Version
-Current release: **1.2.0** · Blueprint target: `beta-2026-06` · [GitHub repository](https://github.com/PingLess/pterodactyl-revamp)
+Current release: **1.2.0** · Blueprint target: `beta-2026-06` · [GitHub repository](https://github.com/AnAverageBeing/pterodactyl-revamp)
 :::
 
 ## Key features
@@ -79,7 +79,7 @@ PHP **8.2 / 8.3**, MySQL/MariaDB **10.4+**, and a Pterodactyl panel on **1.12.x 
 :::
 
 ::: danger Bulk move is opt-in
-Bulk move only re-points panel database records — it does **not** transfer server data through Wings, which would leave servers broken. It is gated behind the `bulk_move_enabled` setting (default **off**). Enable it only if you understand the consequences. See [Configuration](/pterodactyl-revamp/getting-started/configuration).
+Bulk move only re-points panel database records — it does **not** transfer server data through Wings, which would leave servers broken. It is gated behind the `bulk_move_enabled` setting (default **off**). Enable it only if you understand the consequences. See [Configuration](/pterodactyl-revamp/configuration/reference).
 :::
 
 ## Documentation
@@ -87,7 +87,7 @@ Bulk move only re-points panel database records — it does **not** transfer ser
 | Page | What it covers |
 |---|---|
 | [Installation](/pterodactyl-revamp/getting-started/installation) | Both install paths, requirements, queue worker, and cron setup |
-| [Configuration](/pterodactyl-revamp/getting-started/configuration) | Every Revamp setting, including `bulk_move_enabled` |
-| [CLI](/pterodactyl-revamp/reference/cli) | Artisan commands for metrics sampling, rollups, health, and rule evaluation |
-| [API](/pterodactyl-revamp/reference/api) | Application API endpoints exposed by Revamp |
-| [Architecture](/pterodactyl-revamp/reference/architecture) | Controllers, services, jobs, and database tables in depth |
+| [Configuration](/pterodactyl-revamp/configuration/reference) | Every Revamp setting, including `bulk_move_enabled` |
+| [CLI](/pterodactyl-revamp/user-guide/cli) | Artisan commands for metrics sampling, rollups, health, and rule evaluation |
+| [API](/pterodactyl-revamp/user-guide/api) | Application API endpoints exposed by Revamp |
+| [Architecture](/pterodactyl-revamp/architecture/overview) | Controllers, services, jobs, and database tables in depth |

@@ -7,7 +7,7 @@ description: Install Pterodactyl Revamp as a Blueprint extension or as a standal
 
 Pterodactyl Revamp ships with **two install paths**: a Blueprint extension (recommended) and a standalone panel merge for panels without Blueprint. Both paths install the same code — the difference is only how the files land on your panel.
 
-**Repository:** [github.com/PingLess/pterodactyl-revamp](https://github.com/PingLess/pterodactyl-revamp) · **Version:** `1.2.0`
+**Repository:** [github.com/AnAverageBeing/pterodactyl-revamp](https://github.com/AnAverageBeing/pterodactyl-revamp) · **Version:** `1.2.0`
 
 ---
 
