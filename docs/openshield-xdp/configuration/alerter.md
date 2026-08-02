@@ -11,7 +11,11 @@ alerter:
   enabled: false
   webhook_url: ""
   events: []                # empty = all events
-  # events: [attack_start, ban_triggered, panic_mode]  # filtered
+  # events: [attack_start, attack_update, attack_end, ban_triggered, panic_mode]
+  graph_enabled: true       # attach labeled traffic graph to attack-end alerts
+  show_banned_ips: true     # inline banned IPs in ban alerts (txt for large batches)
+  geo_breakdown: true       # continent/country share of banned IPs (needs GeoIP db)
+  attack_updates: true      # progress embeds while an attack is ongoing
 
 telemetry:
   poll_interval: 1
@@ -28,38 +32,56 @@ telemetry:
 | `alerter.enabled` | `bool` | `false` | Master toggle for webhook alerts |
 | `alerter.webhook_url` | `string` | `""` | Discord webhook URL (must be full `https://discord.com/api/webhooks/...`) |
 | `alerter.events` | `[]string` | `[]` | Event filter — if not empty, only listed events trigger alerts |
+| `alerter.graph_enabled` | `bool` | `true` | Attach the attack traffic graph (incoming vs passed PPS + BPS, labeled axes) to attack-end alerts |
+| `alerter.show_banned_ips` | `bool` | `true` | Show banned IPs inline in ban alerts; large batches always attach a grouped `.txt` |
+| `alerter.geo_breakdown` | `bool` | `true` | Continent/country breakdown (% share + IP counts) in ban-batch alerts; requires the GeoIP database |
+| `alerter.attack_updates` | `bool` | `true` | Send progress embeds while an attack is ongoing |
 
 ## Rate Limiting
 
-::: warning Concurrency Guard
-The alerter uses a **buffered Go channel as a semaphore** with capacity 10. Each alert dispatch acquires a slot; if all 10 slots are occupied, new alerts are **silently dropped** (non-blocking `select` with `default:` case). This prevents alert storms from saturating the HTTP client or spamming the webhook endpoint.
-:::
+All webhook traffic flows through **one paced dispatch queue** (depth 64).
+A single dispatcher goroutine delivers messages with a minimum 1.2s
+spacing, so a burst of events during an attack can never trip Discord's
+webhook rate limit:
 
-```go
-// Internal implementation (alerter.go)
-sem: make(chan struct{}, 10)   // max 10 concurrent dispatches
+- **HTTP 429 honored**: on a rate-limit response the dispatcher sleeps the
+  server-provided `Retry-After` window and retries once before dropping.
+- **Overflow drops, never blocks**: when the queue is full, new alerts are
+  dropped and counted — the firewall never blocks on Discord.
+- **Coalesced warnings**: alerter failures (429s, network errors) reach the
+  log feed through a rate-limited sink (max one per 30s, with
+  "+N similar suppressed"). They are never written to the terminal.
+- **Ban batching**: individual ban events accumulate and flush as ONE
+  merged "IPs Banned" embed every 5 seconds.
 
-func (a *Alerter) Send(eventType string, details map[string]interface{}) {
-    // ...
-    select {
-    case a.sem <- struct{}{}:   // acquire slot
-    default:                    // all slots full → drop
-        return
-    }
-    defer func() { <-a.sem }()  // release slot
-    go a.dispatch(payload)
-}
-```
+## Attack Progress Updates
 
-- **HTTP timeout**: 5 seconds per dispatch
-- **Concurrent max**: 10 in-flight requests
-- **Non-blocking drop**: If all slots are full, the alert is dropped with no queuing
+While an attack is ongoing, progress embeds are dispatched at **30s, 60s,
+120s, 240s, 480s, 900s** after the start, then every **30 minutes** (hard
+cap) for multi-hour attacks. Each update carries current/peak/avg rates,
+growth vs the attack's first seconds and vs the previous update, bans, new
+sources/s, drop rate, and the next update's ETA as a Discord-localized
+timestamp. Disable with `alerter.attack_updates: false`.
+
+## Attack-End Report Semantics
+
+The attack-end embed reports two honest time figures:
+
+- **Duration** — how long attack traffic was actually elevated (start →
+  traffic normalized, i.e. 2 sustained samples below the recovery
+  threshold). **State Cleared** shows the full state-machine duration
+  including the recovery window when it ran longer.
+- **Mitigation Time** — "blocked in Xs": when the *passed* rate (traffic
+  getting through mitigation) collapsed. A flood whose sender keeps
+  transmitting after being banned shows a high incoming line with a flat
+  passed line — the graph's green `passed` line makes this visible.
 
 ## Event Types
 
 | Event Key | Trigger Condition | Discord Color |
 |-----------|------------------|---------------|
 | `attack_start` | Baseline learner detects attack state (traffic > threshold × spike%) | 🔴 Red (`#FF0000`) |
+| `attack_update` | Ongoing-attack progress (30s, growing intervals, 30min cap) | 🟠 Amber (`#E67E22`) |
 | `attack_end` | Attack state clears after recovery period | 🟢 Green (`#00FF00`) |
 | `ban_triggered` | IP banned (suspicion score reached threshold) | 🟠 Orange (`#FF8C00`) |
 | `panic_mode` | Panic circuit breaker activates (per-CPU PPS > `panic_pps_rate`) | 🟣 Magenta (`#FF00FF`) |
@@ -71,31 +93,8 @@ func (a *Alerter) Send(eventType string, details map[string]interface{}) {
 | `packet_size_anomaly` | Avg packet size outside [min, max] range | 🟦 Cyan |
 | `syn_fin_flood` | SYN:FIN ratio exceeded threshold | 🔴 Red |
 | `conn_rate_flood` | Connection rate limit exceeded | 🟡 Yellow |
-
-## Discord Embed Format
-
-Each alert is dispatched as a Discord webhook message with a single rich embed:
-
-```json
-{
-  "embeds": [{
-    "title": "ban_triggered",
-    "color": 16744448,
-    "timestamp": "2026-06-27T12:00:00Z",
-    "footer": {
-      "text": "openshield on fw-prod-01"
-    },
-    "fields": [
-      { "name": "ip", "value": "203.0.113.42", "inline": true },
-      { "name": "reason", "value": "pps_threshold: 1200 > 850", "inline": true },
-      { "name": "score", "value": "105", "inline": true },
-      { "name": "duration", "value": "3600s", "inline": true }
-    ]
-  }]
-}
-```
-
-The `hostname` in the footer is set from `os.Hostname()` at alerter initialization, falling back to `"unknown"`.
+| `cluster_suspicious` | Behavior cluster crossed the suspicious threshold | ⚪ Grey |
+| `cluster_malicious` | Behavior cluster crossed the malicious threshold | 🔴 Red |
 
 ## Event Rate Limiting (Ring Buffer)
 
