@@ -335,6 +335,15 @@ GeoLite2-Country blocking.
 The check stays inactive until `maxmind-license-key` is configured — the database cannot be downloaded without it. Setting `enabled = true` alone changes nothing. This is your own MaxMind account key, unrelated to your NitroCord license.
 :::
 
+### [datacenter]
+
+Blocks connections from known cloud and hosting provider ranges — the networks botnets are almost always rented from. Roughly 380 prefixes for Amazon AWS, Google Cloud, Microsoft Azure, DigitalOcean, OVHcloud, Hetzner, Linode/Akamai, Vultr and Oracle Cloud are embedded in the jar; lookups are an in-memory binary search, fully offline, and never hang a connection. Google Public DNS (8.8.8.8/8.8.4.4) is deliberately excluded even though Google lists it inside its cloud scope. Kicked players see `kick-datacenter`.
+
+| Key | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `enabled` | boolean | `false` | Master switch for datacenter blocking. Opt-in: players behind VPS-hosted VPNs or self-hosted proxies would false-positive, so this is off by default. Applies live on `/nitrocord reload`. |
+| `whitelist` | string list | `["127.0.0.1"]` | Exact IPs exempt from the datacenter block. |
+
 ### [antivpn]
 
 Blocks known proxy, VPN, and Tor exit node IPs using downloadable blocklists plus an optional online API chain.
@@ -347,7 +356,7 @@ Blocks known proxy, VPN, and Tor exit node IPs using downloadable blocklists plu
 | `cache-minutes` | long | `60` | How many minutes a VPN check result is cached per IP, avoiding repeat lookups. |
 | `list-refresh-hours` | long | `12` | How often the blocklists are re-downloaded, in hours. |
 | `whitelist` | string list | `["127.0.0.1"]` | IPs exempt from VPN/proxy checks. |
-| `lists` | string list | 7 URLs (see example below) | Blocklist URLs downloaded on startup and every `list-refresh-hours`. Dead or unreachable lists are skipped with a warning. Remove lists that false-positive for your audience rather than disabling the whole check. |
+| `lists` | string list | 7 URLs (see example below) | Blocklist URLs downloaded on startup and every `list-refresh-hours`. Dead or unreachable lists are skipped with a warning. `raw.githubusercontent.com` URLs automatically fail over to their jsDelivr mirror when GitHub is unreachable (common on filtered/DDoSed networks), and `IP:port` list formats (TheSpeedX, clarketm) are understood natively. Remove lists that false-positive for your audience rather than disabling the whole check. |
 | `persist-cache` | boolean | `true` | Persist the VPN check cache to `nitrocord/antivpn-cache.txt` so it survives proxy restarts. The journal is decoded with replacement characters and parsed line by line, so one malformed or binary line is skipped instead of wiping every cached verdict. |
 | `purge-age-days` | long | `30` | Persisted cache entries older than this many days are purged on load — IP reputations change, so stale verdicts are discarded. |
 | `post-login-recheck` | boolean | `true` | Re-check a player's address once the login completes, catching VPNs that only become visible after the handshake. |
@@ -498,6 +507,22 @@ Botnets usually target a bare IP address; real players join through your domain.
 ::: warning Players who join by raw IP
 If your community has players who added the server by numeric IP, they will be kicked during attacks with `kick-dns-check`. Make sure your real domain is well published before relying on this.
 :::
+
+### [protocol]
+
+Rejects outdated Minecraft protocol versions at the handshake stage, before any login processing. Old-protocol bots and crash-exploit clients commonly advertise ancient versions; denying them early costs almost nothing. Denied connections see `kick-invalid-packet`.
+
+| Key | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `blocked-versions` | int list | `[]` (empty) | Protocol version numbers rejected at handshake, e.g. `[47, 340]` blocks 1.8.x and 1.12.2. Empty list = every version allowed. Applies live on `/nitrocord reload`. |
+
+### [hostname]
+
+Validates the virtual host in the handshake before it reaches the login pipeline. Blank, overlong, IDN-spoofed or otherwise illegal hostnames are a reliable bot/exploit signal — vanilla clients always send a well-formed address. Denied connections see `kick-invalid-packet`.
+
+| Key | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `enabled` | boolean | `true` | Master switch for handshake hostname validation. Applies live on `/nitrocord reload`. |
 
 ### [anti-hang]
 
@@ -896,6 +921,19 @@ update-interval-hours = 24
 # ISO 3166-1 alpha-2 country codes that are not allowed to join.
 blacklist = []
 
+[datacenter]
+
+# Block connections from known cloud/datacenter IP ranges (AWS, GCP, Azure,
+# DigitalOcean, OVH, Hetzner, Linode, Vultr, Oracle Cloud). Opt-in: players
+# behind VPS-hosted VPNs or self-hosted proxies would false-positive, so
+# this is off by default. The embedded ranges deliberately exclude Google
+# Public DNS (8.8.8.8/8.8.4.4) even though Google lists those prefixes
+# inside its published cloud scope.
+enabled = false
+
+# Exact IPs exempt from the datacenter block.
+whitelist = ["127.0.0.1"]
+
 [antivpn]
 
 # Blocks known proxy/VPN/Tor exit node IPs using the blocklists below.
@@ -1146,6 +1184,18 @@ enabled = true
 
 # Also match localhost and short host forms, not just literal IP addresses.
 strict = false
+
+[protocol]
+
+# Minecraft protocol version numbers that are rejected at the handshake
+# stage (empty list = every version allowed).
+blocked-versions = []
+
+[hostname]
+
+# Validate the handshake hostname: reject blank, IDN-spoofed or garbage
+# virtual hosts before they reach the login pipeline.
+enabled = true
 
 [anti-hang]
 

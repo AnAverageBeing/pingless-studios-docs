@@ -1,6 +1,6 @@
 ---
 title: Command Reference
-description: The /nitrocord admin command (alias /nc) — protection statistics, live config reload, manual firewall add/remove, and anti-VPN diagnostics. Syntax, example output and day-to-day workflows.
+description: The /nitrocord admin command (alias /nc) — protection statistics, full and per-section live config reload, manual firewall add/remove, and anti-VPN diagnostics. Syntax, example output and day-to-day workflows.
 ---
 
 # Command Reference
@@ -16,7 +16,7 @@ Running `/nitrocord` with no arguments prints the subcommand list:
 ```text
 NitroCord » commands
   /nitrocord stats - show protection statistics
-  /nitrocord reload - reload the configuration
+  /nitrocord reload [section] - reload the configuration, or one section: all, antivpn, firewall, geoip, motd, whitelist
   /nitrocord firewall add <ip> - add an address to the firewall
   /nitrocord firewall remove <ip> - remove an address from the firewall
   /nitrocord antivpn test <ip> - test an address against the anti-VPN checks
@@ -61,21 +61,37 @@ Counters reset on restart. The header and line format are the `stats-header` and
 
 ---
 
-## `/nitrocord reload`
+## `/nitrocord reload [section]`
 
 ```text
 /nc reload
+/nc reload antivpn
 ```
 
 ```text
 NitroCord » Configuration reloaded.
+NitroCord » reloaded antivpn
 ```
 
-Re-reads `nitrocord.toml` and `protection.toml` from disk and re-applies them to the stateful protection services (GeoIP, anti-VPN, MOTD cache, verified-IP whitelist). A broken file falls back to the bundled defaults with an error in the console — reload never crashes the proxy.
+With no argument (or with `all`), re-reads `nitrocord.toml` and `protection.toml` from disk and re-applies them to every stateful protection service (GeoIP, anti-VPN, MOTD cache, verified-IP whitelist). A broken file falls back to the bundled defaults with an error in the console — reload never crashes the proxy.
+
+With a section, the files are re-read exactly the same way — every live-read setting still applies — but only the named service is re-initialized on top:
+
+| Section | What is re-initialized |
+| ------- | ---------------------- |
+| `all` | Everything — identical to a bare `/nc reload`. |
+| `antivpn` | Anti-VPN service: downloaded blocklists, provider keys, verdict cache settings. |
+| `firewall` | Nothing extra — the firewall reads `protection.toml` live on every decision, so re-reading the file is all it takes. The confirmation says `config only`. |
+| `geoip` | GeoIP service: MaxMind database, license key, country blacklist. |
+| `motd` | MOTD service: caching, custom MOTDs, fake-player settings. |
+| `whitelist` | Verified-IP whitelist service. |
+
+The section tab-completes in-game, an unknown section prints the valid list, and a failing service reload is logged and reported without breaking the others. Section feedback uses the configured prefix and theme colors directly — there is no dedicated message key for it under `[messages]`.
 
 **Applies immediately, no restart needed:**
 
 - Every threshold, toggle and list in `protection.toml` — rate limits, attack-mode thresholds, violation strikes, packet scoring, check toggles, and `ban-time-seconds` for **new** bans
+- The handshake gates — the protocol-version blacklist, hostname validation and the datacenter filter read their settings live on every handshake, so any reload (full or per-section) applies them
 - Branding, theme colors and every message in `nitrocord.toml`
 - GeoIP — a new MaxMind key, country blacklist or database setting
 - Anti-VPN — blocklists, online-check keys, cache settings
@@ -86,10 +102,12 @@ Re-reads `nitrocord.toml` and `protection.toml` from disk and re-applies them to
 
 - `license-key` — the license is verified once at startup
 - `firewall.ipset` — the kernel ipset/iptables integration is set up once at startup
+- Pipeline wiring — the pre-login Netty handlers (the firewall gate and the packet guard) are installed into the channel pipeline once at boot
+- Packet obfuscation — applied while the pipeline is built, so toggling it needs a restart
 - Anything in `velocity.toml` — that file is not NitroCord's; use `/velocity reload` for it
 
 ::: tip
-`/velocity reload` also reloads both NitroCord TOMLs (it calls the same reload path before firing Velocity's `ProxyReloadEvent`), so either command works for NitroCord config changes.
+`/velocity reload` also reloads both NitroCord TOMLs (it calls the same reload path before firing Velocity's `ProxyReloadEvent`), so either command works for NitroCord config changes. Only `/nitrocord reload <section>` re-initializes a single service.
 :::
 
 ---
