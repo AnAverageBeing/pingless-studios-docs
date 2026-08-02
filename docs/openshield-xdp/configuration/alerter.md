@@ -13,7 +13,7 @@ alerter:
   events: []                # empty = all events
   # events: [attack_start, attack_update, attack_end, ban_triggered, panic_mode]
   graph_enabled: true       # attach labeled traffic graph to attack-end alerts
-  show_banned_ips: true     # inline banned IPs in ban alerts (txt for large batches)
+  show_banned_ips: false    # inline banned IPs in ban alerts (default off: categorized .txt attached instead)
   geo_breakdown: true       # continent/country share of banned IPs (needs GeoIP db)
   attack_updates: true      # progress embeds while an attack is ongoing
 
@@ -33,7 +33,7 @@ telemetry:
 | `alerter.webhook_url` | `string` | `""` | Discord webhook URL (must be full `https://discord.com/api/webhooks/...`) |
 | `alerter.events` | `[]string` | `[]` | Event filter — if not empty, only listed events trigger alerts |
 | `alerter.graph_enabled` | `bool` | `true` | Attach the attack traffic graph (incoming vs passed PPS + BPS, labeled axes) to attack-end alerts |
-| `alerter.show_banned_ips` | `bool` | `true` | Show banned IPs inline in ban alerts; large batches always attach a grouped `.txt` |
+| `alerter.show_banned_ips` | `bool` | `false` | List banned IPs inline in ban alerts; default off — a categorized `.txt` (grouped by reason) is attached instead |
 | `alerter.geo_breakdown` | `bool` | `true` | Continent/country breakdown (% share + IP counts) in ban-batch alerts; requires the GeoIP database |
 | `alerter.attack_updates` | `bool` | `true` | Send progress embeds while an attack is ongoing |
 
