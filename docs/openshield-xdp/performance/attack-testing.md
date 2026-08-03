@@ -262,3 +262,17 @@ Key tuning rules learned from simulation:
 - **Whitelist your admin IPs before anything else.** With `ban_duration: 3600` (1 h default), a burst of SSH connections, an SCP transfer, or a test flood from your own IP earns a one-hour ban — locking you out mid-session. Transfers to the server at line rate can themselves trip per-source scoring; throttle (`pv -L 100k`) when pushing large files to a protected host.
 - **Docker/bridge traffic to the host's own IP bypasses XDP entirely** (see methodology) — XDP only protects traffic that physically ingresses the attached interface. Services reached only via a bridge need the program attached to that bridge instead (separate instance).
 - After changing `dynamic:` detection values, use `openshield-loader reload` — the detection fields are runtime-safe, no restart needed.
+
+## Rotating spoofed floods outlived the scoring window (fixed in v1.9.2)
+
+**Observed:** 290K pps UDP flood on Hosting Medium — `UNDER ATTACK` declared, yet ~98.5% of traffic passed, `Suspicious: 0`, `Bans: 0`. Sources rotated every few seconds at ~5K pps each, so per-IP suspicion scoring (which needs multiple windows) never reached the ban threshold for any of them.
+
+**Root cause:** the dataplane had no attack-mode response — peacetime thresholds (tightened by `attack_threshold_multiplier`) still require several seconds per source, which rotating spoofed sources never provide.
+
+**Fix:** new hard cap `dynamic.attack_per_ip_pps` (default 1000, per-category in presets: Ultra Strict 400, Gaming 800, Balanced/Enterprise/Custom 1000, Hosting 1500, Performance 2000, CDN/Edge 3000, Database 800). While an attack is active, any source above the cap has its excess dropped instantly at XDP — no scoring wait. Verified live: drop rate jumped 0.1% → ~35% the moment the attack was declared, before any bans.
+
+**The rate-limit model, peacetime vs attack:**
+
+1. **Peacetime** — `static.*_threshold`: sources over these accrue suspicion → ban.
+2. **During attack** — thresholds tightened by `attack_threshold_multiplier` (scoring starts sooner).
+3. **During attack** — `attack_per_ip_pps`: the hard cap, immediate XDP drop, no scoring.
