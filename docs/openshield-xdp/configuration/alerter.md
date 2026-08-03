@@ -51,8 +51,10 @@ webhook rate limit:
 - **Coalesced warnings**: alerter failures (429s, network errors) reach the
   log feed through a rate-limited sink (max one per 30s, with
   "+N similar suppressed"). They are never written to the terminal.
-- **Ban batching**: individual ban events accumulate and flush as ONE
-  merged "IPs Banned" embed every 5 seconds.
+- **Event batching**: all per-IP event types (bans, new-source floods,
+  threshold violations, subnet bans, anomaly detections...) accumulate per
+  type and flush every 5 seconds as ONE merged embed per type, with the IP
+  list as a categorized .txt — never one message per IP.
 
 ## Attack Progress Updates
 
