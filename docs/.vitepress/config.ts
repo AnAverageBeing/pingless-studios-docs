@@ -852,7 +852,7 @@ export default withMermaid({
     ],
 
     footer: {
-      message: 'Maintained by <a href="https://github.com/AnAverageBeing">AnAverageBeing</a> — <a href="https://studio.pingless.org">PingLess Studios</a>',
+      message: 'Made by pingless.org — <a href="https://studio.pingless.org">PingLess Studios</a>',
     },
 
     search: { provider: 'local' },
