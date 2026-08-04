@@ -203,7 +203,7 @@ The kernel-level firewall that drops hostile IPs before they ever reach the Mine
 | `ipset` | boolean | `true` | Use ipset + iptables kernel drops instead of only in-memory denial. Degrades gracefully (with a startup warning) to in-memory mode when not running as root on Linux or when `ipset`/`iptables` are missing. |
 | `ban-time-seconds` | long | `60` | How many seconds an IP stays firewalled after triggering protection. Raise for persistent attackers; keep in mind botnets rotate IPs, so very long bans mostly fill the ban set. |
 | `whitelist` | string list | `["127.0.0.1"]` | IPs that can never be firewalled. Add your own monitoring, uptime checkers, and any trusted infrastructure IPs. |
-| `exceptions` | string list | `["BadPacketException", "QuietException", "FastDecoderException"]` | Simple class names of exceptions that trigger an immediate firewall ban — decoder failures that only garbage or exploit traffic produces. Rarely needs changing. |
+| `exceptions` | string list | `["BadPacketException", "QuietException", "FastDecoderException", "QuietDecoderException"]` | Simple class names of exceptions that trigger an immediate firewall ban — decoder failures that only garbage or exploit traffic produces. Rarely needs changing. |
 
 ::: warning Kernel drops need root
 The ipset path requires running the proxy as root (or with `CAP_NET_ADMIN`) on Linux with `ipset` and `iptables` installed. Without it you get in-memory denial only — still effective, but the packets reach the proxy process before being refused.
@@ -528,7 +528,7 @@ Validates the virtual host in the handshake before it reaches the login pipeline
 
 ### [anti-hang]
 
-Closes connections that stop progressing through the login sequence while the proxy is under attack, before they pile up and exhaust worker threads.
+Closes connections that stop progressing through the login sequence while the proxy is under attack, before they pile up and exhaust worker threads. The short timeout applies **only to pre-login states** (handshake, status, login) — once a connection reaches configuration/play it always runs on the standard `read-timeout` from velocity.toml, so joined players and backend server connections are never cut for idling longer than `attack-timeout-ms`.
 
 | Key | Type | Default | What it does |
 | --- | --- | --- | --- |
@@ -791,7 +791,7 @@ ban-time-seconds = 60
 whitelist = ["127.0.0.1"]
 
 # Simple class names of exceptions that trigger an immediate firewall ban.
-exceptions = ["BadPacketException", "QuietException", "FastDecoderException"]
+exceptions = ["BadPacketException", "QuietException", "FastDecoderException", "QuietDecoderException"]
 
 [ratelimit]
 
