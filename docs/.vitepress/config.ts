@@ -41,6 +41,7 @@ export default withMermaid({
             { text: 'Overview', link: '/openshield-xdp/' },
             { text: 'Installation', link: '/openshield-xdp/getting-started/installation' },
             { text: 'Quick Start', link: '/openshield-xdp/getting-started/quick-start' },
+            { text: 'VPS & Dedicated Deployment', link: '/openshield-xdp/getting-started/vps-deployment' },
             { text: 'Upgrade', link: '/openshield-xdp/getting-started/upgrade' },
             { text: 'FAQ', link: '/openshield-xdp/getting-started/faq' },
           ]
