@@ -409,7 +409,7 @@ Violation-level (vls) scoring against packet floods, similar to anti-cheat: ever
 | `enabled` | boolean | `true` | Master switch for packet flood scoring. |
 | `vls-per-byte` | double | `0.0017` | Violation points added per received byte within the window. |
 | `vls-per-packet` | double | `0.1` | Violation points added per received packet within the window. |
-| `vls-cancel` | double | `25` | Score at which offending packets start being cancelled (dropped silently) instead of processed. |
+| `vls-cancel` | double | `25` | Score at which offending packets start being cancelled (dropped silently) instead of processed. Silent drops only happen in the stateless server-list-ping phase — in login/config/play a dropped frame would desynchronize the protocol, so there the connection is closed cleanly instead. |
 | `vls-kick` | double | `100` | Score at which the connection is kicked. |
 | `window-ms` | long | `1000` | Length of the scoring window in milliseconds. A gap longer than this resets the score to zero outright. |
 | `decay-per-second` | double | `10.0` | Violation points subtracted per second while an address keeps sending (leaky-bucket decay). Normal gameplay adds only ~3-5 points per second, so with the default a real player's score stays near zero and only floods accumulate. Lower = stricter, higher = more lenient. |
