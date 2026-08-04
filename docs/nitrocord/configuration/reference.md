@@ -411,9 +411,11 @@ Violation-level (vls) scoring against packet floods, similar to anti-cheat: ever
 | `vls-per-packet` | double | `0.1` | Violation points added per received packet within the window. |
 | `vls-cancel` | double | `25` | Score at which offending packets start being cancelled (dropped silently) instead of processed. |
 | `vls-kick` | double | `100` | Score at which the connection is kicked. |
-| `window-ms` | long | `1000` | Length of the scoring window in milliseconds. |
+| `window-ms` | long | `1000` | Length of the scoring window in milliseconds. A gap longer than this resets the score to zero outright. |
+| `decay-per-second` | double | `10.0` | Violation points subtracted per second while an address keeps sending (leaky-bucket decay). Normal gameplay adds only ~3-5 points per second, so with the default a real player's score stays near zero and only floods accumulate. Lower = stricter, higher = more lenient. |
+| `exempt-verified` | boolean | `true` | Skip packet accounting for IPs on the [whitelist] (players who completed a login, and Geyser instances relaying verified Bedrock players). The guard then effectively targets pre-login floods only. |
 
-With the defaults, a connection is kicked at roughly 1000 packets or ~59 KB per second of sustained junk — far above anything a real client produces during login. Tune `vls-kick` down only if floods slip through; raising `vls-per-byte`/`vls-per-packet` is the safer lever.
+With the defaults, a connection is kicked at roughly 1000 packets or ~59 KB per second of sustained junk — far above anything a real client produces during login — and the decay keeps continuous gameplay from ever accumulating score. Tune `vls-kick` down only if floods slip through; raising `vls-per-byte`/`vls-per-packet` is the safer lever. If legit players are ever dropped during heavy modded play, raise `decay-per-second` (or keep `exempt-verified` on, which exempts them after login anyway).
 
 ### [tcp-fingerprint]
 
@@ -1066,6 +1068,14 @@ vls-kick = 100
 
 # Length of the scoring window in milliseconds.
 window-ms = 1000
+
+# Violation points subtracted per second while an address keeps sending
+# (leaky-bucket decay), so normal gameplay never accumulates score.
+decay-per-second = 10.0
+
+# Skip packet accounting for IPs on the verified-IP whitelist (players who
+# completed a login, and Geyser instances relaying verified Bedrock players).
+exempt-verified = true
 
 [tcp-fingerprint]
 
