@@ -53,7 +53,7 @@ export default withMermaid({
             { text: 'Everything It Does', link: '/openshield-xdp/features/' },
             { text: 'Attack Coverage', link: '/openshield-xdp/features/attack-coverage' },
             { text: 'Silent Guardians', link: '/openshield-xdp/features/silent-guardians' },
-            { text: "What's New (2.0–2.3.3)", link: '/openshield-xdp/features/whats-new' },
+            { text: "What's New (2.0–2.4.0)", link: '/openshield-xdp/features/whats-new' },
           ]
         },
         {
@@ -67,6 +67,7 @@ export default withMermaid({
             { text: 'Recipes', link: '/openshield-xdp/user-guide/recipes' },
             { text: 'Troubleshooting', link: '/openshield-xdp/user-guide/troubleshooting' },
             { text: 'Metrics API', link: '/openshield-xdp/user-guide/metrics-api' },
+            { text: 'Baseline Memory (ML Tab)', link: '/openshield-xdp/user-guide/baseline-ml' },
             { text: 'Configuration', link: '/openshield-xdp/user-guide/configuration' },
             { text: 'CLI Reference', link: '/openshield-xdp/user-guide/cli' },
             { text: 'TUI', link: '/openshield-xdp/user-guide/tui' },

@@ -1,6 +1,17 @@
-# What's New — v2.0 to v2.3.3
+# What's New — v2.0 to v2.4.0
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.4.0 — Baseline memory (ML tab), smart preset blending, alert pipeline hardening
+
+- **30-day baseline memory** — the learned baseline is now snapshotted daily (30 days kept) and the detector runs on a recency-weighted merge of live + history. One weird day can't tilt your protection. See it all in the new **TUI ML tab** (`m`): learning state, live vs merged baseline, thresholds, and the full history. [Guide](/openshield-xdp/user-guide/baseline-ml)
+- **Delete-a-day reconfiguration** — an attack that bypassed detection poisons a day's learning; delete that day (`d` in the ML tab, or `openshield baseline delete <date>`) and the merged baseline reconfigures instantly. `D` / delete-today resets the live baseline for same-day bypasses.
+- **Baseline import/export** — move trained baselines between servers; imported history seeds cold starts in seconds.
+- **Smart multi-profile blending** — picking several workloads no longer averages their presets into a mush that protects none. Rate ceilings take the union of legitimate needs (max), scoring takes the strictest profile, false-positive-prone detections run only where every profile agrees, and the wizard explains the blend in plain language.
+- **Preset retune (equilibrium-driven)** — Balanced now actually bans sustained 2× single-source abuse (~20s) instead of never, while 1.5× bursts stay safe forever; Hosting/Performance/Database score geometry fixed so 3–4× single-source floods can no longer cruise unbanned.
+- **Alert pipeline hardening** — attack-end reports can no longer be lost (loader-stop mid-attack now sends them, and the queue drains on shutdown); lifecycle alerts get queue priority over ban batches; Discord 429s are handled with pacing + requeue; the PingLess banner is embedded in the binary (no more missing image); reports retry and remember what they dispatched.
+- **Behavior engine race fixed** — cluster callbacks now receive snapshots (production data race, race-detector clean).
+- **Player protection restored mid-attack** — a 5-second baseline write was zeroing `attack_start_mono`, silently disabling the port-cap player exemption during attacks (the "players disconnect when the game port is flooded" bug).
 
 ## v2.3.3 — Boot autostart & crash-immunity
 
