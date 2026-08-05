@@ -1,6 +1,6 @@
 # TUI Guide
 
-The OpenShield-XDP terminal dashboard provides real-time visibility into your firewall state across 7 interactive screens. Built on [Bubbletea](https://github.com/charmbracelet/bubbletea), [ntcharts](https://github.com/NimbleMarkets/ntcharts), and [lipgloss](https://github.com/charmbracelet/lipgloss).
+The OpenShield-XDP terminal dashboard provides real-time visibility into your firewall state across 10 interactive screens. Built on [Bubbletea](https://github.com/charmbracelet/bubbletea), [ntcharts](https://github.com/NimbleMarkets/ntcharts), and [lipgloss](https://github.com/charmbracelet/lipgloss).
 
 ## Launching
 
@@ -27,12 +27,15 @@ sudo openshield load --stats-minimal
 | `5` | **Logs** | Scrolling combined event+system log, search/filter, vi-style navigation, line wrapping |
 | `6` | **Status** | System info (version, kernel, uptime), health badges, map utilization, drop path breakdown |
 | `7` | **Config** | Live configuration browser/editor with pending change tracking, validation, and confirmation dialogs |
+| `8` | **Attack History** | Past attacks with duration, peak rates, and forensics bundle locations |
+| `9` | **Access** | Whitelist/blacklist management, ban notes, file import, clear-all, and the auto-fetch blocklist view |
+| `0` | **Geo** | One-keypress country blocking backed by GeoLite2 data |
 
 ## Navigation
 
 | Action | Key(s) |
 |--------|--------|
-| Switch to screen N | `1`–`7` |
+| Switch to screen N | `0`–`9` |
 | Cycle screens forward | `Tab` |
 | Cycle screens backward | `Shift+Tab` |
 | Click nav tab | Mouse left-click |
@@ -66,6 +69,27 @@ sudo openshield load --stats-minimal
 | Action | Key |
 |--------|-----|
 | Next/previous page of offenders | `n` / `p` |
+
+### Access screen (9)
+
+Manages the live whitelist and blacklist. Entries show their ban note next to the IP when one is set.
+
+| Action | Key |
+|--------|-----|
+| Switch whitelist / blacklist | `w` / `b` (or `Tab`) |
+| Add entry (IP, CIDR, note after a space, or path to a `.txt` list file) | `a` |
+| Delete selected entry | `d` |
+| Move entry to the other list | `m` |
+| Clear the entire list (confirmation dialog) | `C` |
+| Open the auto-fetch blocklist view | `f` |
+| Refresh | `r` |
+| Scroll | `j` / `k` or scroll wheel |
+
+The auto-fetch view (`f`) shows fetcher status, last/next fetch, applied IP/CIDR counts, and manages the `never_block` list: `t` toggle, `f` fetch now, `a` add never-block, `d` remove, `r` refresh. See [Auto-Fetch Blocklists](/openshield-xdp/user-guide/auto-fetch).
+
+### Geo screen (0)
+
+One-keypress country blocking. `Enter`/`Space` toggles the selected country; `◌` means a block is being applied, `✗` means it failed (reason in the notice line). `b`/`a` switch between block and allow-only mode, `/` searches. See [Geo Blocking](/openshield-xdp/user-guide/geo-blocking).
 
 ### Config screen (7) — Live editor
 

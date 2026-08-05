@@ -52,6 +52,8 @@ export default withMermaid({
           items: [
             { text: 'For Server Owners', link: '/openshield-xdp/user-guide/' },
             { text: 'Config Values in Plain Language', link: '/openshield-xdp/user-guide/config-values' },
+            { text: 'Auto-Fetch Blocklists', link: '/openshield-xdp/user-guide/auto-fetch' },
+            { text: 'Geo Blocking', link: '/openshield-xdp/user-guide/geo-blocking' },
             { text: 'Recipes', link: '/openshield-xdp/user-guide/recipes' },
             { text: 'Troubleshooting', link: '/openshield-xdp/user-guide/troubleshooting' },
             { text: 'Metrics API', link: '/openshield-xdp/user-guide/metrics-api' },

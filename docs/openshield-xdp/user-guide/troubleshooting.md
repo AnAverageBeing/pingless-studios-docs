@@ -53,7 +53,7 @@ That's the per-port cap doing its job — during an attack, the attacked port's 
 
 ## "Where do I look when something weird happened during an attack?"
 
-Every attack writes a **forensics bundle** (packet capture if `pcap` is enabled, event log, ban list, and since v2.0: `config_snapshot.txt` — the mitigation config as it stood when the attack started, secrets stripped — and `config_changes.txt` — every config change made during the attack, timestamped). Check the TUI's attack history or the forensics directory, and pull the same data over the [Metrics API](/openshield-xdp/user-guide/metrics-api) if you want it in your own tooling.
+Every attack writes a **forensics bundle** (packet capture if `pcap` is enabled, event log, ban list, and since v2.0: `config_snapshot.txt` — the mitigation config as it stood when the attack started, secrets stripped — and `config_changes.txt` — every config change made during the attack, timestamped). Since v2.2.0, attack-end reports and forensics also include a **top-50 attacking-countries breakdown** (IPs, peak pps/Gbps, % share; legit and established sources excluded) when GeoIP data is available — that's the fastest way to answer "where did that come from?" and decide whether a [geo block](/openshield-xdp/user-guide/geo-blocking) is worth it. Check the TUI's attack history or the forensics directory, and pull the same data over the [Metrics API](/openshield-xdp/user-guide/metrics-api) if you want it in your own tooling.
 
 ## Still stuck
 

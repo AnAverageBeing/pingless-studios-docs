@@ -78,7 +78,7 @@ sudo openshield tui
 sudo openshield stats          # Alias
 ```
 
-Connects to the loader's Unix socket and renders the 7-screen dashboard. Requires the loader to be running (start with `openshield load --stats-off` for daemon + `openshield tui` for dashboard).
+Connects to the loader's Unix socket and renders the 10-screen dashboard. Requires the loader to be running (start with `openshield load --stats-off` for daemon + `openshield tui` for dashboard).
 
 ### `openshield config`
 
@@ -116,15 +116,24 @@ Manage the live whitelist (bypasses all mitigation) and manual bans.
 sudo openshield whitelist add 203.0.113.10        # or a CIDR, or a file of IPs
 sudo openshield whitelist remove 203.0.113.10
 sudo openshield whitelist list
+sudo openshield whitelist clear                   # remove ALL entries (asks for confirmation)
 
 sudo openshield blacklist add 5.6.7.8 3600        # manual ban, duration in seconds (default 24h)
+sudo openshield blacklist add 5.6.7.8 3600 "ssh brute force"   # with an optional note (v2.2.0+)
 sudo openshield blacklist add bad_ips.txt         # bulk import from file
 sudo openshield blacklist remove 5.6.7.8
 sudo openshield blacklist list
+sudo openshield blacklist clear                   # remove ALL bans (asks for confirmation)
 ```
 
+**Ban notes (v2.2.0+).** Blacklist entries accept an optional free-text note — everything after the duration (or after the IP, if you omit the duration) is stored as the note. Notes are shown in `blacklist list`, the TUI access/bans views, and persist across restarts. Bulk bans created by geo blocking and attack mitigation are auto-tagged (e.g. `geoblock: US (United States) — 241,377 prefixes`), so you can always tell where a ban came from.
+
+**File import.** Passing a path to a `.txt` file instead of an IP bulk-imports it — one IP or CIDR per line. The import validates every line, de-duplicates, and skips `#` comments, blanks, and invalid entries (skipped lines are printed to stderr). Works for both `whitelist add <file>` and `blacklist add <file>`, and in the TUI access tab's add input (type a path instead of an IP).
+
+**Clear (v2.2.0+).** `whitelist clear` / `blacklist clear` empty the respective map entirely after a `y/N` confirmation. `blacklist clear` removes single-IP bans (v4 + v6); config-driven subnet bans (`static.ban_subnets`) are left untouched. The same operation is available in the TUI access tab with the `C` key (confirmation dialog included).
+
 ::: tip Whitelist entries persist (v2.0+)
-`whitelist add` / `whitelist remove` write through to `whitelist.ips` in `/etc/openshield/openshield.yaml`, so entries survive loader restarts. Previously they lived only in the BPF map and were lost on restart.
+`whitelist add` / `whitelist remove` write through to `whitelist.ips` in `/etc/openshield/openshield.yaml`, so entries survive loader restarts. Previously they lived only in the BPF map and were lost on restart. Whitelisting an IP also unbans it and mirrors it into `auto_fetch.never_block` so the [blocklist fetcher](/openshield-xdp/user-guide/auto-fetch) can never re-ban it.
 :::
 
 ### `openshield key`
@@ -215,9 +224,12 @@ sudo openshield schedule clear all                # remove all windows
 sudo openshield whitelist add 1.2.3.4            # or a CIDR, or a file of entries
 sudo openshield whitelist remove 1.2.3.4
 openshield whitelist list
+sudo openshield whitelist clear                  # empty the whitelist (confirmation prompt)
 sudo openshield blacklist add 5.6.7.8 3600       # manual ban (default 24h)
+sudo openshield blacklist add 5.6.7.8 3600 "ssh brute force"  # optional note (v2.2.0+)
 sudo openshield blacklist remove 5.6.7.8
 openshield blacklist list
+sudo openshield blacklist clear                  # empty the blacklist (confirmation prompt)
 ```
 
 ### `openshield license`

@@ -244,6 +244,20 @@ The engine freezes learning while an attack is declared, so it mainly catches sl
 
 Full guide: [Metrics API](/openshield-xdp/user-guide/metrics-api).
 
+## `auto_fetch` — Remote Blocklist Feeds (v2.2+)
+
+| Field | Type | Default | Range | Description | Safe? |
+|-------|------|---------|-------|-------------|-------|
+| `auto_fetch.enabled` | `bool` | `true` | `true` / `false` | Periodically download threat-intel IP feeds into the ban maps (TUI access tab: `f`) | 🔄 |
+| `auto_fetch.interval_sec` | `int` | `3600` | ≥ `60` | Seconds between fetch cycles; fetched bans expire after 2× this (floor 10 min) | 🔄 |
+| `auto_fetch.mode` | `string` | `"vps"` | `vps` / `dedicated` | `dedicated` skips major cloud/hosting provider ranges (AWS, Azure, GCP, Cloudflare, OVH, Hetzner, …) so hosted VPS clients keep outbound connectivity | 🔄 |
+| `auto_fetch.categories` | `[]string` | `c2, botnets, malware, scanners, abuse, bruteforce, ssh-attackers, credential-stuffing, web-exploit-scanners, exploited-infrastructure, high-risk-networks` | category slugs | Official [openshield-blocklists](https://github.com/AnAverageBeing/openshield-blocklists) categories to pull | 🔄 |
+| `auto_fetch.urls` | `[]string` | `[]` | http(s) URLs | Extra raw list URLs (one IP/CIDR per line, `#` comments OK) | 🔄 |
+| `auto_fetch.never_block` | `[]string` | `[]` | IPs / CIDRs | Exempt from **fetched** bans only — NOT a firewall whitelist; entries are still scored and mitigated | 🔄 |
+| `auto_fetch.provider_urls` | `[]string` | `[]` | http(s) URLs | Extra provider-range sources for dedicated mode (plain-text lists or AWS/GCP-style JSON). Empty = built-in defaults | 🔄 |
+
+Full guide: [Auto-Fetch Blocklists](/openshield-xdp/user-guide/auto-fetch).
+
 ## `reports` — Scheduled Reports
 
 | Field | Type | Default | Range | Description | Safe? |
@@ -251,6 +265,7 @@ Full guide: [Metrics API](/openshield-xdp/user-guide/metrics-api).
 | `reports.enabled` | `bool` | `false` | `true` / `false` | Enable scheduled network analysis reports | 🔄 |
 | `reports.webhook_url` | `string` | `""` | webhook URL | Delivery target (falls back to `alerter.webhook_url`) | 🔄 |
 | `reports.dispatch_time` | `string` | `"00:00"` | `HH:MM` | Local time for the daily report | 🔄 |
+| `reports.geo_breakdown` | `bool` | `true` | `true` / `false` | Top attacker + top legit-user countries in daily/weekly/monthly reports (requires GeoIP data; v2.2+) | 🔄 |
 
 ## `pcap` — Attack Forensics Capture
 
@@ -265,12 +280,14 @@ Since v2.0, forensics bundles also include `config_snapshot.txt` (mitigation con
 
 | Field | Type | Default | Range | Description | Safe? |
 |-------|------|---------|-------|-------------|-------|
-| `geoip.enabled` | `bool` | `false` | `true` / `false` | MaxMind GeoLite2 geo-blocking | 🔒 |
-| `geoip.license_key` | `string` | `""` | MaxMind key | License key for database updates | 🔄 |
+| `geoip.enabled` | `bool` | **`true`** (since v2.2.0; was `false`) | `true` / `false` | MaxMind GeoLite2 geo-blocking and attack/report geo analytics | 🔒 |
+| `geoip.license_key` | `string` | `""` | MaxMind key | License key for GeoLite2 downloads — empty uses the built-in default key | 🔄 |
 | `geoip.db_path` | `string` | `"/var/lib/openshield/GeoLite2-City.mmdb"` | path | GeoLite2 database location | 🔒 |
 | `geoip.mode` | `string` | `"block"` | `block` / `allow` | Block listed countries, or allow only listed countries | 🔄 |
-| `geoip.countries` | `[]string` | `[]` | ISO codes | Country list applied per `mode` | 🔄 |
+| `geoip.countries` | `[]string` | `[]` | ISO codes | Country list applied per `mode` (managed by the TUI geo tab, key `0`) | 🔄 |
 | `geoip.update_hours` | `int` | `168` | hours | Database update interval | 🔄 |
+
+Full guide: [Geo Blocking](/openshield-xdp/user-guide/geo-blocking).
 
 ## `license` — Licensing
 
@@ -426,18 +443,39 @@ reports:
   enabled: false
   webhook_url: ""
   dispatch_time: "00:00"
+  geo_breakdown: true
 
 pcap:
   enabled: true
   mode: rolling
 
 geoip:
-  enabled: false
-  license_key: ""
+  enabled: true
+  license_key: ""        # empty = built-in default key
   db_path: "/var/lib/openshield/GeoLite2-City.mmdb"
   mode: block
   countries: []
   update_hours: 168
+
+auto_fetch:
+  enabled: true
+  interval_sec: 3600
+  mode: vps
+  categories:
+    - c2
+    - botnets
+    - malware
+    - scanners
+    - abuse
+    - bruteforce
+    - ssh-attackers
+    - credential-stuffing
+    - web-exploit-scanners
+    - exploited-infrastructure
+    - high-risk-networks
+  urls: []
+  never_block: []
+  provider_urls: []
 ```
 
 ## Related Pages

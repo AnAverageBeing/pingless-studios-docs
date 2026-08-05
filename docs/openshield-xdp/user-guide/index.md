@@ -94,9 +94,24 @@ Since v2.1.0, clusters at **≥85% confidence are auto-banned for 1 hour** (`beh
 While an attack is declared (Layer 2), the behavior engine stops learning so it doesn't "learn" the attack as normal. That means it's built for **slow-burn botnets and quiet recon**, not for mid-flood decisions — Layers 1–3 handle the loud stuff.
 :::
 
+### Proactive blocking — stop known-bad sources before they score
+
+Since v2.2.0, two features sit in front of the four layers and drop known-bad traffic outright:
+
+- **[Auto-fetch blocklists](/openshield-xdp/user-guide/auto-fetch)** — threat-intel feeds (C2s, botnets, scanners, brute-forcers) downloaded on a schedule and loaded into the ban maps. Fetched bans expire after 2× the fetch interval, so a broken feed never blocks anyone permanently. On by default.
+- **[Geo blocking](/openshield-xdp/user-guide/geo-blocking)** — block entire countries from the TUI geo tab (key `0`); enforced as permanent subnet bans in the kernel LPM trie.
+
+Both are enforced in the same XDP pass as everything else — no per-packet userspace cost.
+
+### Attack geo analytics
+
+When GeoIP data is available, attack-end Discord reports and forensics bundles include a **top-50 attacking-countries breakdown** (flag emoji, IP count, peak pps/Gbps, % share — legit and established sources excluded), and the daily/weekly/monthly reports show the top attacker and top legit-user countries. Controlled by `reports.geo_breakdown` (default: on) and `alerter.geo_breakdown`.
+
 ## What to read next
 
 - [Config Values in Plain Language](/openshield-xdp/user-guide/config-values) — every important knob, what it means, and when to touch it
+- [Auto-Fetch Blocklists](/openshield-xdp/user-guide/auto-fetch) — threat-intel feeds banned on a schedule (on by default)
+- [Geo Blocking](/openshield-xdp/user-guide/geo-blocking) — block whole countries from the TUI
 - [Recipes](/openshield-xdp/user-guide/recipes) — game server, hosting node, file/backup server, VPN
 - [Troubleshooting](/openshield-xdp/user-guide/troubleshooting) — banned while uploading? attack shows but nothing dropped?
 - [Metrics API](/openshield-xdp/user-guide/metrics-api) — feed your own dashboard
