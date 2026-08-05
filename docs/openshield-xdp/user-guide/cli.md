@@ -108,11 +108,77 @@ Run the installer script if present at `/opt/openshield/lib/install.sh`.
 sudo openshield install
 ```
 
+### `openshield whitelist` / `openshield blacklist`
+
+Manage the live whitelist (bypasses all mitigation) and manual bans.
+
+```bash
+sudo openshield whitelist add 203.0.113.10        # or a CIDR, or a file of IPs
+sudo openshield whitelist remove 203.0.113.10
+sudo openshield whitelist list
+
+sudo openshield blacklist add 5.6.7.8 3600        # manual ban, duration in seconds (default 24h)
+sudo openshield blacklist add bad_ips.txt         # bulk import from file
+sudo openshield blacklist remove 5.6.7.8
+sudo openshield blacklist list
+```
+
+::: tip Whitelist entries persist (v2.0+)
+`whitelist add` / `whitelist remove` write through to `whitelist.ips` in `/etc/openshield/openshield.yaml`, so entries survive loader restarts. Previously they lived only in the BPF map and were lost on restart.
+:::
+
+### `openshield key`
+
+Show the Metrics API URL and API key (only when `metrics.enabled: true`), or manage the key. Changes are hot-applied — no restart.
+
+```bash
+sudo openshield key                  # show URL + key + curl example
+sudo openshield key set <your-key>   # use your own key (min 8 chars)
+sudo openshield key regen            # rotate to a fresh random key
+```
+
+See [Metrics API](/openshield-xdp/user-guide/metrics-api).
+
+### `openshield behavior`
+
+Show the behavior engine's learned per-port baselines and candidate source clusters (states, confidence scores, reasons).
+
+```bash
+sudo openshield behavior
+```
+
+### `openshield schedule`
+
+Pause behavior-engine learning or auto-blocking ahead of a known traffic spike (launch day, migration).
+
+```bash
+sudo openshield schedule list
+sudo openshield schedule suppress baseline 6h
+sudo openshield schedule suppress auto-block 6h
+sudo openshield schedule clear baseline|auto-block|all
+```
+
+### `openshield report`
+
+Print a network analysis report (daily, weekly, or monthly).
+
+```bash
+sudo openshield report [daily|weekly|monthly]
+```
+
+### `openshield uninstall`
+
+Remove OpenShield-XDP from the system (also available as `uninstall.sh`).
+
+```bash
+sudo openshield uninstall
+```
+
 ### `openshield version`
 
 ```bash
 openshield version
-# Output: OpenShield-XDP v1.0.0
+# Output: OpenShield-XDP v2.1.1
 ```
 
 Also accessible via `openshield --version` or `openshield -v`.
@@ -175,6 +241,17 @@ openshield report [daily|weekly|monthly]
 Send a dummy attack alert to the configured webhook to verify delivery and
 formatting.
 
+## Aliases
+
+| Alias | Command |
+|-------|---------|
+| `st` | `status` |
+| `wl` | `whitelist` |
+| `bl` | `blacklist` |
+| `lic` | `license` |
+| `cfg` | `config` |
+| `dash` | `stats` |
+
 ## `openshield-loader` commands
 
 The `openshield-loader` binary is a minimal daemon-oriented CLI used by the systemd service. It has fewer commands and no TUI integration.
@@ -218,4 +295,4 @@ The systemd service runs: `openshield-loader load --stats-off`
 
 ## Next steps
 
-[TUI Guide](/openshield-xdp/user-guide/tui) · [Load Deep-Dive](/openshield-xdp/cli/load) · [Configuration](/openshield-xdp/user-guide/configuration)
+[TUI Guide](/openshield-xdp/user-guide/tui) · [Metrics API](/openshield-xdp/user-guide/metrics-api) · [Config Values in Plain Language](/openshield-xdp/user-guide/config-values) · [Load Deep-Dive](/openshield-xdp/cli/load)

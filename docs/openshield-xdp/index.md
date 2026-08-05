@@ -27,10 +27,18 @@ OpenShield classifies **42 attack vectors** across 7 layers.
 ## Mitigation
 
 - **Ban system** — single IP, LPM subnet, auto /24 escalation, 6-level star system
-- **Rate limiting** — threshold scoring or token bucket
-- **Whitelist** — per-IP flags (full bypass, skip ban, skip rate, skip validation)
+- **Rate limiting** — threshold scoring or token bucket, with per-port threshold overrides and an established-connection exemption for proven TCP clients
+- **Attack mode** — baseline spike detection with tightened thresholds, hard per-IP caps, and a rotation-proof per-destination-port PPS cap
+- **Behavior engine** — learns per-port baselines and auto-bans lookalike bot clusters (≥85% confidence)
+- **Whitelist** — per-IP flags (full bypass, skip ban, skip rate, skip validation), persisted to config from the CLI
 - **SYNPROXY** — scalar, rate-based SYN flood mitigation at XDP line rate (loads on every supported kernel)
 - **Panic circuit breaker** — per-CPU probabilistic bulk drop
+
+## Observability
+
+- 7-screen TUI dashboard with braille-resolution charts and a live config editor
+- **Metrics API** (optional, off by default) — HTTP JSON endpoint with everything the TUI shows, API-key guarded
+- Webhook alerts (Discord/Slack) and per-attack forensics bundles with config snapshots
 
 ## Performance
 

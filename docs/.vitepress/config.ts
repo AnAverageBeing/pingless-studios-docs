@@ -50,9 +50,24 @@ export default withMermaid({
           text: 'User Guide',
           collapsed: true,
           items: [
+            { text: 'For Server Owners', link: '/openshield-xdp/user-guide/' },
+            { text: 'Config Values in Plain Language', link: '/openshield-xdp/user-guide/config-values' },
+            { text: 'Recipes', link: '/openshield-xdp/user-guide/recipes' },
+            { text: 'Troubleshooting', link: '/openshield-xdp/user-guide/troubleshooting' },
+            { text: 'Metrics API', link: '/openshield-xdp/user-guide/metrics-api' },
             { text: 'Configuration', link: '/openshield-xdp/user-guide/configuration' },
             { text: 'CLI Reference', link: '/openshield-xdp/user-guide/cli' },
             { text: 'TUI', link: '/openshield-xdp/user-guide/tui' },
+          ]
+        },
+        {
+          text: 'Configuration',
+          collapsed: true,
+          items: [
+            { text: 'Full Reference', link: '/openshield-xdp/configuration/reference' },
+            { text: 'Profiles & Presets', link: '/openshield-xdp/configuration/profiles' },
+            { text: 'Validation', link: '/openshield-xdp/configuration/validation' },
+            { text: 'Alerter', link: '/openshield-xdp/configuration/alerter' },
           ]
         },
         {

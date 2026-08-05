@@ -43,7 +43,10 @@ Controls per-source-IP rate limiting with a suspicion scoring system. Each viola
 | `token_rate` | `0` | int | Tokens refilled/s per IP (token_bucket mode) |
 | `token_burst` | `0` | int | Max burst tokens per IP (token_bucket mode) |
 | `enable_connection_tracking` | `true` | bool | Drop blind SYN-ACK/RST/ACK (no prior SYN) |
-| `ct_syn_timeout_sec` | `30` | int | Connection tracking SYN timeout |
+| `ct_syn_timeout_sec` | `300` | int | Connection tracking SYN/idle timeout — keep ≥ app keepalive interval |
+| `ct_server_port_max` | `32768` | int | Only track connections to ports ≤ this (0 = all ports; breaks outbound traffic) |
+| `ct_established_exempt` | `true` | bool | Exempt sources with a proven TCP session from PPS/BPS/TCP scoring (v2.0+) |
+| `port_thresholds` | `[]` | list | Per-port threshold overrides, max 8 entries (v2.0+) — see below |
 | `star_duration_multiplicators` | `[1,2,4,8,16,32]` | []int | Multipliers for repeat-offender escalating bans |
 | `star_decay_seconds` | `3600` | int | Clean seconds before star rating drops |
 | `ban_subnets` | `[]` | []string | Subnets to ban in CIDR notation |
@@ -73,6 +76,27 @@ flowchart TD
 ### Token bucket mode
 
 Set `rate_limit_mode: token_bucket` to use a token-based approach instead of scoring. Each IP gets `token_burst` initial tokens, with `token_rate` tokens refilled per second. Packets consume 1 token each. When tokens are exhausted, the IP is rate-limited (not banned — packets are dropped until tokens refill).
+
+### Established-connection exemption (v2.0+)
+
+With `ct_established_exempt: true` (default), a source that completes a real TCP session — it sends a data segment within `ct_syn_timeout_sec` of its SYN — is exempt from PPS/BPS/TCP_PPS rate scoring. Bulk transfers (SFTP, backups) no longer get banned. SYN-rate, conn-rate, and UDP/ICMP scoring still apply, as do attack-mode caps. Works even when `enable_connection_tracking` is `false`.
+
+### Per-port threshold overrides (v2.0+)
+
+`static.port_thresholds` replaces the global `pps_threshold`/`bps_threshold` for traffic to specific ports, in peacetime AND attack mode. Max 8 entries; each entry is a port or range plus thresholds (`0` inherits the global value):
+
+```yaml
+static:
+  port_thresholds:
+    - ports: "443"
+      pps_threshold: 5000
+      bps_threshold: 0
+    - ports: "8000-9000"
+      pps_threshold: 3000
+      bps_threshold: 52428800
+```
+
+Use for transfer-heavy services that legitimately exceed global limits.
 
 ## `validation` — Packet validation filters
 
@@ -110,13 +134,19 @@ Adaptive baseline, attack detection, new-source flood prevention, amplification 
 | `attack_threshold_multiplier` | `0.5` | Threshold multiplier during attack (0.5 = 50% of normal) |
 | `attack_pps_threshold` | `0` | Global PPS to trigger attack state (0 = disabled, uses baseline) |
 | `attack_bps_threshold` | `0` | Global BPS to trigger attack state (0 = disabled) |
+| `attack_min_pps` | `1000` | Absolute floor for the attack PPS trigger (busy servers shouldn't trip attack mode) |
+| `attack_min_bps` | `1048576` | Absolute floor for the attack BPS trigger |
+| `attack_trigger_time` | `3` | Consecutive spike seconds before attack state is declared |
+| `attack_max_duration` | `300` | Hard cap on attack-state seconds (0 = no cap) |
+| `attack_per_ip_pps` | `1000` | Hard per-source PPS cap while an attack is active (0 = off) |
+| `attack_port_pps` | `10000` | Aggregate per-destination-port PPS cap while an attack is active (0 = off) — rotation-proof; presets: 10k hosting / 15k gaming / 25k CDN (v2.0+) |
 
 ### New source flood
 
 | Field | Default | Description |
 |-------|---------|-------------|
 | `new_source_limit` | `100` | New unique IPs/second before flood mode engages |
-| `new_source_ban_duration` | `30` | Ban duration for new sources detected during flood |
+| `new_source_ban_duration` | `30` | Each excess new source is temp-banned for this many seconds (v2.0+ — previously only one packet was dropped) |
 
 ### Panic circuit breaker
 
@@ -225,6 +255,29 @@ This is handled inside the BPF fast path: the Bloom filter map is probed before 
 | `log_level` | `info` | Log level: `debug`, `info`, `warn`, `error` |
 | `snapshot_interval` | `1` | Seconds between snapshot pushes to TUI |
 
+## `behavior` — Adaptive behavior engine (v2.0+)
+
+Learns per-port traffic baselines and groups sources into clusters; lookalike bot clusters (identical packet sizes, machine-paced timing, explosive growth) are flagged with a confidence score.
+
+| Field | Default | Description |
+|-------|---------|-------------|
+| `enabled` | `true` | Master switch for the behavior engine (requires loader restart to change) |
+| `auto_block` | `true` | Auto-ban members of malicious clusters (≥85% confidence) for 1 hour (default since v2.1.0; set `false` for report-only mode) |
+
+Review clusters in the TUI behavior tab or with `sudo openshield behavior`. The engine freezes learning during declared attacks, so it mainly catches slow-burn botnets. See [Config Values in Plain Language](/openshield-xdp/user-guide/config-values#behavior-engine-behavior).
+
+## `metrics` — HTTP metrics API (v2.0+, default off)
+
+Serves everything the TUI shows as JSON for custom dashboards. Full guide: [Metrics API](/openshield-xdp/user-guide/metrics-api).
+
+| Field | Default | Description |
+|-------|---------|-------------|
+| `enabled` | `false` | Enable the HTTP JSON metrics endpoint |
+| `listen` | `127.0.0.1:9100` | Bind address (`0.0.0.0:9100` for remote dashboards) |
+| `api_key` | random per install | Bearer token — manage with `openshield key` / `key set` / `key regen` (hot-applied) |
+| `rate_limit_per_sec` | `10` | Max requests/s per source IP (0 = unlimited) |
+| `whitelist` | `[]` | IP/CIDR allowlist (empty = all; requires loader restart to change) |
+
 ## `alerter` — Webhook notifications
 
 | Field | Default | Description |
@@ -232,6 +285,10 @@ This is handled inside the BPF fast path: the Bloom filter map is probed before 
 | `enabled` | `false` | Enable webhook alerter |
 | `webhook_url` | `""` | Discord/Slack webhook URL |
 | `events` | `[]` | Event types to alert on |
+| `graph_enabled` | `true` | Attach traffic graph to attack-end alerts |
+| `attack_updates` | `true` | Progress embeds while an attack is ongoing |
+| `show_banned_ips` | `false` | Include banned IP list inline in ban alerts |
+| `geo_breakdown` | `true` | Continent/country share of banned IPs (requires GeoIP db) |
 
 ## Kernel feature gate behavior
 
@@ -260,9 +317,4 @@ Fields marked as **runtime-safe** can be changed via `openshield reload` or the 
 
 ## Next steps
 
-[CLI Reference](/openshield-xdp/cli/commands) · [Detection Engine](/openshield-xdp/detection-engine/overview) · [TUI Guide](/openshield-xdp/user-guide/tui)
-e_alpha`, `poll_interval`
-
-## Next steps
-
-[CLI Reference](/openshield-xdp/cli/commands) · [Detection Engine](/openshield-xdp/detection-engine/overview) · [TUI Guide](/openshield-xdp/user-guide/tui)
+[Config Values in Plain Language](/openshield-xdp/user-guide/config-values) · [CLI Reference](/openshield-xdp/user-guide/cli) · [Detection Engine](/openshield-xdp/detection-engine/overview) · [TUI Guide](/openshield-xdp/user-guide/tui)

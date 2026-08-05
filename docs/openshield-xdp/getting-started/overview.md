@@ -12,7 +12,9 @@ Game servers under UDP reflection floods. Web servers under SYN floods. DNS reso
 
 ## What it does
 
-42 detection vectors across L2–L7. Suspicion scoring, rate-based SYN-flood mitigation, rate limiting, subnet bans, Bloom filter for fast whitelist lookups, freplace hot-patching for modular BPF logic. 7-screen TUI dashboard with braille-resolution charts and config editor. Webhook alerts (Discord/Slack).
+42 detection vectors across L2–L7. Suspicion scoring with an established-connection exemption and per-port threshold overrides, attack mode with a rotation-proof per-port cap, a behavior engine that auto-bans lookalike bot clusters, rate-based SYN-flood mitigation, subnet bans, Bloom filter for fast whitelist lookups, freplace hot-patching for modular BPF logic. 7-screen TUI dashboard with braille-resolution charts and config editor. Optional JSON metrics API. Webhook alerts (Discord/Slack).
+
+New here? Start with the [User Guide for server owners](/openshield-xdp/user-guide/) — plain-language setup and tuning.
 
 ## What it doesn't do
 

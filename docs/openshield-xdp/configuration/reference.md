@@ -41,13 +41,28 @@ Run `openshield config` to generate a fresh defaults file.
 | `static.token_rate` | `uint32` | `0` | `0` – `10,000,000` | Tokens refilled per second per IP (token_bucket mode) | 🔄 |
 | `static.token_burst` | `uint32` | `0` | `0` – `100,000,000` | Max burst tokens per IP (token_bucket mode) | 🔄 |
 | `static.enable_connection_tracking` | `bool` | `true` | `true` / `false` | Drop blind SYN-ACK/RST/ACK (no prior SYN seen) | 🔄 |
+| `static.ct_syn_timeout_sec` | `int` | `300` | `0` – `3600` | Seconds a connection stays proven after its SYN (0=disable). Keep ≥ app keepalive interval | 🔄 |
+| `static.ct_server_port_max` | `int` | `32768` | `0` – `65535` | Only track connections to destination ports ≤ this (0 = track all ports; breaks outbound traffic like apt/curl) | 🔄 |
+| `static.ct_established_exempt` | `bool` | `true` | `true` / `false` | Exempt sources with a proven TCP session (data within `ct_syn_timeout_sec` of SYN) from PPS/BPS/TCP_PPS scoring. SYN-rate, conn-rate, UDP/ICMP scoring and attack-mode caps still apply. Works even when `enable_connection_tracking` is `false` (v2.0+) | 🔄 |
+| `static.port_thresholds` | `[]PortThreshold` | `[]` | max 8 entries | Per-port/range overrides replacing global PPS/BPS thresholds, peacetime AND attack mode (v2.0+) — see below | 🔄 |
 | `static.star_duration_multiplicators` | `[]int` | `[1,2,4,8,16,32]` | array of 6 ints | Ban duration multipliers per star level (repeat-offender escalation) | 🔄 |
 | `static.star_decay_seconds` | `int` | `3600` | `1` – `86,400` | Seconds before star rating decays by 1 | 🔄 |
 | `static.ban_subnets` | `[]string` | `[]` | CIDR strings | Hardcoded subnet bans (e.g., `["10.0.0.0/8"]`) | 🔄 |
 | `static.auto_subnet_ban` | `bool` | `false` | `true` / `false` | Automatically ban /24 subnets when too many single-IP bans occur | 🔄 |
 | `static.auto_subnet_prefixes` | `[]int` | `[24]` | prefix lengths | CIDR prefix lengths for auto-subnet-ban | 🔄 |
 | `static.subnet_ban_duration` | `int` | `7200` | `1` – `86,400` | Duration for auto subnet bans (seconds) | 🔄 |
-| `static.ct_syn_timeout_sec` | `int` | `30` | `0` – `3600` | Max seconds since last SYN before ACK/RST is blind (0=disable) | 🔄 |
+
+### Port Threshold Entry Fields
+
+Each entry in `static.port_thresholds` (max 8):
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `ports` | `string` | Single port (`"443"`) or inclusive range (`"8000-9000"`) — matched on destination port |
+| `pps_threshold` | `int` | Packets/s limit for matching traffic (`0` = inherit global `pps_threshold`) |
+| `bps_threshold` | `int` | Bytes/s limit for matching traffic (`0` = inherit global `bps_threshold`) |
+
+At least one of the two thresholds must be non-zero. Overrides apply in peacetime and during attack mode.
 
 ### Scoring Model
 
@@ -69,7 +84,7 @@ Each per-second evaluation window, the suspicion score is multiplied by `suspici
 
 | Field | Type | Default | Range | Description | Safe? |
 |-------|------|---------|-------|-------------|-------|
-| `validation.filter_private` | `bool` | `true` | `true` / `false` | Drop packets with private/bogon source IPs | 🔄 |
+| `validation.filter_private` | `bool` | `false` | `true` / `false` | Drop packets with private/bogon source IPs (enabled per-profile by stricter presets) | 🔄 |
 | `validation.filter_bogon` | `bool` | `true` | `true` / `false` | Drop packets with bogon (unallocated) source IPs | 🔄 |
 | `validation.filter_bogus_tcp` | `bool` | `true` | `true` / `false` | Drop impossible TCP flag combinations (e.g., SYN+FIN) | 🔄 |
 | `validation.filter_malformed` | `bool` | `true` | `true` / `false` | Drop malformed headers (invalid lengths, truncated options) | 🔄 |
@@ -99,17 +114,23 @@ validation:
 | `dynamic.spike_recovery_factor` | `float64` | `0.7` | `0.3` – `0.95` | Fraction of spike threshold below which attack state clears (must be < 1.0) | 🔄 |
 | `dynamic.spike_recovery_time` | `int` | `10` | `3` – `120` | Seconds below recovery factor before clearing | 🔄 |
 | `dynamic.new_source_limit` | `int` | `100` | `1` – `100,000` | New unique IPs/s before new-source flood mode | 🔄 |
-| `dynamic.new_source_ban_duration` | `int` | `30` | `1` – `3600` | Ban duration for new-source flood IPs | 🔄 |
+| `dynamic.new_source_ban_duration` | `int` | `30` | `1` – `3600` | Temp-ban duration for each excess new source during a new-source flood (v2.0+: sources are banned, not just single-packet dropped) | 🔄 |
 | `dynamic.attack_threshold_multiplier` | `float64` | `0.5` | `0.1` – `1.0` | Threshold multiplier during attack (0.5 = 50% of normal thresholds) | 🔄 |
 | `dynamic.attack_pps_threshold` | `uint64` | `0` | `0` – `1,000,000,000` | Global PPS to trigger attack state (0=use baseline) | 🔄 |
 | `dynamic.attack_bps_threshold` | `uint64` | `0` | `0` – `1,000,000,000,000` | Global BPS to trigger attack state (0=use baseline) | 🔄 |
+| `dynamic.attack_min_pps` | `uint64` | `1000` | `0` – `1,000,000,000` | Absolute floor for the attack PPS trigger — a busy-but-normal server must not enter attack state | 🔄 |
+| `dynamic.attack_min_bps` | `uint64` | `1048576` | `0` – `1,000,000,000,000` | Absolute floor for the attack BPS trigger | 🔄 |
+| `dynamic.attack_trigger_time` | `int` | `3` | `1` – `60` | Consecutive seconds above threshold before attack state is declared | 🔄 |
+| `dynamic.attack_max_duration` | `int` | `300` | `0` – `86,400` | Hard cap on attack-state seconds (0=disabled) | 🔄 |
+| `dynamic.attack_per_ip_pps` | `int` | `1000` | `0` – `1,000,000` | Hard per-source PPS cap while an attack is active (0=off); excess dropped instantly at XDP | 🔄 |
+| `dynamic.attack_port_pps` | `int` | `10000` | `0` – `1,000,000` | Aggregate PPS cap per destination port while an attack is active (0=off). Rotation-proof: throttles the attacked port as a whole regardless of source-IP rotation; legit traffic on that port is throttled, not banned, until the attack clears. Presets: 10k hosting / 15k gaming / 25k CDN (v2.0+) | 🔄 |
 | `dynamic.panic_pps_rate` | `uint32` | `200,000` | `0` – `100,000,000` | Per-CPU PPS to trigger panic circuit breaker (0=disabled) | 🔄 |
 | `dynamic.panic_drop_ratio` | `uint32` | `80` | `0` – `100` | % of packets to probabilistically drop in panic mode | 🔄 |
 | `dynamic.panic_global_pps_threshold` | `uint32` | `5,000,000` | `0` – `100,000,000` | Total across-CPU PPS for coordinated panic | 🔄 |
 | `dynamic.panic_coordination_enabled` | `bool` | `true` | `true` / `false` | Enable cross-CPU panic coordination | 🔄 |
-| `dynamic.dns_amplification_enabled` | `bool` | `true` | `true` / `false` | Drop DNS amplification responses | 🔄 |
+| `dynamic.dns_amplification_enabled` | `bool` | `false` | `true` / `false` | Drop DNS amplification responses (enabled per-profile by most presets) | 🔄 |
 | `dynamic.dns_amplification_payload_min` | `int` | `512` | `0` – `65,535` | Min UDP payload for DNS amp detection | 🔄 |
-| `dynamic.udp_amplification_enabled` | `bool` | `true` | `true` / `false` | Drop generic UDP amplification responses | 🔄 |
+| `dynamic.udp_amplification_enabled` | `bool` | `false` | `true` / `false` | Drop generic UDP amplification responses (enabled per-profile by most presets) | 🔄 |
 | `dynamic.udp_amp_ports` | `[]int` | `[53,123,1900,11211,17,19,520,69]` | up to 8 ports | UDP ports to check for amplification | 🔄 |
 | `dynamic.udp_amp_payload_min` | `[]int` | `[512,90,256,50,50,50,50,50]` | up to 8 values | Min payload per port (index-aligned with `udp_amp_ports`) | 🔄 |
 | `dynamic.syn_fin_ratio_enabled` | `bool` | `true` | `true` / `false` | Detect SYN floods via SYN:FIN ratio | 🔄 |
@@ -124,7 +145,7 @@ validation:
 | `dynamic.pkt_size_max_threshold` | `int` | `1024` | `0` – `9000` | Flag if avg size > this (amp floods) | 🔄 |
 | `dynamic.conn_rate_enabled` | `bool` | `true` | `true` / `false` | Connection rate limiting (SYN/s per IP) | 🔄 |
 | `dynamic.conn_rate_limit` | `int` | `5000` | `1` – `1,000,000` | Max SYN/s per IP | 🔄 |
-| `dynamic.auto_escalation_enabled` | `bool` | `true` | `true` / `false` | Auto-escalate to /24 subnet ban | 🔄 |
+| `dynamic.auto_escalation_enabled` | `bool` | `false` | `true` / `false` | Auto-escalate to /24 subnet ban (enabled per-profile by stricter presets) | 🔄 |
 | `dynamic.auto_escalation_threshold` | `int` | `5` | `1` – `1000` | Single-IP bans in /24 before subnet ban | 🔄 |
 | `dynamic.mac_filter_enabled` | `bool` | `false` | `true` / `false` | L2 MAC address filtering | 🔄 |
 | `dynamic.mac_filter_mode` | `int` | `0` | `0` / `1` / `2` | 0=disabled, 1=whitelist, 2=blacklist | 🔄 |
@@ -195,8 +216,76 @@ When enabled, whitelisted IPs are hashed into a Bloom filter in the BPF `bloom_m
 | `alerter.enabled` | `bool` | `false` | `true` / `false` | Enable Discord webhook alerts | 🔄 |
 | `alerter.webhook_url` | `string` | `""` | valid Discord webhook URL | Webhook endpoint URL | 🔄 |
 | `alerter.events` | `[]string` | `[]` | event type strings | Events to alert on (empty = all) | 🔄 |
+| `alerter.graph_enabled` | `bool` | `true` | `true` / `false` | Attach traffic graph to attack-end alerts | 🔄 |
+| `alerter.show_banned_ips` | `bool` | `false` | `true` / `false` | Include banned IP list inline in ban alerts (txt attached for large batches) | 🔄 |
+| `alerter.geo_breakdown` | `bool` | `true` | `true` / `false` | Continent/country share of banned IPs (requires GeoIP db) | 🔄 |
+| `alerter.attack_updates` | `bool` | `true` | `true` / `false` | Progress embeds while an attack is ongoing | 🔄 |
 
 See the [Alerter docs](./alerter) for webhook format and event types.
+
+## `behavior` — Adaptive Behavior Engine (v2.0+)
+
+| Field | Type | Default | Range | Description | Safe? |
+|-------|------|---------|-------|-------------|-------|
+| `behavior.enabled` | `bool` | `true` | `true` / `false` | Master switch: learns per-port baselines and flags anomalous source clusters | 🔒 |
+| `behavior.auto_block` | `bool` | `true` | `true` / `false` | Auto-ban members of malicious clusters (≥85% confidence) for 1 hour. Default since v2.1.0; set `false` for report-only mode | 🔄 |
+
+The engine freezes learning while an attack is declared, so it mainly catches slow-burn botnets. Review clusters in the TUI behavior tab or via `openshield behavior`.
+
+## `metrics` — HTTP Metrics API (v2.0+)
+
+| Field | Type | Default | Range | Description | Safe? |
+|-------|------|---------|-------|-------------|-------|
+| `metrics.enabled` | `bool` | `false` | `true` / `false` | HTTP JSON endpoint serving everything the TUI shows (default: off) | 🔄 |
+| `metrics.listen` | `string` | `"127.0.0.1:9100"` | `host:port` | Bind address (`0.0.0.0:9100` = remote) | 🔄 |
+| `metrics.api_key` | `string` | random per install | min 8 chars | Bearer token; auto-generated if empty. Manage via `openshield key set` / `key regen` (hot-applied) | 🔄 |
+| `metrics.rate_limit_per_sec` | `int` | `10` | `0` – `100,000` | Max requests/s per source IP (0 = unlimited) | 🔄 |
+| `metrics.whitelist` | `[]string` | `[]` | IPs/CIDRs | Client allowlist (empty = any IP, key still required) | 🔒 |
+
+Full guide: [Metrics API](/openshield-xdp/user-guide/metrics-api).
+
+## `reports` — Scheduled Reports
+
+| Field | Type | Default | Range | Description | Safe? |
+|-------|------|---------|-------|-------------|-------|
+| `reports.enabled` | `bool` | `false` | `true` / `false` | Enable scheduled network analysis reports | 🔄 |
+| `reports.webhook_url` | `string` | `""` | webhook URL | Delivery target (falls back to `alerter.webhook_url`) | 🔄 |
+| `reports.dispatch_time` | `string` | `"00:00"` | `HH:MM` | Local time for the daily report | 🔄 |
+
+## `pcap` — Attack Forensics Capture
+
+| Field | Type | Default | Range | Description | Safe? |
+|-------|------|---------|-------|-------------|-------|
+| `pcap.enabled` | `bool` | `true` | `true` / `false` | Packet capture during attacks (requires tcpdump) | 🔄 |
+| `pcap.mode` | `string` | `"rolling"` | `attack` / `rolling` | `attack` = only during attacks, `rolling` = continuous | 🔄 |
+
+Since v2.0, forensics bundles also include `config_snapshot.txt` (mitigation config at attack start, secrets stripped) and `config_changes.txt` (timestamped config changes during the attack).
+
+## `geoip` — Geo Blocking
+
+| Field | Type | Default | Range | Description | Safe? |
+|-------|------|---------|-------|-------------|-------|
+| `geoip.enabled` | `bool` | `false` | `true` / `false` | MaxMind GeoLite2 geo-blocking | 🔒 |
+| `geoip.license_key` | `string` | `""` | MaxMind key | License key for database updates | 🔄 |
+| `geoip.db_path` | `string` | `"/var/lib/openshield/GeoLite2-City.mmdb"` | path | GeoLite2 database location | 🔒 |
+| `geoip.mode` | `string` | `"block"` | `block` / `allow` | Block listed countries, or allow only listed countries | 🔄 |
+| `geoip.countries` | `[]string` | `[]` | ISO codes | Country list applied per `mode` | 🔄 |
+| `geoip.update_hours` | `int` | `168` | hours | Database update interval | 🔄 |
+
+## `license` — Licensing
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `license.key` | `string` | `""` | License key from your Altis dashboard (`PL-XXXX-XXXX-XXXX-XXXX`) |
+| `license.server_url` | `string` | `"https://pingless-license-system.vercel.app"` | License server base URL (override for self-hosting) |
+| `license.product_slug` | `string` | `"openshield-xdp"` | Product slug registered in the Altis dashboard |
+| `license.public_key` | `string` | (embedded) | Ed25519 public key for offline signature verification |
+| `license.cache_path` | `string` | `"/var/lib/openshield/license.json"` | Local cache of the last successful license response |
+| `license.check_interval` | `int` | `3600` | Seconds between periodic re-checks (0 disables) |
+| `license.grace_period` | `int` | `86400` | Seconds premium features survive a validation failure |
+| `license.fqdn` | `string` | `""` | Optional FQDN sent for access-rule evaluation |
+| `license.enforce` | `bool` | `true` | Set `false` only for emergency debugging |
+| `license.hard_fail` | `bool` | `true` | Refuse to load / auto-unload when the license is invalid or missing |
 
 ## Complete Example
 
@@ -225,13 +314,16 @@ static:
   token_rate: 0
   token_burst: 0
   enable_connection_tracking: true
+  ct_syn_timeout_sec: 300
+  ct_server_port_max: 32768
+  ct_established_exempt: true
+  port_thresholds: []
   star_duration_multiplicators: [1, 2, 4, 8, 16, 32]
   star_decay_seconds: 3600
   ban_subnets: []
   auto_subnet_ban: false
   auto_subnet_prefixes: [24]
   subnet_ban_duration: 7200
-  ct_syn_timeout_sec: 30
 
 validation:
   filter_private: true
@@ -256,6 +348,12 @@ dynamic:
   attack_threshold_multiplier: 0.5
   attack_pps_threshold: 0
   attack_bps_threshold: 0
+  attack_min_pps: 1000
+  attack_min_bps: 1048576
+  attack_trigger_time: 3
+  attack_max_duration: 300
+  attack_per_ip_pps: 1000
+  attack_port_pps: 10000
   panic_pps_rate: 200000
   panic_drop_ratio: 80
   panic_global_pps_threshold: 5000000
@@ -283,7 +381,6 @@ dynamic:
   mac_filter_mode: 0
   mac_filter_entries: []
   synproxy_enabled: false
-  synproxy_enabled: false
   l7_drop_signatures: []
 
 whitelist:
@@ -309,6 +406,38 @@ alerter:
   enabled: false
   webhook_url: ""
   events: []
+  graph_enabled: true
+  show_banned_ips: false
+  geo_breakdown: true
+  attack_updates: true
+
+behavior:
+  enabled: true
+  auto_block: true
+
+metrics:
+  enabled: false
+  listen: "127.0.0.1:9100"
+  api_key: ""                # auto-generated on first load
+  rate_limit_per_sec: 10
+  whitelist: []
+
+reports:
+  enabled: false
+  webhook_url: ""
+  dispatch_time: "00:00"
+
+pcap:
+  enabled: true
+  mode: rolling
+
+geoip:
+  enabled: false
+  license_key: ""
+  db_path: "/var/lib/openshield/GeoLite2-City.mmdb"
+  mode: block
+  countries: []
+  update_hours: 168
 ```
 
 ## Related Pages
