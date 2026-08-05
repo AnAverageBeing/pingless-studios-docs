@@ -47,6 +47,16 @@ export default withMermaid({
           ]
         },
         {
+          text: 'Features',
+          collapsed: false,
+          items: [
+            { text: 'Everything It Does', link: '/openshield-xdp/features/' },
+            { text: 'Attack Coverage', link: '/openshield-xdp/features/attack-coverage' },
+            { text: 'Silent Guardians', link: '/openshield-xdp/features/silent-guardians' },
+            { text: "What's New (2.0–2.3.3)", link: '/openshield-xdp/features/whats-new' },
+          ]
+        },
+        {
           text: 'User Guide',
           collapsed: true,
           items: [
