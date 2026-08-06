@@ -76,8 +76,31 @@ dynamic:
 - Whitelist nothing except management IPs — the tunnel port gets its allowance from `port_thresholds`, not from blanket exemptions.
 - UDP floods aimed at the VPN port during an attack are handled by `attack_port_pps`; legit tunnel traffic on the port is throttled, not banned, until the attack clears.
 
-## Any recipe: verify before and after
+## Minecraft network: proxy (Velocity/Bungee) → Paper backend
 
+**The one thing to understand:** when a proxy fronts your Paper server, *every* player's traffic arrives at the Paper host **from the proxy's IP**. Per-IP limits on the backend see one super-source carrying hundreds of players.
+
+**Best topology:** run OpenShield on the **proxy's public interface** — that's where real player IPs are visible and where floods actually arrive. The proxy preset (Gaming) applies as usual.
+
+If you *also* run OpenShield on the Paper backend host (different machine), tell it the proxy is trusted infrastructure:
+
+```yaml
+static:
+  port_thresholds:
+    - ports: "25565"            # backend listener the proxy forwards to
+      pps_threshold: 50000      # one IP = all your players
+      bps_threshold: 0
+```
+
+```bash
+sudo openshield wl add <proxy-ip>   # never rate-limit or ban the proxy
+```
+
+- Whitelisting the proxy IP is safe: the proxy's own OpenShield (or its firewall) is the layer that judges real players. If an attacker floods the *backend directly*, they must know its IP — keep the backend firewalled to proxy-only at the network level too (UFW/security group), OpenShield is not a substitute for that.
+- **Do not** whitelist the proxy on the *proxy's own* host — there it's just another local process, and player IPs are what you want judged.
+- Same pattern applies to any TCP/UDP reverse proxy: HAProxy → backends, nginx → app servers, game relays.
+
+## Any recipe: verify before and after
 ```bash
 sudo openshield status        # loaded? which features active?
 sudo openshield stats         # TUI: watch normal traffic for a day
