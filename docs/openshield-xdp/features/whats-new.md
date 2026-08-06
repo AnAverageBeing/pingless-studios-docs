@@ -1,17 +1,41 @@
-# What's New — v2.0 to v2.4.0
+# What's New — v2.0 to v2.8.0
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
 
-## v2.4.0 — Baseline memory (ML tab), smart preset blending, alert pipeline hardening
+## v2.8.0 — smarter classification, XDP trace, API guard, fixed TUI chrome
 
-- **30-day baseline memory** — the learned baseline is now snapshotted daily (30 days kept) and the detector runs on a recency-weighted merge of live + history. One weird day can't tilt your protection. See it all in the new **TUI ML tab** (`m`): learning state, live vs merged baseline, thresholds, and the full history. [Guide](/openshield-xdp/user-guide/baseline-ml)
-- **Delete-a-day reconfiguration** — an attack that bypassed detection poisons a day's learning; delete that day (`d` in the ML tab, or `openshield baseline delete <date>`) and the merged baseline reconfigures instantly. `D` / delete-today resets the live baseline for same-day bypasses.
-- **Baseline import/export** — move trained baselines between servers; imported history seeds cold starts in seconds.
-- **Smart multi-profile blending** — picking several workloads no longer averages their presets into a mush that protects none. Rate ceilings take the union of legitimate needs (max), scoring takes the strictest profile, false-positive-prone detections run only where every profile agrees, and the wizard explains the blend in plain language.
-- **Preset retune (equilibrium-driven)** — Balanced now actually bans sustained 2× single-source abuse (~20s) instead of never, while 1.5× bursts stay safe forever; Hosting/Performance/Database score geometry fixed so 3–4× single-source floods can no longer cruise unbanned.
-- **Alert pipeline hardening** — attack-end reports can no longer be lost (loader-stop mid-attack now sends them, and the queue drains on shutdown); lifecycle alerts get queue priority over ban batches; Discord 429s are handled with pacing + requeue; the PingLess banner is embedded in the binary (no more missing image); reports retry and remember what they dispatched.
-- **Behavior engine race fixed** — cluster callbacks now receive snapshots (production data race, race-detector clean).
-- **Player protection restored mid-attack** — a 5-second baseline write was zeroing `attack_start_mono`, silently disabling the port-cap player exemption during attacks (the "players disconnect when the game port is flooded" bug).
+- **Multi-signal classifier** — new types (ACK_FLOOD, SYNACK_REFLECTION, FRAG_FLOOD, CARPET_BOMB, PORT_SCAN), UDP_AMPLIFICATION revived with subtypes (dns/ntp/ssdp/…), driven by new kernel counters (TCP flags, fragments, 12-slot reflector source-port histogram). Research-backed rules (FastNetMon, CICDDoS2019, Kitsune).
+- **XDP decision trace** — every attack's forensics dir now has xdp-trace.log: each verdict with ns-accurate timestamps, sampled 1/64 per CPU, zero peacetime cost.
+- **API port guard** — basic L7 for the metrics/control port: TCP-only + HTTP-method payloads + its own allowlist (metrics.whitelist), synced live.
+- **TUI fixed chrome** — status/nav pinned top, keybind footer pinned bottom, every screen scrolls in a bounded viewport with scrollbars.
+- **Behavior engine**: port fan-out scan detection. **Baseline**: anomalous days auto-flagged. Whitelisted bulk traffic no longer declares attacks.
+
+## v2.7.0 — full management API + player protection hardened
+
+- **Management API** — new read endpoints (/metrics/baseline, /metrics/geo, /metrics/alerter, /metrics/autofetch, /metrics/access, /metrics/schedule) and a `control_enabled`-gated control API: config get/set, whitelist/blacklist, geo toggle, baseline export/import/delete-day, autofetch, schedule, block-pattern, attack bulk-ban jobs. Everything the TUI does, over HTTP. [API reference](/openshield-xdp/user-guide/metrics-api)
+- **Player protection, flood-tested** — the protected-source snapshot now fills in ~0.5s via batch map ops (plain iteration finished after the attack) and protects only proven pre-attack sources (established or first-seen ≥15s before declaration) — verified live: players flat through a rotating flood.
+
+## v2.6.0 — adaptive granularity, live NIC-tuning toggle, baseline day summaries
+
+- `attack_poll_divisor` (default 4): polling jumps to 250ms during attacks only — zero peacetime CPU cost; `poll_interval` accepts fractional seconds.
+- NIC tuning toggle (`T` in the TUI) applies/reverts instantly, with the jitter tradeoff explained in the confirmation.
+- Baseline history rows show TCP/UDP splits and ▲/▼ deviation markers vs your median day.
+
+## v2.5.x — UDP player protection, geo UX, webhook health, jitter fix
+
+- **v2.5.0** — protected-source snapshot map (Bedrock/UDP players survive floods), geo tab live job progress, webhook delivery panel in the Status tab, keybind pills + segmented status bar.
+- **v2.5.1** — NIC tuning became opt-in (`nic_tuning`, default off): the coalescing it applied was the dedicated-host jitter source.
+
+## v2.4.x — baseline memory (ML tab), smart preset blending, honest reports
+
+- **30-day baseline memory** — daily snapshots merged recency-weighted with the live EMA; one weird day can't tilt detection. TUI ML tab (`m`): learning state, live vs merged, thresholds, full history. [Guide](/openshield-xdp/user-guide/baseline-ml)
+- **Delete-a-day reconfiguration** — a poisoned day (attack bypassed detection) can be deleted; the baseline reconfigures instantly. `D` resets today's live baseline for same-day bypasses.
+- **Baseline import/export** — move trained baselines between servers.
+- **Smart multi-profile blending** — multiple workload selections merge by semantics, not averages: rate ceilings = union of legit needs, scoring = strictest, FP-prone detections only where all agree.
+- **Preset retune** — Balanced actually bans sustained 2× abuse; Hosting/Performance/Database bypass classes closed.
+- **Honest attack reports** — median-based recovery (3s spikes no longer linger for minutes), real attacker IP counts (no more 100k phantom IPs), geo breakdown only from elevated intervals, Mbps/Kbps formatting.
+- **Alert pipeline overhaul** — attack-end reports can't be lost, lifecycle alerts get queue priority, Discord 429 handling, embedded banner.
+- **Behavior engine race fixed**; `attack_start_mono` preservation (the MC disconnect bug).
 
 ## v2.3.3 — Boot autostart & crash-immunity
 
