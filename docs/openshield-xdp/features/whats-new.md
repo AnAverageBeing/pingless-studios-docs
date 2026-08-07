@@ -1,6 +1,10 @@
-# What's New — v2.0 to v2.8.1
+# What's New — v2.0 to v2.8.2
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.8.2 — new-source metric fix
+
+- **New Src/s was stuck at 0** — the userspace reader queried the single-entry new-source map with a per-CPU slice lookup, which always failed silently. The kernel now keeps a monotonic total alongside the 1s windowed count; the displayed rate is exact at any poll interval. The new-source temp-ban rule itself was verified firing live (400–540k new src/s during a rotating-spoof flood).
 
 ## v2.8.1 — repeat-offender hardening, all-port coverage
 
