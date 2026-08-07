@@ -1,6 +1,15 @@
-# What's New — v2.0 to v2.8.0
+# What's New — v2.0 to v2.8.1
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.8.1 — repeat-offender hardening, all-port coverage
+
+- **Repeat-offender hardening** — bans backed by *verified* heavy evidence (both PPS and BPS ≥ 3× threshold, no established TCP session) accrue a separate heavy-hit count: 2nd verified heavy ban = **1 day**, 3rd+ = **7 days** (`static.repeat_ban_duration_2/3`). Bulk transfers can never collect heavy marks; borderline crossers keep the normal ladder.
+- **All-port protection** — `ct_server_port_max` default 65535: services on high ports (>30000) are fully covered; outbound connections (apt/curl) still work via the SYN-ACK bootstrap.
+- **Scoring determinism fix** — an odd `bpf_ktime` low bit was decoded as a spurious window reset on ~half of all packets; sampling and scoring are now exact.
+- **Heavy-evidence measurement fix** — fast floods banned on 256-packet samples now have their *true* arrival rate extrapolated, so hardening actually engages on real floods.
+- **Port-cap starvation fix** — attack-capped sources accrue suspicion before the cap drop (previously throttled forever, never banned).
+- **Ban-expiry clock fix** — bans on hosts that suspend (laptops, suspended/migrated VMs) were reaped as instantly-expired; userspace now reads the same CLOCK_MONOTONIC as the kernel.
 
 ## v2.8.0 — smarter classification, XDP trace, API guard, fixed TUI chrome
 
