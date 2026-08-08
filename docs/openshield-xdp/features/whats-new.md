@@ -1,6 +1,13 @@
-# What's New — v2.0 to v2.10.0
+# What's New — v2.0 to v2.11.0
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.11.0 — OVH edge-mitigation module 🆕
+
+- **Drop attacks at OVH's edge** — optional module (installer opt-in, marked NEW): banned attacker IPs are pushed to OVH's network firewall (VAC) so flood traffic never reaches your NIC.
+- **Guided setup** — API region → app credentials → one browser authorization → service auto-detection (the service routing this machine's main IPv4 is pre-marked) → pick the service's IPs to protect. Back navigation on every step.
+- **Two push modes** — `confirmed` (verified-heavy / repeat offenders only, near-zero false positives) or `all` (every detected attacker). Blocklist-feed bans are never pushed.
+- **OVH limits respected** — 20 rule slots per IP (worst offenders first), token-bucket API pacing with 429 backoff, all configurable. Runtime toggle in live settings; status on `GET /metrics/ovh`.
 
 ## v2.10.0 — forensics disk guard
 

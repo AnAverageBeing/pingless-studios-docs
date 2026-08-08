@@ -77,6 +77,7 @@ All errors are JSON: `{ "error": "..." }`. A 403 from a `/control/*` path with b
 | `/metrics/access` | GET | Whitelist + blacklist entries |
 | `/metrics/targets` | GET | Top destination IPs by current rate — "which VPS IP is being attacked" on dedicated hosts |
 | `/metrics/forensics` | GET | Forensics storage: dir, size vs cap, collecting/halted state, cleanup counters |
+| `/metrics/ovh` | GET | OVH edge-mitigation module: mode, protected IPs, rules pushed/removed, rate-limit hits |
 | `/metrics/schedule` | GET | Active suppression windows |
 
 The sub-endpoints wrap their payload in `{ "generated_at": <unix>, "data": ... }` (schedule uses `"schedule"` instead of `"data"`). They require the same auth as `/metrics` and work regardless of `control_enabled`.
