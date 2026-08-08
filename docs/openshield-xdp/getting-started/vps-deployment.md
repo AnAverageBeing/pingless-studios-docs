@@ -32,6 +32,11 @@ VPS has its own public IP, and that is the separation key:
   overlap — they are different destination IPs. Port numbers are parsed
   per packet, but protection state is keyed by IP, so shared ports across
   VMs never collide.
+- **Targeted-IP visibility (v2.9.0+).** The kernel keeps per-destination-IP
+  counters, so you can see exactly which VPS IP an attack is aimed at:
+  the TUI dashboard shows a *Top Targeted IPs* panel with live rates,
+  attack-end webhook reports include a per-target breakdown, and the
+  metrics API exposes `GET /metrics/targets` for your own dashboards.
 - A flood aimed at VPS-A gets mitigated at the host level — before it ever
   reaches the VM. That *is* the protection working; a ban on the attack
   source only blocks traffic to the targeted VM's IP.

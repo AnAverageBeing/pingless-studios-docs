@@ -1,6 +1,10 @@
-# What's New — v2.0 to v2.8.3
+# What's New — v2.0 to v2.9.0
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.9.0 — targeted-IP visibility
+
+- **Which VPS IP is being attacked** — per-destination-IP counters at wire speed; the TUI dashboard gets a *Top Targeted IPs* panel (live pps/bps/share), attack-end webhook reports get a *Top Targeted IPs* field, and the metrics API gains `GET /metrics/targets`. Built for dedicated hosts with routed/bridged VMs. [Deployment models](/openshield-xdp/getting-started/vps-deployment)
 
 ## v2.8.3 — audit hardening pass
 

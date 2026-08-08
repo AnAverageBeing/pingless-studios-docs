@@ -75,6 +75,7 @@ All errors are JSON: `{ "error": "..." }`. A 403 from a `/control/*` path with b
 | `/metrics/alerter` | GET | Webhook delivery statistics |
 | `/metrics/autofetch` | GET | Blocklist auto-fetcher status |
 | `/metrics/access` | GET | Whitelist + blacklist entries |
+| `/metrics/targets` | GET | Top destination IPs by current rate — "which VPS IP is being attacked" on dedicated hosts |
 | `/metrics/schedule` | GET | Active suppression windows |
 
 The sub-endpoints wrap their payload in `{ "generated_at": <unix>, "data": ... }` (schedule uses `"schedule"` instead of `"data"`). They require the same auth as `/metrics` and work regardless of `control_enabled`.
