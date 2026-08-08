@@ -1,6 +1,10 @@
-# What's New — v2.0 to v2.9.0
+# What's New — v2.0 to v2.9.1
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.9.1 — target-list hygiene
+
+- Multicast/broadcast destinations no longer appear in Top Targeted IPs / `/metrics/targets`.
 
 ## v2.9.0 — targeted-IP visibility
 
