@@ -1,6 +1,12 @@
-# What's New — v2.0 to v2.8.2
+# What's New — v2.0 to v2.8.3
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.8.3 — audit hardening pass
+
+- **Security:** TCP `doff<5` rejected (a doff=0 ACK could mint the established-connection mark without a real session); null-flag and Xmas scans now actually reach the flag validator; baseline anchor u64 wrap on busy links fixed; blind RSTs enforce the freshness window; API guard no longer drops multi-MSS request bodies or locks out IPv6 in allowlist-only mode.
+- **Correctness:** IPv6 amp check honors extension headers; L7 runtime-promoted rules (slots 1-15) were silently inert; TUI ban countdown clock-domain mix; fetcher apply errors swallowed; config-reload RMW race; panic recovery reverting runtime edits; `spike_recovery_time`/`baseline_update_interval` validation (flap/panic paths).
+- **Performance:** ban sweep loses ~400k syscalls/5s on feed-loaded hosts; bounded top-N map iterators; rate-limited new-source events with an exact kernel counter; async capped attacks.json persistence; no snapshot marshal with zero clients.
 
 ## v2.8.2 — new-source metric fix
 
