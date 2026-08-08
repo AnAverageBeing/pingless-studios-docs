@@ -276,6 +276,17 @@ Full guide: [Auto-Fetch Blocklists](/openshield-xdp/user-guide/auto-fetch).
 
 Since v2.0, forensics bundles also include `config_snapshot.txt` (mitigation config at attack start, secrets stripped) and `config_changes.txt` (timestamped config changes during the attack).
 
+## `forensics` — Storage, Disk Cap & Collection Switch (v2.10.0+)
+
+| Field | Type | Default | Range | Description | Safe? |
+|-------|------|---------|-------|-------------|-------|
+| `forensics.dir` | `string` | `/var/lib/openshield/attacks` | absolute path | Where attack forensics (reports, pcaps, history) are stored. Applies at load; existing data is not moved | ⚠️ restart |
+| `forensics.collect` | `bool` | `true` | `true` / `false` | Master switch for forensics collection. The disk-pressure guard can auto-pause/resume; a manual `false` is never overridden | 🔄 |
+| `forensics.max_size_mb` | `int` | `30720` | 1024–1048576 | Disk cap for all forensics data. Over cap → oldest completed attack bundles deleted (whole dirs only) until `cleanup_percent` of the cap is freed | 🔄 |
+| `forensics.cleanup_percent` | `int` | `50` | 10–90 | How much of `max_size_mb` to free when the cap is hit | 🔄 |
+
+The active attack's bundle is never deleted. If a live capture alone exceeds the cap, collection halts (pcap stops mid-attack, future attacks skip forensics) and auto-resumes once usage drops back under the cap-minus-cleanup level. Status is on `GET /metrics/forensics`.
+
 ## `geoip` — Geo Blocking
 
 | Field | Type | Default | Range | Description | Safe? |

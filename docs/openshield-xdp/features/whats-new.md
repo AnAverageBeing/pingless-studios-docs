@@ -1,6 +1,12 @@
-# What's New — v2.0 to v2.9.1
+# What's New — v2.0 to v2.10.0
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.10.0 — forensics disk guard
+
+- **Custom forensics directory** (`forensics.dir`) and a **disk cap** (`forensics.max_size_mb`, default 30 GB) with automatic oldest-first cleanup of completed attack bundles (`cleanup_percent`, default 50) — whole bundles only, never half a forensics dir.
+- **Disk-pressure halt/resume** — if a live capture alone exceeds the cap, collection pauses (pcap stops, future attacks skip forensics) and auto-resumes when space recovers. A manual `forensics.collect: false` is never overridden; the toggle is in live settings (TUI config tab / control API) and persisted.
+- **`GET /metrics/forensics`** — dir, size vs cap, collecting/halted state, cleanup counters.
 
 ## v2.9.1 — target-list hygiene
 
