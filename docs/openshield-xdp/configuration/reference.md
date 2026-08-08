@@ -287,6 +287,24 @@ Since v2.0, forensics bundles also include `config_snapshot.txt` (mitigation con
 
 The active attack's bundle is never deleted. If a live capture alone exceeds the cap, collection halts (pcap stops mid-attack, future attacks skip forensics) and auto-resumes once usage drops back under the cap-minus-cleanup level. Status is on `GET /metrics/forensics`.
 
+## `ovh` — Edge Mitigation Module (v2.11.0+)
+
+Optional module for OVH-hosted servers: banned attacker IPs are pushed to OVH's network firewall (VAC) and dropped at the edge. Best configured via the installer (guided credential + service + IP setup).
+
+| Field | Type | Default | Range | Description | Safe? |
+|-------|------|---------|-------|-------------|-------|
+| `ovh.enabled` | `bool` | `false` | `true` / `false` | Push banned sources to OVH's edge firewall | 🔄 |
+| `ovh.endpoint` | `string` | `"ovh-eu"` | ovh-eu / ovh-us / ovh-ca | OVH API region | ⚠️ restart |
+| `ovh.application_key` / `application_secret` / `consumer_key` | `string` | `""` | — | API credentials (from the installer flow) | ⚠️ restart |
+| `ovh.service_name` | `string` | `""` | — | Selected dedicated/VPS service | ⚠️ restart |
+| `ovh.protected_ips` | `list` | `[]` | IPs of the service | IPs edge rules are pushed for | ⚠️ restart |
+| `ovh.mode` | `string` | `"confirmed"` | `confirmed` / `all` | `confirmed` = verified-heavy/repeat offenders only; `all` = every detected attacker | 🔄 |
+| `ovh.max_rules_per_ip` | `int` | `20` | 1–20 | Edge rules per IP (OVH hard limit: 20; worst offenders first) | 🔄 |
+| `ovh.requests_per_sec` | `float` | `2` | 0.5–10 | OVH API pacing (429s back off automatically) | 🔄 |
+| `ovh.sync_interval_sec` | `int` | `30` | 10–3600 | Reconcile period | 🔄 |
+
+Feed/blocklist bans are never pushed (they are preemptive, not detected attackers). Status on `GET /metrics/ovh`.
+
 ## `geoip` — Geo Blocking
 
 | Field | Type | Default | Range | Description | Safe? |
