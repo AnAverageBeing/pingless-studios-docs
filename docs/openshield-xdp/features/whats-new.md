@@ -1,6 +1,11 @@
-# What's New — v2.0 to v2.12.0
+# What's New — v2.0 to v2.12.1
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.12.1 — false-attack flapping fix
+
+- **Quiet servers no longer flap** — the new changepoint detector could declare attacks below your configured `attack_min_pps`/`attack_min_bps` floors, producing hundreds of 1-2s phantom attacks a day on low-traffic boxes. It now respects the floors.
+- **Junk-record guard** — an "attack" whose traffic never crossed your own floors is suppressed entirely (no history entry, no webhook, no forensics) and counted in the log. Detector noise can never spam your attack history again.
 
 ## v2.12.0 — connection-state tracking, season-aware detection, per-tenant visibility 🆕
 
