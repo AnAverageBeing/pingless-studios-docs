@@ -8,6 +8,10 @@ The feature changelog for the 2.x line. For the complete feature map see [Everyt
 - Shipped program package no longer carries source-level debug info.
 - License tier changes apply live with zero protection gap and no loss of learned state.
 
+## v2.13.4 — self-healing config values
+
+- A config value written by an older version could fail validation and block every `openshield reload` permanently. Config load now repairs out-of-range values automatically and persists the fix on the next save.
+
 ## v2.13.3 — bans tab upgrade
 
 - Search (`/`) by IP or ban reason, row scrolling (j/k/arrows, g/G), and **instant unban** — select a row, press `u`, confirm.
