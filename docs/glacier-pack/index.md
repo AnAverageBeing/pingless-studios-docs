@@ -20,8 +20,8 @@ description: A family of 24 standalone addons for Pterodactyl Panel v1.12.x plus
 
 ```mermaid
 flowchart LR
-    subgraph Pack["Glacier Addons family (24 addons)"]
-        BASIC["Basic pack<br/>10 addons"]
+    subgraph Pack["Glacier Addons family (23 addons)"]
+        BASIC["Basic pack<br/>9 addons"]
         ADV["Advanced pack<br/>14 addons"]
     end
 
@@ -47,11 +47,11 @@ The hub is the **only admin surface**. Each addon's original admin pages and sid
 ## Key Features
 
 - **One admin dashboard for everything.** A single "Glacier Pack" sidebar tab opens a standalone, full-page admin UI styled after the Glacier theme editor — near-black surfaces, teal accent, its own chrome (not AdminLTE). Root-admin only, guarded twice.
-- **24 addons, two packs.** The Basic pack covers panel operations (recycle bin, URL downloads, logs, alerts, uptime); the Advanced pack covers hosting workflows (S3 backups, plugin/mod/modpack installers, staff delegation, subdomains, server imports).
+- **23 addons, two packs.** The Basic pack covers panel operations (recycle bin, URL downloads, logs, alerts, uptime); the Advanced pack covers hosting workflows (S3 backups, plugin/mod/modpack installers, staff delegation, subdomains, server imports).
 - **Full pages in-hub, not summaries.** Each addon renders its complete original UI as a hub pane — tables, forms, pagination, stat cards — with pill-style sub-tabs for multi-page addons.
 - **Uniform save flow.** Every form carries a `_hub` return URL; successful saves land back on the same pane with a success banner, and validation errors render in a hub-styled callout above the form.
 - **Standalone packaging, zero framework dependencies.** Every addon is a self-contained directory that mirrors the panel root (`PanelFiles/`) with an idempotent `data/install.sh` installer — no Blueprint, no external CDN assets, no core-file replacement (marker-delimited patches only).
-- **Client surfaces without rebuilds.** 21 of 24 addons ship their client UI as static JS/CSS — no `yarn build`. The panel's React app is enhanced, never forked.
+- **Client surfaces without rebuilds.** 20 of 23 addons ship their client UI as static JS/CSS — no `yarn build`. The panel's React app is enhanced, never forked.
 - **Glacier theme compatible.** Client-facing addon styles consume Glacier design tokens (`var(--gl-*, fallback)`), so every addon inherits Glacier's accent, surfaces and radius when the theme is installed — and keeps its own look when it isn't.
 - **Safe delegation built in.** Permission Manager gives staff a restricted admin area at `/admin/staff` with real, auto-provisioned Pterodactyl subusers — no `root_admin` grants, enforced by the panel itself.
 - **Idempotent installers.** Every `install.sh` is safe to re-run (and should be re-run after panel updates overwrite patched files), registers one service provider, runs migrations, and clears caches.
@@ -78,7 +78,7 @@ Open **Admin → Glacier Pack** (or `/admin/glacier-pack`) as a root admin. See 
 
 ## Pack Contents
 
-### Basic pack — 10 addons
+### Basic pack — 9 addons
 
 | Addon | Purpose |
 | --- | --- |
@@ -90,7 +90,6 @@ Open **Admin → Glacier Pack** (or `/admin/glacier-pack`) as a root admin. See 
 | **Panel Logs** | Live view of the panel's own log files, no SSH session required. |
 | **Recycle Bin** | Recoverable file deletion with quotas and per-egg retention windows. |
 | **Resource Alerts** | Threshold notifications the moment a server crosses a usage limit. |
-| **Site Alerts** | Admin-managed announcement banners for the client panel and login page. |
 | **URL Download** | Fetch remote files straight into a server from the file manager. |
 
 ### Advanced pack — 14 addons

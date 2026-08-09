@@ -126,7 +126,7 @@ Sign in as a root admin and open **Admin → Glacier Pack**, or browse directly 
 https://your-panel.example/admin/glacier-pack
 ```
 
-The rail lists all 24 addons in two groups; installed addons open their pane, addons without files on the panel show a fallback card.
+The rail lists all 23 addons in two groups; installed addons open their pane, addons without files on the panel show a fallback card.
 
 ### 4. Save smoke test
 

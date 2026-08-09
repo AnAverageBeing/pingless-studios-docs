@@ -1,12 +1,12 @@
 ---
 title: Quick Start — Glacier Pack
-description: Get the Glacier Pack hub plus three starter addons — Recycle Bin, URL Download and Site Alerts — running on your panel, and make your first save through the hub.
+description: Get the Glacier Pack hub plus three starter addons — Recycle Bin, URL Download and Login Activity — running on your panel, and make your first save through the hub.
 outline: deep
 ---
 
 # Quick Start
 
-The fastest useful Glacier Pack setup: the **hub** plus three starter addons — **Recycle Bin** (recoverable deletes), **URL Download** (fetch files straight into a server), and **Site Alerts** (announcement banners). Everything is managed from one page afterwards.
+The fastest useful Glacier Pack setup: the **hub** plus three starter addons — **Recycle Bin** (recoverable deletes), **URL Download** (fetch files straight into a server), and **Login Activity** (sign-in history). Everything is managed from one page afterwards.
 
 ---
 
@@ -17,7 +17,7 @@ cd glacier-pack
 sudo bash data/install.sh
 ```
 
-This registers the hub provider, adds the **Glacier Pack** sidebar tab, and clears caches. Open **Admin → Glacier Pack** — the rail lists all 24 addons; the three you are about to install will light up as they land.
+This registers the hub provider, adds the **Glacier Pack** sidebar tab, and clears caches. Open **Admin → Glacier Pack** — the rail lists all 23 addons; the three you are about to install will light up as they land.
 
 ---
 
@@ -26,7 +26,7 @@ This registers the hub provider, adds the **Glacier Pack** sidebar tab, and clea
 ```bash
 cd ../recycle-bin   && sudo bash data/install.sh
 cd ../url-download  && sudo bash data/install.sh
-cd ../site-alerts   && sudo bash data/install.sh
+cd ../login-activity && sudo bash data/install.sh
 ```
 
 ::: warning
@@ -37,7 +37,7 @@ cd /var/www/pterodactyl
 yarn build:production
 ```
 
-URL Download and Site Alerts need no build step.
+URL Download and Login Activity need no build step.
 :::
 
 ---
@@ -58,7 +58,7 @@ You land back on the same pane with the green **Settings saved.** banner — tha
 
 **URL Download** (`?a=url-download`) — set **Max file size** (default `10 GB`) and **Max URLs per batch** (default `3`), then save. Users get a **Download from URL** button in the server file manager immediately.
 
-**Site Alerts** (`?a=site-alerts`) — click the create form, pick a type (`info`, `success`, `warning`, `danger`), write a message (`**bold**`, `*italic*` and `[links](https://url)` supported), and save. The banner appears on every client page within seconds — users can dismiss it, and editing the alert re-shows it.
+**Login Activity** (`?a=login-activity`) — nothing to configure here; the pane lists recent sign-ins across all users with IP, device and outcome, so you can spot account trouble at a glance.
 
 ---
 
@@ -66,12 +66,12 @@ You land back on the same pane with the green **Settings saved.** banner — tha
 
 - **Recycle Bin:** open any server's file manager, delete a file, then use the **Recycle Bin** toolbar button to restore it.
 - **URL Download:** in the same file manager, click **Download from URL**, paste a link, pick a folder, watch it land — no SFTP round-trip.
-- **Site Alerts:** open the dashboard as any user; your banner sits above the app content.
+- **Login Activity:** open your **Account** page as any user; their own sign-in history is listed right there.
 
 ---
 
 ## Where to go next
 
-- **[All 24 addons →](../user-guide/addons.md)** — what each one does and where it lives.
+- **[All 23 addons →](../user-guide/addons.md)** — what each one does and where it lives.
 - **[Configuration Reference →](../configuration/reference.md)** — every setting on every pane.
 - **[Installation →](./installation.md)** — full prerequisites, verification and troubleshooting.

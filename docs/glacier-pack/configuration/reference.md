@@ -145,26 +145,6 @@ Sub-tabs: **Overview**, **Rules**, **History**, **Settings**. Settings save to `
 
 ---
 
-### Site Alerts {#site-alerts}
-
-No global settings — the pane manages up to **10 alert records** (`max_alerts`, not UI-editable) with a slot counter.
-
-**Managed data (per alert):**
-
-| Field | Type | Default | What it does |
-| --- | --- | --- | --- |
-| `type` | select | `info` | Banner accent: `info`, `success`, `warning`, `danger`. |
-| `text` | textarea (max 1000) | required | Markdown-lite: `**bold**`, `*italic*`, `[label](https://url)`. Raw HTML is escaped and can never be injected. |
-| `cta_label` / `cta_url` | text / url | empty | Optional call-to-action button (opens in a new tab). |
-| `reshow_after_hours` | number (0–8760) | `0` | `0` = once dismissed, stays dismissed. N = re-show N hours after dismissal. |
-| `enabled` | checkbox | on | Visible on the client panel. |
-| `dismissable` | checkbox | on | Users get a close button (localStorage, keyed by alert id + `updated_at`). |
-| `show_on_login` | checkbox | off | Also show to guests on the login page. |
-
-**Common mistakes:** expecting dismissed alerts to stay dismissed after an edit — editing bumps `updated_at`, which re-shows the alert to everyone (that is the intended re-announce mechanism).
-
----
-
 ### URL Download {#url-download}
 
 Single settings pane (one form, four boxes). **Reset to defaults** and **Clear caches** (remembered URLs + activity) are separate actions.

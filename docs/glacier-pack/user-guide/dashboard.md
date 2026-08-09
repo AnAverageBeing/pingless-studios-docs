@@ -93,7 +93,7 @@ Deep links are stable: `/admin/glacier-pack?a=backup-pro&p=destinations` always 
 
 ## How addons appear once installed
 
-The rail renders from the hub's registry (`config/glacier-pack.php`), which lists all 24 addons. For each entry the hub checks whether the addon's pane partial exists on the panel:
+The rail renders from the hub's registry (`config/glacier-pack.php`), which lists all 23 addons. For each entry the hub checks whether the addon's pane partial exists on the panel:
 
 - **Installed** — the entry opens the addon's live pane.
 - **Not installed (or files missing)** — the entry shows a small dot and opens a fallback card with the addon's description and, where applicable, a button to any native page that still exists.
@@ -113,6 +113,6 @@ Two deliberate exceptions:
 
 ## What's Next?
 
-- **[Addons Guide →](./addons.md)** — what each of the 24 addons does and where it lives in the hub.
+- **[Addons Guide →](./addons.md)** — what each of the 23 addons does and where it lives in the hub.
 - **[Configuration Reference →](../configuration/reference.md)** — every setting on every pane.
 - **[Architecture →](../architecture/overview.md)** — the hub contract under the hood.

@@ -1,6 +1,12 @@
-# What's New — v2.0 to v2.13.0
+# What's New — v2.0 to v2.13.1
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.13.1 — license enforcement hardening
+
+- The license check's feature switch now lives inside the loaded firewall program itself (frozen at load) instead of a settings area that admin-level tools could edit — tampering with it no longer has any effect.
+- Shipped program package no longer carries source-level debug info.
+- License tier changes apply live with zero protection gap and no loss of learned state.
 
 ## v2.13.0 — smart NIC optimization (opt-in)
 

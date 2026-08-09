@@ -30,15 +30,6 @@ Users paste one or more remote URLs into a guided file-manager modal and the pan
 - Pre-flight checks include scheme/extension allow-lists and a remote HEAD probe; conflicts auto-rename, overwrite or skip per file.
 - Transfers run on the node via the native `files/pull` endpoint — a healthy panel↔Wings link is required.
 
-### Site Alerts
-
-Admin-managed announcement banners (info / success / warning / danger) for the client panel and optionally the login page, with markdown-lite text and an optional CTA button.
-
-- **Hub:** `?a=site-alerts` — single pane managing up to 10 alert records.
-- **Client surface:** a banner stack above the app content on all authed client pages, plus the login page per alert; rendered outside the React app, Glacier-theme aware.
-- Dismissals are stored per user; editing an alert bumps its timestamp and re-shows it — that is your re-announce mechanism.
-- No build step, no core patches — banners are injected by a runtime view composer.
-
 ### Config Editor
 
 Edit the panel's `.env` safely from the browser: structured rows grouped by prefix, secret masking, validation, review-before-save, and atomic writes with 10 rotating backups.

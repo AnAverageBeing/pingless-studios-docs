@@ -62,7 +62,7 @@ After hub v2 conversion, an addon's route table contains **no `GET /admin/<addon
 
 ## The hub v2 architecture
 
-The hub is a single root-admin-guarded controller and one standalone page (its own chrome, not AdminLTE) driven by a plain config registry (`config/glacier-pack.php`) listing all 24 addons with their slug, name, description, pack, icon and pane view.
+The hub is a single root-admin-guarded controller and one standalone page (its own chrome, not AdminLTE) driven by a plain config registry (`config/glacier-pack.php`) listing all 23 addons with their slug, name, description, pack, icon and pane view.
 
 ```mermaid
 sequenceDiagram
