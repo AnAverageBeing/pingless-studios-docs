@@ -8,6 +8,10 @@ The feature changelog for the 2.x line. For the complete feature map see [Everyt
 - Shipped program package no longer carries source-level debug info.
 - License tier changes apply live with zero protection gap and no loss of learned state.
 
+## v2.13.3 — bans tab upgrade
+
+- Search (`/`) by IP or ban reason, row scrolling (j/k/arrows, g/G), and **instant unban** — select a row, press `u`, confirm.
+
 ## v2.13.2 — older-kernel compatibility fix
 
 - Fixes an install failure on kernels before 6.9 ("BPF program is too large"): the newest analysis features are intensive for older kernel verifiers, so the release now ships two program builds — full on 6.9+, a lighter (fully protection-equivalent) build on 5.15–6.8 — and picks automatically at load.
