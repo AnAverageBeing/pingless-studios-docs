@@ -110,6 +110,7 @@ validation:
 | `dynamic.baseline_alpha_min` | `float64` | `0.05` | `0.0` – `1.0` | Minimum adaptive EMA alpha | 🔄 |
 | `dynamic.baseline_alpha_max` | `float64` | `0.50` | `0.0` – `1.0` | Maximum adaptive EMA alpha | 🔄 |
 | `dynamic.baseline_alpha_variance_scale` | `float64` | `0.1` | `0.0` – `1.0` | How much variance adjusts alpha | 🔄 |
+| `dynamic.baseline_mad_k` | `float64` | `3.5` | `0.0` – `20.0` | Outlier-rejection strength when merging the 30-day baseline history (v2.12.0+); higher tolerates more deviation before a day is treated as poisoned | 🔄 |
 | `dynamic.spike_percentage` | `int` | `200` | `10` – `10,000` | % above baseline that triggers spike detection (200 = 3× baseline) | 🔄 |
 | `dynamic.spike_recovery_factor` | `float64` | `0.7` | `0.3` – `0.95` | Fraction of spike threshold below which attack state clears (must be < 1.0) | 🔄 |
 | `dynamic.spike_recovery_time` | `int` | `10` | `3` – `120` | Seconds below recovery factor before clearing | 🔄 |
@@ -220,6 +221,7 @@ When enabled, whitelisted IPs are hashed into a Bloom filter in the BPF `bloom_m
 | `alerter.show_banned_ips` | `bool` | `false` | `true` / `false` | Include banned IP list inline in ban alerts (txt attached for large batches) | 🔄 |
 | `alerter.geo_breakdown` | `bool` | `true` | `true` / `false` | Continent/country share of banned IPs (requires GeoIP db) | 🔄 |
 | `alerter.attack_updates` | `bool` | `true` | `true` / `false` | Progress embeds while an attack is ongoing | 🔄 |
+| `alerter.generic_webhook_url` | `string` | `""` | http(s) URL | Also POST every event as a JSON envelope (`{product, version, event, host, timestamp, data}`) to this endpoint (v2.12.0+); same pacing/rate-limit handling as Discord, embeds/attachments stay Discord-only | 🔄 |
 
 See the [Alerter docs](./alerter) for webhook format and event types.
 
@@ -304,6 +306,12 @@ Optional module for OVH-hosted servers: banned attacker IPs are pushed to OVH's 
 | `ovh.sync_interval_sec` | `int` | `30` | 10–3600 | Reconcile period | 🔄 |
 
 Feed/blocklist bans are never pushed (they are preemptive, not detected attackers). Status on `GET /metrics/ovh`.
+
+## `tenant` — Per-Tenant Visibility (v2.12.0+)
+
+| Field | Type | Default | Range | Description | Safe? |
+|-------|------|---------|-------|-------------|-------|
+| `tenant.mode` | `string` | `"auto"` | `auto` / `on` / `off` | Per-hosted-IP attack state (`normal` / `elevated` / `under_attack`) in the TUI targets panel, attack reports, and `GET /metrics/targets`. `auto` activates only on multi-IP dedicated hosts — single-IP VPS installs are never treated as dedicated | 🔄 |
 
 ## `geoip` — Geo Blocking
 
@@ -451,6 +459,7 @@ maps:
 alerter:
   enabled: false
   webhook_url: ""
+  generic_webhook_url: ""
   events: []
   graph_enabled: true
   show_banned_ips: false

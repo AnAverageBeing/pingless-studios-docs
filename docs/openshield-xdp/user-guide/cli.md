@@ -69,6 +69,15 @@ sudo openshield fix -v        # Verbose (show detail for each step)
 
 See [Fix Command Reference](/openshield-xdp/cli/fix) for the full list of fixable issues.
 
+### `openshield doctor` (v2.12.0+)
+
+One-command environment health check: kernel version, BTF availability, XDP attach state, NIC driver, configuration validity, forensics disk space, and license status.
+
+```bash
+sudo openshield doctor           # human-readable report
+sudo openshield doctor --json    # machine-readable output for support tickets
+```
+
 ### `openshield tui` / `openshield stats`
 
 Launch the TUI dashboard (if the loader is already running with stats enabled).

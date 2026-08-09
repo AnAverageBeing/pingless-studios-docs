@@ -1,8 +1,32 @@
-# What's New — v2.0 to v2.11.0
+# What's New — v2.0 to v2.12.0
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
 
-## v2.11.0 — OVH edge-mitigation module 🆕
+## v2.12.0 — connection-state tracking, season-aware detection, per-tenant visibility 🆕
+
+Kernel & protection:
+
+- **Connection-state tracking** — the firewall now follows every connection individually: replies to your own outbound connections (apt, curl, updates) are recognized precisely instead of heuristically, and blind ACK/RST floods are judged against the actual state of each connection. No configuration needed.
+- **Flood-proof offender records** — repeat offenders can no longer wash out their history during a flood; ban history lives in flood-proof storage, so the escalating 1-day / 7-day tiers engage reliably even against million-source rotating floods.
+- **Small-packet floods now escalate to long bans** — the heavy-evidence bar was unreachable for 64-byte-packet floods; extreme packet rate alone now qualifies for the escalating ban tiers.
+- **Established connections during attacks** — peacetime behavior is unchanged (proven connections are never banned); while an attack is actively declared, a once-connected source pushing flood-grade rates now accrues suspicion gradually instead of being fully exempt.
+- **Rotating-source floods without slowdown** — per-source counting is now lock-free, so million-source rotating floods are handled with no core slowdown.
+
+Detection intelligence:
+
+- **Poison-resistant baselines** — the 30-day baseline history is now merged with robust statistics (median + deviation), so a slow multi-day traffic ramp can't train the baseline upward. Tunable via `dynamic.baseline_mad_k` (default 3.5). [Baseline guide](/openshield-xdp/user-guide/baseline-ml)
+- **Season-aware thresholds** — the firewall learns your hour-of-day pattern and automatically relaxes the trigger band during predictably busy hours. Needs ~7 days to warm up per hour, and only ever relaxes — never tightens.
+- **Faster attack onset** — a changepoint detector declares sharp onsets 1–2 seconds earlier than the spike trigger alone.
+- **Smarter attack classification** — spoof-distribution, FIN-heavy, payload-shape (randomized vs structured) and port-share hints now refine the attack subtype in reports and forensics; forensics bundles show per-source TCP stack consistency.
+- **Per-tenant visibility on dedicated hosts** — every hosted IP gets a `normal` / `elevated` / `under_attack` state in the TUI targets panel, attack reports, and `GET /metrics/targets`. Auto-detected: activates only on multi-IP dedicated hosts — single-IP VPS installs are never treated as dedicated. New knob `tenant.mode` (`auto` / `on` / `off`). [Metrics API](/openshield-xdp/user-guide/metrics-api)
+
+Ops:
+
+- **Ban-storage pressure protection** — if ban storage approaches full, OpenShield warns you (dashboard + webhook), reaps expired entries immediately, and as a last resort reclaims blocklist-feed entries (they re-fetch automatically). Attack-driven bans are never pressure-deleted.
+- **`openshield doctor`** — one-command environment health check: kernel, BTF, XDP attach, NIC driver, config, forensics disk, and license. `--json` output for support tickets. [CLI reference](/openshield-xdp/user-guide/cli)
+- **Generic JSON webhook** — set `alerter.generic_webhook_url` and every event also posts a JSON envelope (`{product, version, event, host, timestamp, data}`) to your endpoint — same pacing and rate-limit handling as Discord; embeds and attachments stay Discord-only. [Alerter docs](/openshield-xdp/configuration/alerter)
+
+## v2.11.0 — OVH edge-mitigation module
 
 - **Drop attacks at OVH's edge** — optional module (installer opt-in, marked NEW): banned attacker IPs are pushed to OVH's network firewall (VAC) so flood traffic never reaches your NIC.
 - **Guided setup** — API region → app credentials → one browser authorization → service auto-detection (the service routing this machine's main IPv4 is pre-marked) → pick the service's IPs to protect. Back navigation on every step.

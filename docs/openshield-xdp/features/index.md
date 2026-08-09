@@ -45,6 +45,7 @@ Attacks are classified live as **SYN_FLOOD, UDP_FLOOD, UDP_AMPLIFICATION, ICMP_F
 - **Panic circuit breaker** — per-CPU probabilistic bulk drop when a core exceeds its PPS rate, coordinated globally for extreme floods.
 - **SYNPROXY** — rate-based SYN flood gate, portable to every supported kernel.
 - **Connection tracking** — handshake observation with blind-packet enforcement; long-lived connections are kept alive by sliding liveness.
+- **Connection-state tracking (v2.12)** — every connection is followed individually: replies to your own outbound connections are recognized precisely, blind ACK/RST floods are judged per connection, and million-source rotating floods are counted lock-free with no core slowdown.
 - **L7 signatures** — 16 slots; new signatures can be promoted from real attack fingerprints with one keypress in the TUI.
 - **Geo blocking** — block or allow-list entire countries; ranges resolve from MaxMind GeoLite2 and enforce as subnet bans. [Guide](/openshield-xdp/user-guide/geo-blocking)
 - **Blocklists** — manual bans (with optional notes), file imports, and **auto-fetch feeds** (11 curated categories + your own URLs) with `vps`/`dedicated` modes — dedicated mode skips cloud-provider ranges so your customers' legit nodes are never feed-banned. [Guide](/openshield-xdp/user-guide/auto-fetch)
@@ -62,7 +63,9 @@ The protections you never configured and never notice — until you learn they'r
 - **Your own downloads never fake an attack** — replies to the server's own outbound connections (apt, GeoIP updates, blocklist fetches, backups) skip rate limiting *and* attack detection.
 - **Your admin IP whitelists itself** — the IP you SSH in from is auto-whitelisted on every load and persisted across reboots.
 - **Players never disconnect mid-attack** — established and pre-attack sources are exempt from the per-port attack cap.
-- **The baseline can't be poisoned** — learning freezes during attacks and refuses above-trigger traffic even when no attack is declared.
+- **The baseline can't be poisoned** — learning freezes during attacks and refuses above-trigger traffic even when no attack is declared. Since v2.12 the 30-day history is merged with robust statistics, so a slow multi-day ramp can't train the baseline upward either.
+- **Season-aware thresholds (v2.12)** — hour-of-day patterns are learned and the trigger band relaxes automatically during predictably busy hours; it only ever relaxes, never tightens.
+- **Ban storage protects itself (v2.12)** — approaching-full storage warns you, reaps expired entries, and only ever reclaims auto-fetched blocklist entries (which re-fetch themselves); attack-driven bans are never pressure-deleted.
 - **No false attack storms** — declaration hysteresis, recovery bands, re-trigger cooldowns, anti-flap re-classification, and a startup warmup window.
 - **The firewall protects itself** — log flood pauses, BPF event rate limits, alert queues that drop rather than block the datapath.
 - **Crash-proof state** — bans, baseline, geo blocks, ban notes and schedules survive restarts; the TUI never takes the firewall down when you close it.
@@ -73,9 +76,11 @@ The protections you never configured and never notice — until you learn they'r
 ## Observability
 
 - **TUI dashboard** (`openshield stats`) — 10 screens: live graphs, traffic analysis, bans, logs, system status, a **live config editor**, attack history with one-key bulk-blacklist and fingerprints, access management, and geo blocking. Closing it never stops protection.
-- **CLI** — every operation scriptable: `load`, `unload`, `status`, `stats`, `reload`, `whitelist`, `blacklist`, `license`, `key`, `report`, `behavior`, `schedule`, `fix`, `upgrade`, `reconfigure`… with per-command help (`openshield help <command>`). [CLI reference](/openshield-xdp/user-guide/cli)
+- **CLI** — every operation scriptable: `load`, `unload`, `status`, `stats`, `reload`, `whitelist`, `blacklist`, `license`, `key`, `report`, `behavior`, `schedule`, `fix`, `doctor`, `upgrade`, `reconfigure`… with per-command help (`openshield help <command>`). [CLI reference](/openshield-xdp/user-guide/cli)
 - **Metrics HTTP API** — optional, off by default; everything the TUI shows as JSON, API-key guarded, rate-limited, allowlist-able. [Metrics API](/openshield-xdp/user-guide/metrics-api)
-- **Discord/Slack webhooks** — attack start, growing-cadence progress updates, and a full end report: peak/avg/P95 PPS & Gbps, IPs involved, mitigation time, **per-country breakdown with flags**, graph banner, and the forensics bundle attached.
+- **Per-tenant visibility (v2.12)** — on multi-IP dedicated hosts every hosted IP gets a `normal` / `elevated` / `under_attack` state in the TUI targets panel, attack reports, and `GET /metrics/targets` (auto-detected; single-IP VPS installs are unaffected).
+- **Discord/Slack webhooks** — attack start, growing-cadence progress updates, and a full end report: peak/avg/P95 PPS & Gbps, IPs involved, mitigation time, **per-country breakdown with flags**, graph banner, and the forensics bundle attached. A generic JSON webhook (v2.12) mirrors every event to your own endpoint for custom integrations.
+- **`openshield doctor` (v2.12)** — one-command environment health check (kernel, BTF, XDP attach, NIC driver, config, forensics disk, license) with `--json` output for support.
 - **Forensics** — every attack gets a directory: report, involved IPs, traffic fingerprint (with a suggested L7 rule), config snapshot, and PCAP (attack-triggered or a rolling ~3-minute ring).
 - **Reports** — daily/weekly/monthly aggregates with capacity prediction and geo breakdowns, optionally dispatched to your webhook.
 

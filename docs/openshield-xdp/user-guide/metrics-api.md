@@ -75,7 +75,7 @@ All errors are JSON: `{ "error": "..." }`. A 403 from a `/control/*` path with b
 | `/metrics/alerter` | GET | Webhook delivery statistics |
 | `/metrics/autofetch` | GET | Blocklist auto-fetcher status |
 | `/metrics/access` | GET | Whitelist + blacklist entries |
-| `/metrics/targets` | GET | Top destination IPs by current rate — "which VPS IP is being attacked" on dedicated hosts |
+| `/metrics/targets` | GET | Top destination IPs by current rate — "which VPS IP is being attacked" on dedicated hosts. Each target carries a per-IP state (`normal` / `elevated` / `under_attack`) on multi-IP dedicated hosts (v2.12.0+, see `tenant.mode`) |
 | `/metrics/forensics` | GET | Forensics storage: dir, size vs cap, collecting/halted state, cleanup counters |
 | `/metrics/ovh` | GET | OVH edge-mitigation module: mode, protected IPs, rules pushed/removed, rate-limit hits |
 | `/metrics/schedule` | GET | Active suppression windows |
