@@ -96,7 +96,7 @@ The sub-endpoints wrap their payload in `{ "generated_at": <unix>, "data": ... }
 
 Highlights of what's inside:
 
-- **`snapshot.global`** — `current_pps`, `current_bps`, `passed_pps`, drop/pass rates, totals. The `current_pps` vs `passed_pps` pair is your proof-of-mitigation: what's arriving vs what got through.
+- **`snapshot.global`** — `current_pps`, `current_bps`, `passed_pps`, drop/pass rates, totals. The `current_pps` vs `passed_pps` pair is your proof-of-mitigation: what's arriving vs what got through. Since v2.13.5: `live_pass_rate` / `live_drop_rate` (percentages for the *current interval* — the cumulative `pass_rate`/`drop_rate` mix in peacetime traffic) and `live_ips_passed` / `live_ips_blocked` (distinct sources this interval that passed vs are currently blocked).
 - **`snapshot.traffic`** — per-protocol rates, peaks, `top_ports`, and per-second history series (`pps_history`, `bps_history`, `drop_rate_history`, newest last — graph them directly).
 - **`snapshot.attack`** — `state` (`NORMAL`/`UNDER_ATTACK`), type, duration, baseline + spike thresholds, packets dropped, IPs banned, new sources blocked.
 - **`snapshot.bans` / `snapshot.top_offenders`** — active ban count and recent entries (IP, reason, expiry, star level); per-IP rates and suspicion scores.

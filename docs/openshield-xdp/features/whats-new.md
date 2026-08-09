@@ -8,6 +8,11 @@ The feature changelog for the 2.x line. For the complete feature map see [Everyt
 - Shipped program package no longer carries source-level debug info.
 - License tier changes apply live with zero protection gap and no loss of learned state.
 
+## v2.13.6 — live visibility + L7 pattern feeds
+
+- Top bar shows the version; Packets panel adds the *current interval's* pass/drop %; Mitigation panel adds "IPs live: X pass / Y blocked". New `/metrics` fields: `live_pass_rate`, `live_drop_rate`, `live_ips_passed`, `live_ips_blocked`.
+- **Auto-fetch L7 attack patterns** (opt-in: `auto_fetch.patterns_enabled` + `pattern_urls`) — curated reflection-flood signatures (DNS amp, NTP monlist, SSDP, CLDAP, memcached-UDP) load into free L7 slots and update on the fetch interval. Chosen to never fire on game/enterprise/CDN/bulk traffic.
+
 ## v2.13.5 — live map sizing
 
 - `maps.ban_max`, `maps.ip_stats_max`, `maps.whitelist_max` are now real, live settings (TUI config tab / control API). Changes apply immediately with a state-preserving reload — active bans survive the resize.
