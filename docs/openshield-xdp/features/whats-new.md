@@ -8,7 +8,11 @@ The feature changelog for the 2.x line. For the complete feature map see [Everyt
 - Shipped program package no longer carries source-level debug info.
 - License tier changes apply live with zero protection gap and no loss of learned state.
 
-## v2.13.0 — smart NIC optimization (opt-in)
+## v2.13.2 — older-kernel compatibility fix
+
+- Fixes an install failure on kernels before 6.9 ("BPF program is too large"): the newest analysis features are intensive for older kernel verifiers, so the release now ships two program builds — full on 6.9+, a lighter (fully protection-equivalent) build on 5.15–6.8 — and picks automatically at load.
+
+## v2.13.1 — license enforcement hardening
 
 - **One-click network optimization in the installer, detection-first** — it probes your NIC and only applies what's missing: queue count matched to your vCPUs, larger RX/TX ring buffers for flood bursts, IRQ spread (skipped when irqbalance manages it), txqueuelen, fq_codel queueing, LRO off. You see the exact change list before saying yes.
 - **Safe on every host type** — unsupported items are skipped per-item, so VPSes (virtio), dedicated boxes, and multi-tenant hosts all get exactly what their hardware supports and nothing breaks.
