@@ -1,6 +1,12 @@
-# What's New — v2.0 to v2.12.1
+# What's New — v2.0 to v2.13.0
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.13.0 — smart NIC optimization (opt-in)
+
+- **One-click network optimization in the installer, detection-first** — it probes your NIC and only applies what's missing: queue count matched to your vCPUs, larger RX/TX ring buffers for flood bursts, IRQ spread (skipped when irqbalance manages it), txqueuelen, fq_codel queueing, LRO off. You see the exact change list before saying yes.
+- **Safe on every host type** — unsupported items are skipped per-item, so VPSes (virtio), dedicated boxes, and multi-tenant hosts all get exactly what their hardware supports and nothing breaks.
+- New `doctor` check reports pending optimizations; the TUI `nic_tuning` toggle applies the same smart set.
 
 ## v2.12.1 — false-attack flapping fix
 
