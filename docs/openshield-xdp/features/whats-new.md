@@ -1,6 +1,12 @@
-# What's New — v2.0 to v2.15.0
+# What's New — v2.0 to v2.15.1
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.15.1 — burst-flood bypass fix
+
+- **Short distributed floods can no longer outrun mitigation.** Every aggregate defense (the per-port cap, per-IP attack cap) used to wait for the userspace attack declaration — a burst of a few seconds could end before it arrived. The per-port cap now also engages on a **kernel-side early spike trigger**: a destination port running over your `attack_port_pps` cap *and* over 8× its own learned normal rate is throttled immediately — inside the first window of the burst — while players with established connections stay exempt as before. The learned baseline only updates from calm windows, so the flood itself can't train it upward mid-attack.
+- **Attack-type labels are re-verified at attack end** against the aggregate protocol mix — a fast first-second guess can no longer leave an `ACK_FLOOD` label on what became a UDP flood (or `MIXED` on a single-protocol flood).
+- Fixed `Family: <nil>` appearing in alert embeds when no fingerprint family was identified.
 
 ## v2.15.0 — self-managing SYN cookies, richer attack reports
 
