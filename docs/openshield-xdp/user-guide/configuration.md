@@ -210,7 +210,8 @@ When per-CPU packet rate exceeds `panic_pps_rate`, the panic breaker bulk-drops 
 
 | Field | Default | Description |
 |-------|---------|-------------|
-| `synproxy_enabled` | `false` | Cookie-based SYN flood mitigation |
+| `synproxy_mode` | `"off"` | SYN-cookie SYN flood mitigation: `off` / `adaptive` (engages at `synproxy_threshold` or during attacks) / `always` |
+| `synproxy_threshold` | `10000` | Per-CPU SYN pps that engages adaptive SYN-cookie mode |
 | `syn_pps_threshold` | `170` | Per-IP SYN packets/sec before the rate-based SYN gate scores the source |
 
 ### L7 signature drops

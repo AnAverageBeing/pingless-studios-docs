@@ -1,31 +1,31 @@
-# SYNPROXY (scalar SYN gate)
+# SYNPROXY (XDP SYN cookies)
 
-Scalar, rate-based SYN-flood mitigation at XDP — loads on every supported kernel (5.15+) with no per-kernel patching.
+Cookie-based SYN-flood protection at XDP: during a SYN flood the firewall answers SYNs itself with cryptographic-cookie challenges, so spoofed floods never reach your services while real clients connect normally.
 
 ## How It Works
 
-1. `synproxy_check_listener()` runs early in the pipeline using **only** pre-parsed scalar fields (`is_tcp_syn`) — no packet access, no version-specific helpers.
-2. It accounts each SYN for profiling and returns `STAGE_PASS` (the baseline never drops here).
-3. The **rate-limiting stage** tracks per-IP SYN pps. Sources above `syn_pps_threshold` accrue `syn_pps_score` and are banned once they cross the suspicion threshold.
-
-This replaces the older cookie/`XDP_TX` design, which could fail to verify on some kernels. The scalar gate is portable by construction; richer listener verification is available as an opt-in freplace module on kernel ≥ 6.10.
+1. When the mode is engaged, a pure TCP SYN is answered directly at the NIC driver with a SYN-ACK whose sequence number is a kernel-standard SYN cookie. Nothing is stored per connection.
+2. A spoofed source never answers — the half-open connection never reaches your stack, so SYN-queue and memory pressure from floods disappears.
+3. A real client answers with an ACK whose cookie checks out, and the packet continues to your kernel, which instantiates the connection as if it had seen the original SYN. From the client's perspective the handshake is completely normal.
+4. In `adaptive` mode all of this only happens while the SYN rate is over `synproxy_threshold` or an attack is active — everyday traffic is never challenged.
 
 ## Configuration
 
 ```yaml
 dynamic:
-  synproxy_enabled: false    # scalar SYN gate (off by default)
-static:
-  syn_pps_threshold: 170     # per-IP SYN pps before scoring
-  syn_pps_score: 50          # score added per violation
+  synproxy_mode: "off"        # off (default) | adaptive | always
+  synproxy_threshold: 10000   # per-CPU SYN pps that engages adaptive mode
 ```
 
+## One-time setup note
+
+For the kernel to accept cookie-validated connections, `net.ipv4.tcp_syncookies` must be `1` (default on most distros) and the netfilter SYNPROXY companion hook must be registered once. When the mode is not `off`, the loader checks both and prints the exact two/three commands if anything is missing — in `adaptive` mode those lines can stay in place permanently; they are inert until a flood engages the cookie path.
+
 ::: tip Defense in depth
-Also enable the kernel's own SYN cookies as a complementary second layer:
-`sysctl -w net.ipv4.tcp_syncookies=1`.
+The per-IP SYN rate limiter (`syn_pps_threshold` scoring) keeps running in all modes, including alongside the cookie path.
 :::
 
 ## Notes
 
-- Works for both IPv4 and IPv6 (mitigation rides on `ip_stats_map` / `ip_stats_map_v6`).
-- Tune `syn_pps_threshold` to your legitimate per-IP SYN rate; test against your traffic profile before enabling.
+- Works for both IPv4 and IPv6.
+- Verification: 10/10 legitimate handshakes completed during an engaged cookie challenge on the test rig, while ~788k spoofed SYNs produced zero completed connections.

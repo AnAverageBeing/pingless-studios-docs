@@ -151,7 +151,11 @@ validation:
 | `dynamic.mac_filter_enabled` | `bool` | `false` | `true` / `false` | L2 MAC address filtering | 🔄 |
 | `dynamic.mac_filter_mode` | `int` | `0` | `0` / `1` / `2` | 0=disabled, 1=whitelist, 2=blacklist | 🔄 |
 | `dynamic.mac_filter_entries` | `[]string` | `[]` | 6-byte hex strings | Up to 8 MAC addresses | 🔄 |
-| `dynamic.synproxy_enabled` | `bool` | `false` | `true` / `false` | Enable the scalar SYN gate (rate-based; flood mitigation via `syn_pps_threshold`) | 🔄 |
+| `dynamic.synproxy_mode` | `string` | `"off"` | `off` / `adaptive` / `always` | XDP SYN-cookie challenges: adaptive engages above `synproxy_threshold` or during attacks; always challenges every SYN | 🔄 |
+| `dynamic.synproxy_threshold` | `int` | `10000` | `100` – `10,000,000` | Per-CPU SYN pps that engages adaptive mode | 🔄 |
+| `dynamic.udp_resp_enabled` | `bool` | `true` | `true` / `false` | Response-window watch: sustained spoofed-looking service-port responses lose their fast-pass exemption | 🔄 |
+| `dynamic.udp_resp_factor` | `int` | `4` | `2` – `64` | Multiple over the early-rate baseline before the exemption is revoked | 🔄 |
+| `dynamic.udp_resp_window_sec` | `int` | `10` | `2` – `300` | Seconds of sustained excess before revocation | 🔄 |
 | `dynamic.l7_drop_signatures` | `[]L7Signature` | `nil` | array | Layer-7 pattern match rules | 🔄 |
 
 ### L7 Drop Signature Fields

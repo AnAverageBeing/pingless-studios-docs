@@ -1,6 +1,6 @@
 ---
 title: Installation — Glacier Pack
-description: Install the Glacier Pack hub and any of the 24 Glacier addons on Pterodactyl Panel v1.12.x — prerequisites, per-addon install, verification, troubleshooting and uninstall.
+description: Install the Glacier Pack hub and any of the 46 Glacier addons on Pterodactyl Panel v1.12.x — prerequisites, per-addon install, verification, troubleshooting and uninstall.
 outline: deep
 ---
 
@@ -126,7 +126,7 @@ Sign in as a root admin and open **Admin → Glacier Pack**, or browse directly 
 https://your-panel.example/admin/glacier-pack
 ```
 
-The rail lists all 23 addons in two groups; installed addons open their pane, addons without files on the panel show a fallback card.
+The rail lists all 46 addons in two groups; installed addons open their pane, addons without files on the panel show a fallback card.
 
 ### 4. Save smoke test
 

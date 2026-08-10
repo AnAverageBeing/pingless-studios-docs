@@ -17,7 +17,7 @@ cd glacier-pack
 sudo bash data/install.sh
 ```
 
-This registers the hub provider, adds the **Glacier Pack** sidebar tab, and clears caches. Open **Admin → Glacier Pack** — the rail lists all 23 addons; the three you are about to install will light up as they land.
+This registers the hub provider, adds the **Glacier Pack** sidebar tab, and clears caches. Open **Admin → Glacier Pack** — the rail lists all 46 addons; the three you are about to install will light up as they land.
 
 ---
 
@@ -72,6 +72,6 @@ You land back on the same pane with the green **Settings saved.** banner — tha
 
 ## Where to go next
 
-- **[All 23 addons →](../user-guide/addons.md)** — what each one does and where it lives.
+- **[All 46 addons →](../user-guide/addons.md)** — what each one does and where it lives.
 - **[Configuration Reference →](../configuration/reference.md)** — every setting on every pane.
 - **[Installation →](./installation.md)** — full prerequisites, verification and troubleshooting.

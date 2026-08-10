@@ -6,7 +6,7 @@ outline: deep
 
 # Architecture Overview
 
-Glacier Pack is two things: a **packaging format** (24 self-contained addons that install onto Pterodactyl Panel v1.12.x without Blueprint) and a **hub contract** (one admin dashboard that hosts every addon's complete UI). This page explains both, plus the theme-compatibility layer and Permission Manager's security model.
+Glacier Pack is two things: a **packaging format** (46 self-contained addons that install onto Pterodactyl Panel v1.12.x without Blueprint) and a **hub contract** (one admin dashboard that hosts every addon's complete UI). This page explains both, plus the theme-compatibility layer and Permission Manager's security model.
 
 ---
 
@@ -62,7 +62,7 @@ After hub v2 conversion, an addon's route table contains **no `GET /admin/<addon
 
 ## The hub v2 architecture
 
-The hub is a single root-admin-guarded controller and one standalone page (its own chrome, not AdminLTE) driven by a plain config registry (`config/glacier-pack.php`) listing all 23 addons with their slug, name, description, pack, icon and pane view.
+The hub is a single root-admin-guarded controller and one standalone page (its own chrome, not AdminLTE) driven by a plain config registry (`config/glacier-pack.php`) listing all 46 addons with their slug, name, description, pack, icon and pane view.
 
 ```mermaid
 sequenceDiagram

@@ -29,20 +29,11 @@ Feature gates are evaluated at **build time**, not at runtime. If you upgrade yo
 |----------|-------|
 | **Minimum kernel** | 5.15 (baseline minimum, not a special requirement) |
 | **Detection** | `test $(KERNEL_MAJOR) -gt 5 -o \( $(KERNEL_MAJOR) -eq 5 -a $(KERNEL_MINOR) -ge 15 \)` |
-| **What it gates** | Scalar, non-terminal SYN classification gate (rate-based) |
-| **Compiles to** | `synproxy_check_listener()` — a scalar-only `__always_inline` hook |
-| **Below threshold** | Compiles out entirely — SYN handling falls back to the rate limiter |
+| **What it gates** | XDP SYN-cookie challenge/validate stage (`synproxy_mode`) |
+| **Compiles to** | the syncookie stage (kernel helpers `bpf_tcp_raw_*_syncookie_*`, 5.10+) |
+| **Below threshold** | Compiles out entirely — SYN handling falls back to the rate limiter (also the pre-6.9 base build's behavior) |
 
-```c
-// openshield.bpf.c
-#ifdef OPENSHIELD_SYNPROXY
-    if (synproxy_check_listener(ctx, &info, cfg) == STAGE_DROP)
-        return XDP_DROP;
-#endif /* OPENSHIELD_SYNPROXY */
-```
-
-**Why scalar-only?** The gate reads **only** pre-parsed scalar fields from `packet_info` — no packet-pointer access and no version-specific helpers (no `bpf_sk_lookup_tcp`, no cookie crypto, no `XDP_TX`). This guarantees it verifies and loads on **every** supported kernel (5.15 → latest) with zero user fixes. Actual SYN-flood mitigation is delivered by the per-IP `syn_pps_threshold` rate limiter. On kernels ≥ 6.10 an **opt-in** freplace module can hot-patch this hook to add richer listener verification.
-
+Since v2.14 the stage generates and validates real SYN cookies using the kernel's own syncookie helpers — no version-specific helpers beyond the 5.15 floor and no per-connection state, so it verifies identically everywhere. Actual cookie **scoring** backup remains the per-IP `syn_pps_threshold` rate limiter, which runs in every mode.
 ### L7 signatures — not gated (all 16 slots, every kernel)
 
 The L7 signature matcher is **not** behind a kernel gate. It always compiles a single `#pragma unroll` loop over all 16 slots of `l7_sig_map`, and this verifies and loads on every supported kernel from 5.15. There is no "slot 0 only" mode.

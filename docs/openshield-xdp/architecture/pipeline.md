@@ -62,21 +62,9 @@ flowchart TD
 
 Some stages are compile-time gated based on the running kernel version. Note the L7 signature matcher is **not** gated — all 16 slots are always compiled and load on every supported kernel.
 
-### SYNPROXY (`OPENSHIELD_SYNPROXY` — scalar, all supported kernels)
+### SYNPROXY (`OPENSHIELD_SYNPROXY` — all supported kernels)
 
-```c
-#ifdef OPENSHIELD_SYNPROXY
-    /* Scalar-only, non-terminal SYN gate. Reads ONLY pre-parsed scalar fields
-     * (no packet-pointer access, no version-specific helpers) so it verifies
-     * and loads on every kernel 5.15 → latest with zero user fixes. Actual SYN
-     * flood mitigation is delivered by the per-IP syn_pps_threshold rate
-     * limiter in the rate-limiting stage. */
-    if (synproxy_check_listener(ctx, &info, cfg) == STAGE_DROP)
-        return XDP_DROP;
-#endif
-```
-
-The baseline gate never drops — it accounts SYNs for profiling and continues. On kernels ≥ 6.10 it provides a hook that an **opt-in** freplace module can hot-patch to add richer listener verification (`bpf_sk_lookup_tcp`). Below kernel 5.15 the block compiles away entirely.
+Since v2.14 this stage implements real SYN cookies: when `synproxy_mode` is engaged it answers SYNs with cookie SYN-ACKs (`XDP_TX`) and validates returning ACKs, using the kernel's own syncookie helpers (5.10+ — inside the 5.15 support floor). The craft uses fixed offsets and stack-buffer copies so it verifies identically on every supported kernel; the pre-6.9 base build compiles the block out entirely. The per-IP SYN rate limiter still runs in parallel in every mode.
 
 ### Global Detection & Entropy (`OPENSHIELD_GLOBAL_DETECT`, `OPENSHIELD_ENTROPY` — kernel ≥ 6.10)
 

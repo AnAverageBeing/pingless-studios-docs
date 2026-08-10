@@ -1,6 +1,20 @@
-# What's New — v2.0 to v2.13.1
+# What's New — v2.0 to v2.14.0
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.14.0 — SYN cookies, IPv6 parity, pinned bans
+
+- **XDP SYN cookies** (`dynamic.synproxy_mode`: off / adaptive / always) — during SYN floods the firewall answers SYNs itself with cookie challenges; spoofed floods never reach your services while real clients connect normally. `adaptive` engages only above `synproxy_threshold` or during an active attack, so peacetime handshakes are never touched. One-time setup note: the loader prints the two sysctl/iptables companion lines if your kernel needs them.
+- **Faster, future-proof engine layout** — the packet pipeline now runs as chained stages, which removes the "program too large" class of load failures on stricter kernels for good and leaves headroom for more detections.
+- **IPv6 parity** — connection tracking, per-target traffic stats, and the API-endpoint guard now work on IPv6 the same as IPv4. Also fixes a bug where manually added IPv6 whitelist/ban entries could silently not match.
+- **Pinned bans** — manual blacklist entries and heavy repeat-offender bans now live in a dedicated tier that flood churn can never evict; the TUI bans tab marks them with a PIN tag.
+- **UDP response-window watch** (on by default) — sustained spoofed-looking "responses" from service ports (DNS/NTP-style amplification) lose their fast-pass exemption and get scored like any other attacker. Verified zero false positives on real DNS/NTP traffic.
+- Per-port rate caps no longer undercount under multi-core floods.
+- **Five new auto-fetch L7 signatures** (WS-Discovery, STUN, CoAP, mDNS, NTP mode-6) — 10 curated reflection-flood patterns total.
+- Attack forensics: SYN fingerprint lines now include the sender's stack class (Linux-like / Windows-like / network-device), and suppressed junk attacks can no longer reappear in history ("duplicate attacks" fix).
+- Edge mitigation: new `edge:` config section (your existing `ovh:` config keeps working unchanged); every selected IP now gets its edge firewall enabled, not just the first.
+- Reliability: `openshield reload` no longer overwrites hand-edited config or times out on unchanged map sizes; Ctrl+C during the load prompts no longer leaves the firewall half-attached; `openshield unload` fails loudly instead of orphaning a running loader; license re-checks can no longer leave the interface unprotected after a transient failure.
+- Optional per-customer watermarking on release packages, and `scripts/bench.sh` for one-command performance runs.
 
 ## v2.13.1 — license enforcement hardening
 
