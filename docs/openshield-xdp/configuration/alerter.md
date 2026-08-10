@@ -67,6 +67,22 @@ timestamp. Disable with `alerter.attack_updates: false`.
 
 ## Attack-End Report Semantics
 
+Since v2.15.0 the attack-end report arrives as **two messages**:
+
+1. **Attack #N Ended** — the operational summary: type/family, timelines,
+   mitigation time, traffic analysis (peak/avg/p95), the traffic graph, and
+   the forensics zip (attached when under 10 MB, otherwise a pointer to the
+   on-disk path).
+2. **Attack #N — Sources & Targets** — who and what was hit: the targeted
+   IPs on your host (broadcast-looking `.255`/`.0` entries are filtered
+   out), the targeted ports (rendered as `mix` when more than 10 distinct
+   hot ports were hit), the top attacking countries, and the **offender
+   list as a `.txt` grouped by ban reason** (`pps_exceeded`,
+   `syn_pps_exceeded`, …). When GeoIP is disabled the country section says
+   so explicitly instead of vanishing. If the offender file can't be
+   attached, the top rows are shown inline — an embed never claims an
+   attachment that didn't ship.
+
 The attack-end embed reports two honest time figures:
 
 - **Duration** — how long attack traffic was actually elevated (start →

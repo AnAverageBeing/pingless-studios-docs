@@ -153,6 +153,7 @@ validation:
 | `dynamic.mac_filter_entries` | `[]string` | `[]` | 6-byte hex strings | Up to 8 MAC addresses | 🔄 |
 | `dynamic.synproxy_mode` | `string` | `"off"` | `off` / `adaptive` / `always` | XDP SYN-cookie challenges: adaptive engages above `synproxy_threshold` or during attacks; always challenges every SYN | 🔄 |
 | `dynamic.synproxy_threshold` | `int` | `10000` | `100` – `10,000,000` | Per-CPU SYN pps that engages adaptive mode | 🔄 |
+| `dynamic.synproxy_companion_auto` | `bool` | `false` | `true` / `false` | Auto-insert/remove the netfilter SYNPROXY companion rules while the cookie path is engaged (installer probes them live first) | 🔄 |
 | `dynamic.udp_resp_enabled` | `bool` | `true` | `true` / `false` | Response-window watch: sustained spoofed-looking service-port responses lose their fast-pass exemption | 🔄 |
 | `dynamic.udp_resp_factor` | `int` | `4` | `2` – `64` | Multiple over the early-rate baseline before the exemption is revoked | 🔄 |
 | `dynamic.udp_resp_window_sec` | `int` | `10` | `2` – `300` | Seconds of sustained excess before revocation | 🔄 |
@@ -198,6 +199,8 @@ whitelist:
 | `telemetry.top_offenders_count` | `int` | `20` | `1` – `1000` | Top N IPs shown in TUI/stats | 🔄 |
 | `telemetry.log_level` | `string` | `"info"` | `debug` / `info` / `warn` / `error` | Log verbosity | 🔄 |
 | `telemetry.snapshot_interval` | `int` | `1` | `1` – `60` | Seconds between stat snapshots | 🔄 |
+| `telemetry.attack_share` | `bool` | `false` | `true` / `false` | Share anonymized attack fingerprints with PingLess after attacks (type/rates/duration/port classes/source count — never IPs) | 🔄 |
+| `telemetry.attack_share_endpoint` | `string` | `""` | URL | Override fingerprint endpoint (empty = PingLess telemetry on the license server) | 🔄 |
 
 ## `maps` — BPF Map Sizing
 

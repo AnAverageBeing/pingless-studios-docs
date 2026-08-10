@@ -1,6 +1,18 @@
-# What's New — v2.0 to v2.14.0
+# What's New — v2.0 to v2.15.0
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.15.0 — self-managing SYN cookies, richer attack reports
+
+- **SYNPROXY companion rules, managed for you (opt-in)** — the installer now offers to auto-manage the 3 netfilter rules the SYN-cookie mode needs: it verifies iptables is present (offers to install it), then **live-probes the rules on your interface before you commit** — if your server can't do it, you see the exact reason and choose to skip or stop. At runtime the rules appear when an attack engages the cookie path and are removed when it clears; only OpenShield's own tagged rules are ever touched. Enable via installer or `dynamic.synproxy_companion_auto`.
+- **Attack-end alerts, now in two focused messages** — message 1 stays the operational summary (timeline, mitigation, traffic table, graph, forensics bundle). The new message 2, "Sources & Targets", shows which of your IPs were attacked (broadcast-looking .255/.0 entries filtered out), the targeted ports (`mix` when many), top attacking countries, and the **offender list as a .txt grouped by ban reason**.
+- **Honest attachments** — an embed only ever says "attached as .txt" when the file really is attached; if it can't be, the top rows are inlined instead. Applies to both attack-end and ban-batch alerts. Also fixed: attack-end alerts could silently omit the country breakdown — they now say when GeoIP is off.
+- **Ban reasons with teeth** — banned-source events now carry the actual kernel ban reason (`pps_exceeded`, `syn_pps_exceeded`, …), which is what powers the reason-grouped offender list above.
+- **Daily/weekly/monthly reports redesigned** — a headline summary up top, the period's **top 5 attacks** (peak rate × type × duration), a **mitigation breakdown** showing which protection paths dropped what, SYN-cookie challenge/validation stats, a **period-over-period attack delta**, and attacker/user country lists that never overflow Discord's limits.
+- **Optional anonymized attack fingerprints** (default OFF; the installer asks once) — after an attack you can share its shape (type, rates, duration, port classes, source count — never a single IP) to help improve the detection patterns everyone auto-fetches. `telemetry.attack_share`.
+- **`xdp_mode: offload` now fails with a clear explanation** instead of an obscure driver error (no NIC can offload this program — use `native` or `auto`).
+- Hot-patchable stage modules (freplace) are correctly wired to the split pipeline stages.
+- Full CI gating on every push: build, format/vet, the entire test suite, both kernel-verifier gates, and release-package smoke tests.
 
 ## v2.14.0 — SYN cookies, IPv6 parity, pinned bans
 

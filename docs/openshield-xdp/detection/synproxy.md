@@ -19,7 +19,11 @@ dynamic:
 
 ## One-time setup note
 
-For the kernel to accept cookie-validated connections, `net.ipv4.tcp_syncookies` must be `1` (default on most distros) and the netfilter SYNPROXY companion hook must be registered once. When the mode is not `off`, the loader checks both and prints the exact two/three commands if anything is missing — in `adaptive` mode those lines can stay in place permanently; they are inert until a flood engages the cookie path.
+For the kernel to accept cookie-validated connections, `net.ipv4.tcp_syncookies` must be `1` (default on most distros) and the netfilter SYNPROXY companion hook must be registered once.
+
+**Automatic (recommended, v2.15.0+):** enable `dynamic.synproxy_companion_auto` — or just answer yes when the installer asks. The wizard verifies iptables is installed (offers to install it) and **live-probes the exact rules on your interface** before enabling; if the probe fails you get the precise reason and can skip or stop. At runtime OpenShield inserts the trio when the cookie path engages (attack in `adaptive` mode; at load in `always`) and removes exactly its own marker-tagged rules afterwards — hand-written rules and other firewall tools are never touched.
+
+**Manual:** when the mode is not `off` and the companion is neither present nor auto-managed, the loader prints the exact two/three commands — in `adaptive` mode those lines can stay in place permanently; they are inert until a flood engages the cookie path.
 
 ::: tip Defense in depth
 The per-IP SYN rate limiter (`syn_pps_threshold` scoring) keeps running in all modes, including alongside the cookie path.
