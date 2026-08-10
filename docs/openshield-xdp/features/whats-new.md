@@ -1,6 +1,10 @@
-# What's New — v2.0 to v2.15.1
+# What's New — v2.0 to v2.15.2
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.15.2 — learned detection can be switched off
+
+- **New `dynamic.baseline_enabled` master switch** (default on, applies live — no reload). Turn it off and every *learned* detection layer goes quiet: baseline learning, seasonal thresholds, the changepoint onset detector and behavior clustering. Attacks then declare purely on your static numbers — `attack_min_pps`/`attack_min_bps`, or the explicit `attack_pps_threshold`/`attack_bps_threshold` overrides when set. Per-IP rate limiting, suspicion scoring, bans and the attack-mode caps are static mechanisms and keep working unchanged. For servers with spiky-but-legitimate traffic that prefer fixed thresholds.
 
 ## v2.15.1 — burst-flood bypass fix
 
