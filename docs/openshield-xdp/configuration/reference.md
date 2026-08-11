@@ -125,6 +125,9 @@ validation:
 | `dynamic.attack_max_duration` | `int` | `300` | `0` – `86,400` | Hard cap on attack-state seconds (0=disabled) | 🔄 |
 | `dynamic.attack_per_ip_pps` | `int` | `1000` | `0` – `1,000,000` | Hard per-source PPS cap while an attack is active (0=off); excess dropped instantly at XDP | 🔄 |
 | `dynamic.attack_port_pps` | `int` | `10000` | `0` – `1,000,000` | Aggregate PPS cap per destination port while an attack is active (0=off). Rotation-proof: throttles the attacked port as a whole regardless of source-IP rotation; legit traffic on that port is throttled, not banned, until the attack clears. Presets: 10k hosting / 15k gaming / 25k CDN (v2.0+) | 🔄 |
+| `dynamic.attack_port_bps` | `int` | `25000000` | `0` – `1,099,511,627,776` | Byte-rate twin of attack_port_pps — catches low-pps jumbo-packet floods; also feeds the early spike trigger (v2.16+) | 🔄 |
+| `dynamic.attack_icmp_pps` | `int` | `1000` | `0` – `10,000,000` | Aggregate ICMP pps cap while an attack is declared (0=off). Legit ICMP is tens of pps (v2.16+) | 🔄 |
+| `dynamic.port_cap_exempt_ports` | `[]int` | `[22]` | max 8 ports | Destination ports never throttled by the per-port cap/spike trigger — management plane stays reachable during floods (v2.16+) | ⚙️ |
 | `dynamic.panic_pps_rate` | `uint32` | `200,000` | `0` – `100,000,000` | Per-CPU PPS to trigger panic circuit breaker (0=disabled) | 🔄 |
 | `dynamic.panic_drop_ratio` | `uint32` | `80` | `0` – `100` | % of packets to probabilistically drop in panic mode | 🔄 |
 | `dynamic.panic_global_pps_threshold` | `uint32` | `5,000,000` | `0` – `100,000,000` | Total across-CPU PPS for coordinated panic | 🔄 |
@@ -203,13 +206,23 @@ whitelist:
 | `telemetry.attack_share` | `bool` | `false` | `true` / `false` | Share anonymized attack fingerprints with PingLess after attacks (type/rates/duration/port classes/source count — never IPs) | 🔄 |
 | `telemetry.attack_share_endpoint` | `string` | `""` | URL | Override fingerprint endpoint (empty = PingLess telemetry on the license server) | 🔄 |
 
+## `updates` — Auto-Update Channel (v2.16+)
+
+| Field | Type | Default | Range | Description | Safe? |
+|-------|------|---------|-------|-------------|-------|
+| `updates.enabled` | `bool` | `true` | `true` / `false` | Check for new releases every 6h + TUI update badge | 🔄 |
+| `updates.auto` | `bool` | `true` | `true` / `false` | Install new releases unattended (licensed installs; signed metadata + hash-verified zip + automatic rollback) | 🔄 |
+| `updates.endpoint` | `string` | `""` | URL | Override the updates worker (empty = official channel) | 🔄 |
+
+See [Upgrade](/openshield-xdp/getting-started/upgrade) for the trust chain.
+
 ## `maps` — BPF Map Sizing
 
 | Field | Type | Default | Range | Description | Safe? |
 |-------|------|---------|-------|-------------|-------|
-| `maps.ip_stats_max` | `int` | `100,000` | `1000` – `10,000,000` | Max entries in per-IP stats LRU | 🔒 |
-| `maps.ban_max` | `int` | `50,000` | `1000` – `10,000,000` | Max entries in ban LRU | 🔒 |
-| `maps.whitelist_max` | `int` | `10,000` | `100` – `1,000,000` | Max entries in whitelist map | 🔒 |
+| `maps.ip_stats_max` | `int` | `262,144` | `1000` – `10,000,000` | Max entries in per-IP stats LRU (v2.16 default) | 🔒 |
+| `maps.ban_max` | `int` | `4,000,000` | `1000` – `10,000,000` | Max entries in ban LRU (v2.16 default) | 🔒 |
+| `maps.whitelist_max` | `int` | `50,000` | `100` – `1,000,000` | Max entries in whitelist map (v2.16 default) | 🔒 |
 | `maps.event_buffer_size` | `int` | `262,144` (256 KB) | `4096` – `268,435,456` | Ring buffer size in bytes | 🔒 |
 | `maps.bloom_filter_enabled` | `bool` | `true` | `true` / `false` | Use Bloom filter fast-path for whitelist lookups | 🔄 |
 | `maps.bloom_filter_size` | `int` | `150,000` | `1000` – `10,000,000` | Number of entries in the Bloom filter map | 🔄 |

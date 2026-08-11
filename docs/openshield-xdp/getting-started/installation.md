@@ -3,6 +3,7 @@
 ## Prerequisites
 
 - Linux kernel ≥ 5.15 (recommended ≥ 6.10 for full feature set)
+- **4 GB RAM** (v2.16+; smaller hosts: lower `maps.ban_max` / `maps.ip_stats_max` after install — the installer warns you)
 - `CONFIG_DEBUG_INFO_BTF=y` in kernel config
 - XDP-capable NIC driver (native mode) or any NIC (generic/skb mode)
 - `clang` ≥ 12, `llvm`, `bpftool`, `libbpf-dev`

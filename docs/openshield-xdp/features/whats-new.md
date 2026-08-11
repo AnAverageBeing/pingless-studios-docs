@@ -1,6 +1,18 @@
-# What's New — v2.0 to v2.15.2
+# What's New — v2.0 to v2.16.0
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.16.0 — auto-updates, burst-proofing, disk guardrails
+
+- **Signed auto-update channel** — `openshield update` downloads and installs the latest release for you; licensed installs can also update unattended (`updates.auto`, default on). The release metadata is Ed25519-signed by the license server, the download is license-gated and short-lived, the zip is hash-verified before anything is touched, and the previous version is restored automatically if the new one fails to start. An update badge in the TUI top bar tells you when a newer release exists.
+- **Jumbo-packet floods can no longer sneak under the pps cap** — the per-port cap and its early spike trigger now watch bytes too (`dynamic.attack_port_bps`), so a slow-pps flood of 1400-byte packets is throttled just the same.
+- **Rotating ICMP floods answered** — new attack-mode aggregate ICMP cap (`dynamic.attack_icmp_pps`, default 1000/s) while an attack is declared. Normal ping/PMTUD traffic is tens per second and unaffected.
+- **Your SSH session survives the flood** — `dynamic.port_cap_exempt_ports` (default `[22]`) keeps management ports out of the per-port cap forever, even when the flood aims at them.
+- **Players are protected from the first packet of a burst** — the firewall now maintains its known-good source set continuously instead of snapshotting at attack start (the snapshot provably arrived after flood churn had erased the evidence). Real clients on capped ports no longer share the throttled pool at all.
+- **It learns from its false alarms** — an "attack" that ends with zero bans and zero dropped packets was a legitimate surge; the baseline now gets a bounded credit to learn that rate instead of re-alerting the same busy hour every day.
+- **The firewall can never fill your disk again** — forensics are capped at 15% of the hosting filesystem regardless of the configured limit, and collection halts outright under 512MB free (resumes when space returns).
+- **4GB-tuned defaults** — minimum recommended RAM moves from 2GB to 4GB; default ban map 4M entries, per-IP stats 262k, whitelist 50k. The installer warns on smaller hosts and tells you what to trim.
+- CI now runs a live flood regression on every push: the firewall is loaded on a virtual link and must stop real floods while simulated players survive.
 
 ## v2.15.2 — learned detection can be switched off
 
