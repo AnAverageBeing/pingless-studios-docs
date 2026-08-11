@@ -1,6 +1,10 @@
-# What's New — v2.0 to v2.16.0
+# What's New — v2.0 to v2.16.1
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.16.1 — blacklist action un-gated from forensics
+
+- Fixed: on a server with forensics collection off (or halted by the disk guard), the attacks-tab **blacklist** action had no `ips_involved.txt` to read and failed with a bare stat error — zero IPs banned. The involved-IP list is now written at every attack end regardless of the forensics gate, and the block-pattern action tells you plainly when an attack has no fingerprint (payload patterns need pcap data).
 
 ## v2.16.0 — auto-updates, burst-proofing, disk guardrails
 
