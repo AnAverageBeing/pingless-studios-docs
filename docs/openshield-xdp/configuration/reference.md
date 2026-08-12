@@ -101,68 +101,48 @@ validation:
 
 ## `dynamic` — Anomaly Detection & Attack Response
 
+<!-- CONFIG-REFERENCE:BEGIN category="Dynamic" -->
 | Field | Type | Default | Range | Description | Safe? |
 |-------|------|---------|-------|-------------|-------|
-| `dynamic.enabled` | `bool` | `true` | `true` / `false` | Enable dynamic anomaly detection | 🔄 |
-| `dynamic.baseline_window` | `int` | `60` | `10` – `3600` | Seconds to build traffic baseline | 🔒 |
-| `dynamic.baseline_update_interval` | `int` | `5` | `1` – `300` | Seconds between baseline updates | 🔒 |
-| `dynamic.baseline_alpha` | `float64` | `0.1` | `0.0` – `1.0` | EMA smoothing factor for baseline | 🔒 |
-| `dynamic.baseline_alpha_min` | `float64` | `0.05` | `0.0` – `1.0` | Minimum adaptive EMA alpha | 🔄 |
-| `dynamic.baseline_alpha_max` | `float64` | `0.50` | `0.0` – `1.0` | Maximum adaptive EMA alpha | 🔄 |
-| `dynamic.baseline_alpha_variance_scale` | `float64` | `0.1` | `0.0` – `1.0` | How much variance adjusts alpha | 🔄 |
-| `dynamic.baseline_mad_k` | `float64` | `3.5` | `0.0` – `20.0` | Outlier-rejection strength when merging the 30-day baseline history (v2.12.0+); higher tolerates more deviation before a day is treated as poisoned | 🔄 |
-| `dynamic.spike_percentage` | `int` | `200` | `10` – `10,000` | % above baseline that triggers spike detection (200 = 3× baseline) | 🔄 |
-| `dynamic.spike_recovery_factor` | `float64` | `0.7` | `0.3` – `0.95` | Fraction of spike threshold below which attack state clears (must be < 1.0) | 🔄 |
-| `dynamic.spike_recovery_time` | `int` | `10` | `3` – `120` | Seconds below recovery factor before clearing | 🔄 |
-| `dynamic.new_source_limit` | `int` | `100` | `1` – `100,000` | New unique IPs/s before new-source flood mode | 🔄 |
-| `dynamic.new_source_ban_duration` | `int` | `30` | `1` – `3600` | Temp-ban duration for each excess new source during a new-source flood (v2.0+: sources are banned, not just single-packet dropped) | 🔄 |
-| `dynamic.attack_threshold_multiplier` | `float64` | `0.5` | `0.1` – `1.0` | Threshold multiplier during attack (0.5 = 50% of normal thresholds) | 🔄 |
-| `dynamic.attack_pps_threshold` | `uint64` | `0` | `0` – `1,000,000,000` | Global PPS to trigger attack state (0=use baseline) | 🔄 |
-| `dynamic.attack_bps_threshold` | `uint64` | `0` | `0` – `1,000,000,000,000` | Global BPS to trigger attack state (0=use baseline) | 🔄 |
-| `dynamic.attack_min_pps` | `uint64` | `1000` | `0` – `1,000,000,000` | Absolute floor for the attack PPS trigger — a busy-but-normal server must not enter attack state | 🔄 |
-| `dynamic.attack_min_bps` | `uint64` | `1048576` | `0` – `1,000,000,000,000` | Absolute floor for the attack BPS trigger | 🔄 |
-| `dynamic.attack_trigger_time` | `int` | `3` | `1` – `60` | Consecutive seconds above threshold before attack state is declared | 🔄 |
-| `dynamic.attack_max_duration` | `int` | `300` | `0` – `86,400` | Hard cap on attack-state seconds (0=disabled) | 🔄 |
-| `dynamic.attack_per_ip_pps` | `int` | `1000` | `0` – `1,000,000` | Hard per-source PPS cap while an attack is active (0=off); excess dropped instantly at XDP | 🔄 |
-| `dynamic.attack_port_pps` | `int` | `10000` | `0` – `1,000,000` | Aggregate PPS cap per destination port while an attack is active (0=off). Rotation-proof: throttles the attacked port as a whole regardless of source-IP rotation; legit traffic on that port is throttled, not banned, until the attack clears. Presets: 10k hosting / 15k gaming / 25k CDN (v2.0+) | 🔄 |
-| `dynamic.attack_port_bps` | `int` | `25000000` | `0` – `1,099,511,627,776` | Byte-rate twin of attack_port_pps — catches low-pps jumbo-packet floods; also feeds the early spike trigger (v2.16+) | 🔄 |
-| `dynamic.attack_icmp_pps` | `int` | `1000` | `0` – `10,000,000` | Aggregate ICMP pps cap while an attack is declared, or on an early spike over 8× the learned ICMP baseline (0=off). Legit ICMP is tens of pps (v2.16+, early trigger v2.16.3+) | 🔄 |
-| `dynamic.attack_udp_pps` | `int` | `100000` | `0` – `100,000,000` | Aggregate UDP pps cap (attack mode, or early spike over 8× the learned UDP baseline; 0=off). The carpet-bomb answer: rotating destination ports defeat per-port caps, but the UDP aggregate betrays the flood. Protected sources exempt (v2.16.3+) | 🔄 |
-| `dynamic.port_cap_exempt_ports` | `[]int` | `[22]` | max 8 ports | Destination ports never throttled by the per-port cap/spike trigger — management plane stays reachable during floods (v2.16+) | ⚙️ |
-| `dynamic.panic_pps_rate` | `uint32` | `200,000` | `0` – `100,000,000` | Per-CPU PPS to trigger panic circuit breaker (0=disabled) | 🔄 |
-| `dynamic.panic_drop_ratio` | `uint32` | `80` | `0` – `100` | % of packets to probabilistically drop in panic mode | 🔄 |
-| `dynamic.panic_global_pps_threshold` | `uint32` | `5,000,000` | `0` – `100,000,000` | Total across-CPU PPS for coordinated panic | 🔄 |
-| `dynamic.panic_coordination_enabled` | `bool` | `true` | `true` / `false` | Enable cross-CPU panic coordination | 🔄 |
-| `dynamic.dns_amplification_enabled` | `bool` | `false` | `true` / `false` | Drop DNS amplification responses (enabled per-profile by most presets) | 🔄 |
-| `dynamic.dns_amplification_payload_min` | `int` | `512` | `0` – `65,535` | Min UDP payload for DNS amp detection | 🔄 |
-| `dynamic.udp_amplification_enabled` | `bool` | `false` | `true` / `false` | Drop generic UDP amplification responses (enabled per-profile by most presets) | 🔄 |
-| `dynamic.udp_amp_ports` | `[]int` | `[53,123,1900,11211,17,19,520,69]` | up to 8 ports | UDP ports to check for amplification | 🔄 |
-| `dynamic.udp_amp_payload_min` | `[]int` | `[512,90,256,50,50,50,50,50]` | up to 8 values | Min payload per port (index-aligned with `udp_amp_ports`) | 🔄 |
-| `dynamic.syn_fin_ratio_enabled` | `bool` | `true` | `true` / `false` | Detect SYN floods via SYN:FIN ratio | 🔄 |
-| `dynamic.syn_fin_ratio_threshold` | `int` | `100` | `1` – `10,000` | Max SYN:FIN ratio (100 = 100:1) | 🔄 |
-| `dynamic.entropy_spoof_enabled` | `bool` | `true` | `true` / `false` | IP entropy-based spoofing detection | 🔄 |
-| `dynamic.entropy_spoof_threshold` | `int` | `12` | `1` – `16` | Distinct hash buckets (of 16) that indicate spoofing | 🔄 |
-| `dynamic.ttl_anomaly_enabled` | `bool` | `true` | `true` / `false` | TTL deviation detection | 🔄 |
-| `dynamic.ttl_expected` | `int` | `64` | `1` – `255` | Expected TTL (64=Linux, 128=Windows) | 🔄 |
-| `dynamic.ttl_tolerance` | `int` | `5` | `1` – `255` | Allowed deviation from expected TTL | 🔄 |
-| `dynamic.pkt_anomaly_enabled` | `bool` | `true` | `true` / `false` | Packet size anomaly detection | 🔄 |
-| `dynamic.pkt_size_min_threshold` | `int` | `64` | `0` – `1500` | Flag if avg size < this (empty floods) | 🔄 |
-| `dynamic.pkt_size_max_threshold` | `int` | `1024` | `0` – `9000` | Flag if avg size > this (amp floods) | 🔄 |
-| `dynamic.conn_rate_enabled` | `bool` | `true` | `true` / `false` | Connection rate limiting (SYN/s per IP) | 🔄 |
-| `dynamic.conn_rate_limit` | `int` | `5000` | `1` – `1,000,000` | Max SYN/s per IP | 🔄 |
-| `dynamic.auto_escalation_enabled` | `bool` | `false` | `true` / `false` | Auto-escalate to /24 subnet ban (enabled per-profile by stricter presets) | 🔄 |
-| `dynamic.auto_escalation_threshold` | `int` | `5` | `1` – `1000` | Single-IP bans in /24 before subnet ban | 🔄 |
-| `dynamic.mac_filter_enabled` | `bool` | `false` | `true` / `false` | L2 MAC address filtering | 🔄 |
-| `dynamic.mac_filter_mode` | `int` | `0` | `0` / `1` / `2` | 0=disabled, 1=whitelist, 2=blacklist | 🔄 |
-| `dynamic.mac_filter_entries` | `[]string` | `[]` | 6-byte hex strings | Up to 8 MAC addresses | 🔄 |
-| `dynamic.synproxy_mode` | `string` | `"off"` | `off` / `adaptive` / `always` | XDP SYN-cookie challenges: adaptive engages above `synproxy_threshold` or during attacks; always challenges every SYN | 🔄 |
-| `dynamic.synproxy_threshold` | `int` | `10000` | `100` – `10,000,000` | Per-CPU SYN pps that engages adaptive mode | 🔄 |
-| `dynamic.synproxy_companion_auto` | `bool` | `false` | `true` / `false` | Auto-insert/remove the netfilter SYNPROXY companion rules while the cookie path is engaged (installer probes them live first) | 🔄 |
-| `dynamic.baseline_enabled` | `bool` | `true` | `true` / `false` | Master switch for all learned detection (baseline learning, seasonal thresholds, changepoint onset, behavior clustering). Off = static `attack_min_*`/override triggers only | 🔄 |
-| `dynamic.udp_resp_enabled` | `bool` | `true` | `true` / `false` | Response-window watch: sustained spoofed-looking service-port responses lose their fast-pass exemption | 🔄 |
-| `dynamic.udp_resp_factor` | `int` | `4` | `2` – `64` | Multiple over the early-rate baseline before the exemption is revoked | 🔄 |
-| `dynamic.udp_resp_window_sec` | `int` | `10` | `2` – `300` | Seconds of sustained excess before revocation | 🔄 |
-| `dynamic.l7_drop_signatures` | `[]L7Signature` | `nil` | array | Layer-7 pattern match rules | 🔄 |
+| `dynamic.enabled` | `bool` | `true` | `true` / `false` | Enable attack mode and new source detection | 🔄 |
+| `dynamic.new_source_limit` | `int` | `100` | `1` – `100,000` | New unique IPs/s before flood mode | 🔄 |
+| `dynamic.new_source_ban_duration` | `int` | `30` | `1` – `3,600` | Ban duration for new source flood | 🔄 |
+| `dynamic.attack_threshold_multiplier` | `float64` | `0.5` | `0.1` – `1` | Threshold multiplier during attack (0.5 = 50%) | 🔄 |
+| `dynamic.panic_pps_rate` | `int` | `200000` | `0` – `100,000,000` | Per-CPU PPS that triggers panic circuit breaker (0=disabled, drops all further map lookups) | 🔄 |
+| `dynamic.panic_drop_ratio` | `int` | `80` | `0` – `100` | Percentage of packets to drop when in panic mode (100 = drop all before map lookups) | 🔄 |
+| `dynamic.attack_pps_threshold` | `int` | `0` | `0` – `1,000,000,000` | Global PPS trigger for attack state (0=disabled, uses baseline) | 🔄 |
+| `dynamic.attack_bps_threshold` | `int` | `0` | `0` – `1,000,000,000,000` | Global BPS trigger for attack state (0=disabled) | 🔄 |
+| `dynamic.spike_percentage` | `int` | `200` | `10` – `10,000` | % above baseline that triggers spike (200 = 3x) | 🔄 |
+| `dynamic.baseline_mad_k` | `float64` | `3.5` | `0` – `20` | MAD multiplier added to the spike trigger band (0=median×spike% only) | 🔄 |
+| `dynamic.spike_recovery_time` | `int` | `10` | `1` – `600` | Seconds below recovery factor before clearing | 🔄 |
+| `dynamic.attack_per_ip_pps` | `int` | `1000` | `0` – `1,000,000` | Hard per-source pps cap while an attack is active (0=off). Drops flooders at XDP instantly — rotating spoofed sources never live long enough to be scored | 🔄 |
+| `dynamic.attack_port_pps` | `int` | `10000` | `0` – `1,000,000` | Aggregate pps cap per destination port while an attack is active (0=off). Rotation-proof: throttles the attacked port as a whole regardless of how many source IPs the flood rotates through. Legit traffic on that port is throttled (not banned) until the attack clears | 🔄 |
+| `dynamic.spike_recovery_factor` | `float64` | `0.7` | `0` – `1` | Fraction of spike threshold below which attack state clears (< 1.0) | 🔄 |
+| `dynamic.attack_trigger_time` | `int` | `3` | `1` – `60` | Consecutive seconds above threshold before attack state | 🔄 |
+| `dynamic.attack_max_duration` | `int` | `3600` | `0` – `86,400` | Hard cap on attack state seconds (0=disabled) | 🔄 |
+| `dynamic.attack_warmup_sec` | `int` | `20` | `0` – `600` | Seconds after loader start with no attack declaration (0=disabled) | 🔄 |
+| `dynamic.attack_min_pps` | `int` | `1000` | `0` – `1,000,000,000` | Absolute floor for the attack PPS trigger threshold | 🔄 |
+| `dynamic.attack_min_bps` | `int` | `1048576` | `0` – `1,000,000,000,000` | Absolute floor for the attack BPS trigger threshold | 🔄 |
+| `dynamic.baseline_alpha_min` | `float64` | `0.05` | `0` – `1` | Minimum EMA alpha (adaptive floor) | 🔄 |
+| `dynamic.baseline_alpha_max` | `float64` | `0.5` | `0` – `1` | Maximum EMA alpha (adaptive ceiling) | 🔄 |
+| `dynamic.baseline_alpha_variance_scale` | `float64` | `0.1` | `0` – `1` | How much variance adjusts alpha (0=none, 1=max) | 🔄 |
+| `dynamic.panic_global_pps_threshold` | `int` | `5000000` | `0` – `100,000,000` | Total PPS across all CPUs that triggers coordinated panic (0=disabled) | 🔄 |
+| `dynamic.panic_coordination_enabled` | `bool` | `true` | `true` / `false` | Enable userspace cross-CPU panic coordination | 🔄 |
+| `dynamic.dns_amplification_enabled` | `bool` | `false` | `true` / `false` | Drop DNS amplification responses (sport=53, QR=1, large payload) | 🔄 |
+| `dynamic.dns_amplification_payload_min` | `int` | `512` | `0` – `65,535` | Minimum UDP payload bytes for DNS amp detection | 🔄 |
+| `dynamic.baseline_enabled` | `bool` | `true` | `true` / `false` | Master switch for ALL learned detection (baseline learning, seasonal thresholds, changepoint onset, behavior clustering). Off = static attack_min/overrides only (applies immediately) | 🔄 |
+| `dynamic.attack_port_bps` | `int` | `25000000` | `0` – `1,099,511,627,776` | Aggregate bytes/sec cap per destination port during attacks / early spike (0=off). Catches jumbo-packet floods under the pps cap | 🔄 |
+| `dynamic.attack_icmp_pps` | `int` | `1000` | `0` – `10,000,000` | Aggregate ICMP packets/sec cap while an attack is declared (0=off, default 1000). Legit ICMP is tens of pps | 🔄 |
+| `dynamic.attack_udp_pps` | `int` | `100000` | `0` – `100,000,000` | Aggregate UDP packets/sec cap (attack mode or early spike trigger; 0=off, default 100000). Carpet-bomb answer; protected sources exempt | 🔄 |
+| `dynamic.nic_tuning` | `bool` | `false` | `true` / `false` | Host-wide NIC tuning (throughput over latency; applies immediately) | 🔄 |
+| `dynamic.udp_resp_enabled` | `bool` | `true` | `true` / `false` | Anti-amplification residual heuristic: sustained excess reply rates from privileged-sport sources lose the outbound-response exemption | 🔄 |
+| `dynamic.udp_resp_factor` | `int` | `4` | `2` – `64` | Sustained rate above factor × early rate counts as excess | 🔄 |
+| `dynamic.udp_resp_window_sec` | `int` | `10` | `2` – `300` | Consecutive excess seconds before the response exemption is revoked | 🔄 |
+| `dynamic.synproxy_companion_auto` | `bool` | `false` | `true` / `false` | Auto-insert/remove the netfilter SYNPROXY companion rule trio while the SYN-cookie path is engaged (applies immediately) | 🔄 |
+| `dynamic.baseline_window` | `int` | `60` | — | Seconds to build baseline | ⚙️ |
+| `dynamic.baseline_update_interval` | `int` | `5` | — | Seconds between baseline updates | ⚙️ |
+| `dynamic.baseline_alpha` | `float64` | `0.1` | — | EMA smoothing factor | ⚙️ |
+<!-- CONFIG-REFERENCE:END -->
 
 ### L7 Drop Signature Fields
 
@@ -216,6 +196,34 @@ whitelist:
 | `updates.endpoint` | `string` | `""` | URL | Override the updates worker (empty = official channel) | 🔄 |
 
 See [Upgrade](/openshield-xdp/getting-started/upgrade) for the trust chain.
+
+## `registry` — Attached IPs (v2.17+)
+
+Tracks which destination IPs belong to this host. Informational only — see [Attached IPs](../guide/attached-ips.md).
+
+<!-- CONFIG-REFERENCE:BEGIN category="Registry" -->
+| Field | Type | Default | Range | Description | Safe? |
+|-------|------|---------|-------|-------------|-------|
+| `registry.enabled` | `bool` | `true` | `true` / `false` | Learn which destination IPs belong to this host (wire-observed + local addresses; informational only, applies immediately) | 🔄 |
+| `registry.inactive_days` | `int` | `14` | `1` – `365` | Days without observed traffic before an auto-learned attached IP is reaped (manual entries and pools never reap; applies immediately) | 🔄 |
+| `registry.auto_min_packets` | `int` | `100` | `1` – `1,000,000` | Cumulative packets a wire-observed destination must exceed before it auto-attaches (noise filter; applies immediately) | 🔄 |
+<!-- CONFIG-REFERENCE:END -->
+
+## `blackhole` — Per-Tenant Blackhole (v2.17+)
+
+Total per-destination drop with established-connection survival — see [Blackhole](../guide/blackhole.md). License-gated.
+
+<!-- CONFIG-REFERENCE:BEGIN category="Blackhole" -->
+| Field | Type | Default | Range | Description | Safe? |
+|-------|------|---------|-------|-------------|-------|
+| `blackhole.enabled` | `bool` | `true` | `true` / `false` | Arm the kernel blackhole stage (per-destination total drop; entries are kept either way, applies immediately). Manage: openshield blackhole | 🔄 |
+| `blackhole.auto_enabled` | `bool` | `false` | `true` / `false` | Automatically blackhole attached destinations whose inbound rate sustains over the auto_pps/auto_bps triggers (applies immediately) | 🔄 |
+| `blackhole.auto_pps` | `int` | `0` | `0` – `100,000,000` | Inbound packets/sec to one attached destination that arms auto-blackhole (0 = pps leg off; applies immediately) | 🔄 |
+| `blackhole.auto_bps` | `int` | `0` | `0` – `100,000,000,000` | Inbound bytes/sec to one attached destination that arms auto-blackhole (0 = bps leg off; applies immediately) | 🔄 |
+| `blackhole.auto_sustain_sec` | `int` | `5` | `1` – `300` | Consecutive seconds over the trigger before an auto-blackhole engages (flap filter; applies immediately) | 🔄 |
+| `blackhole.auto_duration_sec` | `int` | `300` | `10` – `86,400` | Lifetime of one auto-blackhole entry in seconds (extended while the trigger still holds; applies immediately) | 🔄 |
+| `blackhole.grace_minutes` | `int` | `10` | `1` – `1,440` | Minutes an established-source exemption to a blackholed destination survives without re-proof (applies immediately) | 🔄 |
+<!-- CONFIG-REFERENCE:END -->
 
 ## `maps` — BPF Map Sizing
 

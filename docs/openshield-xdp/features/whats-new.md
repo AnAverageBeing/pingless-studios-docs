@@ -1,6 +1,16 @@
-# What's New — v2.0 to v2.16.3
+# What's New — v2.0 to v2.17.0
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.17.0 — attached-IP registry & per-tenant blackhole
+
+Built for dedicated hosts carrying many tenant VPSes.
+
+- **Attached IPs** — the firewall now learns which destination IPs are yours: wire-observed destinations auto-attach (with noise filtered out), local interface addresses are swept in, and you can add single IPs or whole subnet pools by hand. Every entry carries a last-seen timestamp; auto-detected entries idle for `registry.inactive_days` (default 14) clean themselves out. Browse and manage from `openshield ips` or the TUI's new IPs tab. Attaching never changes how traffic is handled — it's knowledge, not policy. See [Attached IPs](../guide/attached-ips.md).
+- **Blackhole** — drop *everything* destined to one tenant IP at the earliest point in the pipeline, until you say otherwise or a timer runs out. Established players (real TCP handshakes) keep playing; they get a 10-minute grace window when they disconnect, and they still face every other check — exemption is from the blackhole only. Your whitelist is evaluated first, so you never lock yourself out. `openshield blackhole add/remove/list`, or toggle per IP in the TUI. See [Blackhole](../guide/blackhole.md).
+- **Auto-blackhole (opt-in)** — set a per-IP pps/bps magnitude and the firewall blackholes an attached IP that crosses it, extends while the attack persists, and lifts when it's over. Registry-gated so it can never touch an address you don't manage; every engage/lift posts an alert with the numbers.
+- New metrics for all of it: attached counts by origin, reaped total, active blackholes with remaining time, blackhole-dropped packets, live exemption count, auto-blackhole events.
+- Under the hood: config fields can no longer drift between the YAML writer, the TUI metadata and the docs (CI-enforced), a C↔Go struct-layout gate guards the kernel/userspace ABI, and the updater understands same-version hotfix builds.
 
 ## v2.16.3 — carpet-bomb floods answered, protection that holds under churn
 
