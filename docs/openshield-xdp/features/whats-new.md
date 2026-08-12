@@ -10,6 +10,7 @@ Found by our 23-class automated flood matrix (every flood class run against live
 - **Short ICMP bursts no longer outrun mitigation** — the aggregate ICMP cap previously waited for the userspace attack declaration; it now has the same kernel-side early trigger, so seconds-long rotating ICMP floods are capped immediately.
 - **Legit clients stay protected for the whole fight** — the known-good source set now freezes during any engagement: existing members keep their proof fresh, new admits need an established TCP connection, and nothing expires until 90 seconds of sustained peace. Mid-flood map churn can no longer evict your real players, and flood sources can't mint themselves "protected" status mid-attack.
 - Testing infrastructure: the flood matrix (23 attack classes including every common amplification shape and game-shaped floods) now asserts that Minecraft Java/Bedrock, CS2 and SFTP traffic profiles survive every single class.
+- **Auto-update fixed for single-activation licenses** — the update download gate re-validated your key under a synthetic identity, which needed a spare activation seat; keys with exactly one seat were refused with `invalid license`. The updater now presents the machine identity it already owns.
 
 ## v2.16.1 — blacklist action un-gated from forensics
 
