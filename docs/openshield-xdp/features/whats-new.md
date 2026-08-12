@@ -1,6 +1,15 @@
-# What's New — v2.0 to v2.17.0
+# What's New — v2.0 to v2.17.1
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.17.1 — peacetime fairness: "games fine, websites dead" fix
+
+Field report: on a box hosting both games and websites, websites stopped loading for new visitors while existing players kept playing; unloading the firewall cured it. Two kernel-side causes, both found and rig-proven:
+
+- **New-source temp-bans no longer fire in peacetime.** The rotating-source flood defense used to temp-ban *any* source arriving while >100 new IPs/s were showing up — with **no attack required**. A busy website draws that organically, so real visitors ate 30-second bans while established players (never "new") were untouched. The ban now engages only after an attack declaration, or on an extreme spike (>8× the limit — rotating spoofed floods run orders of magnitude hotter than popularity). Verified on the rig: a 60-new-IPs/s visitor surge gets zero bans; a 100k+/s rotating flood still triggers ~1M bans.
+- **Idle legit connections survive flow-table churn.** The per-flow table is an LRU; on a busy server it recycles, and a recycled connection's next packet after an idle stretch (HTTP keep-alive, game lobbies) looked "blind" to connection tracking and was dropped. The per-source established mark (only mintable by real payload after an observed handshake) now extends that freshness window to 5 minutes. Blind ACK/RST floods can't mint the mark and still drop. Verified: an established connection lives through 1.5M churn inserts plus an idle past the CT timeout.
+
+Both fixes are in the packet path; no config changes needed.
 
 ## v2.17.0 — attached-IP registry & per-tenant blackhole
 
