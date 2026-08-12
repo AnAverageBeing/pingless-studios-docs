@@ -126,7 +126,8 @@ validation:
 | `dynamic.attack_per_ip_pps` | `int` | `1000` | `0` – `1,000,000` | Hard per-source PPS cap while an attack is active (0=off); excess dropped instantly at XDP | 🔄 |
 | `dynamic.attack_port_pps` | `int` | `10000` | `0` – `1,000,000` | Aggregate PPS cap per destination port while an attack is active (0=off). Rotation-proof: throttles the attacked port as a whole regardless of source-IP rotation; legit traffic on that port is throttled, not banned, until the attack clears. Presets: 10k hosting / 15k gaming / 25k CDN (v2.0+) | 🔄 |
 | `dynamic.attack_port_bps` | `int` | `25000000` | `0` – `1,099,511,627,776` | Byte-rate twin of attack_port_pps — catches low-pps jumbo-packet floods; also feeds the early spike trigger (v2.16+) | 🔄 |
-| `dynamic.attack_icmp_pps` | `int` | `1000` | `0` – `10,000,000` | Aggregate ICMP pps cap while an attack is declared (0=off). Legit ICMP is tens of pps (v2.16+) | 🔄 |
+| `dynamic.attack_icmp_pps` | `int` | `1000` | `0` – `10,000,000` | Aggregate ICMP pps cap while an attack is declared, or on an early spike over 8× the learned ICMP baseline (0=off). Legit ICMP is tens of pps (v2.16+, early trigger v2.16.3+) | 🔄 |
+| `dynamic.attack_udp_pps` | `int` | `100000` | `0` – `100,000,000` | Aggregate UDP pps cap (attack mode, or early spike over 8× the learned UDP baseline; 0=off). The carpet-bomb answer: rotating destination ports defeat per-port caps, but the UDP aggregate betrays the flood. Protected sources exempt (v2.16.3+) | 🔄 |
 | `dynamic.port_cap_exempt_ports` | `[]int` | `[22]` | max 8 ports | Destination ports never throttled by the per-port cap/spike trigger — management plane stays reachable during floods (v2.16+) | ⚙️ |
 | `dynamic.panic_pps_rate` | `uint32` | `200,000` | `0` – `100,000,000` | Per-CPU PPS to trigger panic circuit breaker (0=disabled) | 🔄 |
 | `dynamic.panic_drop_ratio` | `uint32` | `80` | `0` – `100` | % of packets to probabilistically drop in panic mode | 🔄 |

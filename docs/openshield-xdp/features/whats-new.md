@@ -1,6 +1,15 @@
-# What's New — v2.0 to v2.16.1
+# What's New — v2.0 to v2.16.3
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.16.3 — carpet-bomb floods answered, protection that holds under churn
+
+Found by our 23-class automated flood matrix (every flood class run against live simulated players); every fix verified on the rig before shipping.
+
+- **Carpet-bomb floods can no longer rotate past the caps** — a flood that spreads across thousands of destination ports defeated every *per-port* defense. New aggregate per-protocol caps close it: `dynamic.attack_udp_pps` (default 100k/s) watches UDP as a whole, and both it and `dynamic.attack_icmp_pps` now engage on attack state **or** on an early spike over 8× the learned normal rate for that protocol — inside the first window of the burst. Protected (known-good) sources are exempt, as always.
+- **Short ICMP bursts no longer outrun mitigation** — the aggregate ICMP cap previously waited for the userspace attack declaration; it now has the same kernel-side early trigger, so seconds-long rotating ICMP floods are capped immediately.
+- **Legit clients stay protected for the whole fight** — the known-good source set now freezes during any engagement: existing members keep their proof fresh, new admits need an established TCP connection, and nothing expires until 90 seconds of sustained peace. Mid-flood map churn can no longer evict your real players, and flood sources can't mint themselves "protected" status mid-attack.
+- Testing infrastructure: the flood matrix (23 attack classes including every common amplification shape and game-shaped floods) now asserts that Minecraft Java/Bedrock, CS2 and SFTP traffic profiles survive every single class.
 
 ## v2.16.1 — blacklist action un-gated from forensics
 

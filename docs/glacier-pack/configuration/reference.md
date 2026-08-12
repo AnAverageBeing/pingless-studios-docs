@@ -12,6 +12,17 @@ Every setting that actually exists on the 46 Glacier Pack addon panes, grouped p
 All saves go through the hub's `_hub` round-trip: you always land back on the same pane, with validation errors shown above the form when a value is rejected.
 :::
 
+## Egg-name gating (shared by all game addons)
+
+Every game-specific addon ships with a default **egg-name gate**: it only appears on servers whose egg name matches its shipped pattern (ARK tools on ARK eggs, Hytale on Hytale, FiveM on FiveM, FastDL on Source-engine games, Bedrock addons on Bedrock eggs, the Minecraft Java tools on Java eggs). Two settings control this on each addon's pane:
+
+| Setting | Type | Default | What it does |
+| --- | --- | --- | --- |
+| `egg_name_gating` | checkbox | on | Master switch for name-based gating. Off = the addon shows on every egg. |
+| `egg_name_pattern` | text (regex) | per-addon pattern | Case-insensitive regex matched against the server's egg **name** (IDs differ per install, names don't). A live hint under the field shows how many of the panel's eggs match as you type. |
+
+Addons that already had an egg-ID allowlist keep it — an ID match always wins, even when the name pattern doesn't. Server Wiper is the exception to the family rule: the wiper itself is universal and only its Rust map library gates to Rust eggs.
+
 ---
 
 ## Basic pack
