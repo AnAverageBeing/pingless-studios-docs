@@ -5,6 +5,11 @@ XDP-native DDoS mitigation at line rate. 16-stage detection pipeline with Bloom 
 
 [Documentation →](/openshield-xdp/) · [Contact →](https://studio.pingless.org)
 
+## 🛡️ OpenShield-L7
+An L7-protected reverse web proxy in Rust — a hostname-routed filter that sits in front of your web servers and terminates 80/443. WAF (SQLi/XSS/traversal/RCE/scanner + custom regex rules), per-IP and per-site rate and connection limits with escalating auto-bans and RPS-triggered auto-mitigation, stateless JS proof-of-work challenges with HMAC clearance cookies, monthly bandwidth quotas and per-site/per-IP speed caps, five client-IP forward modes plus PROXY protocol v1/v2 and an IP_TRANSPARENT mode where the origin sees the real client IP with zero origin config — all per-site YAML with hot reload and a token-secured REST + SSE admin API. Verified: 215 unit tests, 77/77 e2e, 8/8 attack scenarios, 150k rps flood absorbed with zero benign impact.
+
+[Documentation →](/openshield-l7/) · [GitHub →](https://github.com/AnAverageBeing/openshield-l7) (repo currently private)
+
 ## ⚡ Bandwidth Manager
 Production-grade Docker container bandwidth management. Per-container speed limits, daily traffic quotas, kernel-level tc enforcement with modern TUI and webhook notifications.
 

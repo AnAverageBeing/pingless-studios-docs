@@ -27,6 +27,7 @@ export default withMermaid({
       { text: 'Docs', link: '/openshield-xdp/' },
       { text: 'GitHub', link: 'https://github.com/AnAverageBeing' },
       { text: 'Bandwidth', link: '/bandwidth-manager/' },
+      { text: 'L7 Proxy', link: '/openshield-l7/' },
     ],
 
     sidebar: [
@@ -872,9 +873,49 @@ export default withMermaid({
         }
       ]
     },
+    {
+      text: 'OpenShield-L7',
+      collapsed: true,
+      items: [
+        {
+          text: 'Getting Started',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/openshield-l7/' },
+            { text: 'Installation', link: '/openshield-l7/getting-started/installation' },
+            { text: 'Quick Start', link: '/openshield-l7/getting-started/quick-start' },
+          ]
+        },
+        {
+          text: 'Configuration',
+          collapsed: true,
+          items: [
+            { text: 'Reference', link: '/openshield-l7/configuration/reference' },
+          ]
+        },
+        {
+          text: 'User Guide',
+          collapsed: true,
+          items: [
+            { text: 'CLI Reference', link: '/openshield-l7/user-guide/cli' },
+            { text: 'Admin API', link: '/openshield-l7/user-guide/api' },
+            { text: 'Hot Reload', link: '/openshield-l7/user-guide/hot-reload' },
+          ]
+        },
+        {
+          text: 'Architecture',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/openshield-l7/architecture/overview' },
+            { text: 'Transparent Client IP', link: '/openshield-l7/architecture/transparent-ip' },
+            { text: 'Testing & Benchmarks', link: '/openshield-l7/architecture/testing' },
+          ]
+        },
+      ]
+    },
   ],
 
-  
+
   socialLinks: [
       { icon: 'github', link: 'https://github.com/AnAverageBeing' },
       { icon: 'discord', link: 'https://discord.gg/qgBMREWWgp' },

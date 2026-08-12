@@ -25,6 +25,10 @@ features:
     details: XDP-native DDoS mitigation at line rate. 16-stage pipeline, 42 attack vectors, Bloom filter acceleration, freplace hot-patching, 10 protection profiles with zero-tune presets.
     link: /openshield-xdp/
   -
+    title: OpenShield-L7
+    details: L7-protected reverse web proxy in Rust. Hostname-routed WAF, rate limits with escalating auto-bans, stateless PoW challenges, monthly quotas, transparent client-IP forwarding, and a token-secured REST+SSE admin API — one binary.
+    link: /openshield-l7/
+  -
     title: 🔀 RouteX Reverse Proxy
     details: Production-grade L3/L4/L7 reverse proxy. Game protocol detection (MC Java/Bedrock/FiveM/GMod), behavioral scoring, bandwidth quotas, 36 REST API endpoints.
     link: /routex/
