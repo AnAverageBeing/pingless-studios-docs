@@ -126,7 +126,7 @@ curl -s -H "Authorization: Bearer $TOKEN" http://127.0.0.1:9090/api/v1/stats/glo
 | `challenged` | int | Requests served a PoW challenge. |
 | `bytes_up` | int | Client→origin bytes. |
 | `bytes_down` | int | Origin→client bytes. |
-| `active_connections` | int | In-flight requests right now (live gauge reported by the data plane per routed request). |
+| `active_connections` | int | In-flight requests **plus live WebSocket/upgrade tunnels** right now (a tunnel holds a slot from the `101` until it closes). |
 | `rps_1m` | float | Requests/sec over the last minute. |
 
 ```json
@@ -157,7 +157,7 @@ curl -s -H "Authorization: Bearer $TOKEN" http://127.0.0.1:9090/api/v1/stats/sit
 | `requests` / `blocked` / `challenged` | int | Counters since start. |
 | `bytes_up` / `bytes_down` | int | Byte counters since start. |
 | `rps_1m` | float | Requests/sec, last minute. |
-| `active_connections` | int | In-flight requests right now (live gauge: opened when a request is routed to the site, closed when its event publishes). |
+| `active_connections` | int | In-flight requests **plus live WebSocket/upgrade tunnels** right now (gauge opened at route/tunnel-splice time, closed when the request event publishes or the tunnel ends). |
 | `unique_ips_1h` | int | Distinct client IPs in the last hour (bounded-memory estimate, not exact). |
 | `quota_used_bytes` | int or null | Bytes consumed in the current monthly window. `null` when no quota is configured. |
 | `quota_limit_bytes` | int or null | The configured `monthly_quota_bytes`, or `null`. |

@@ -490,6 +490,31 @@ bandwidth:
 
 ---
 
+### `websockets`
+
+WebSocket (RFC 6455) and other HTTP upgrades are proxied as a raw bidirectional byte splice once the origin answers `101`. The proxy never parses frames: text/binary frames, fragmented messages, keepalive ping/pong, and extensions like permessage-deflate pass untouched — a game-panel console (Pterodactyl-style) works out of the box and stays connected for hours.
+
+| YAML path | Type | Default | Semantics |
+|---|---|---|---|
+| `websockets.enabled` | bool | `true` | When `false`, upgrade requests are rejected with **403** (rule `websocket.disabled`) before the origin is contacted. Plain HTTP requests are unaffected. |
+| `websockets.idle_timeout_secs` | int | `3600` | Close a tunnel that moves no bytes in **either** direction for this long. Keepalive pings count as activity. `0` = never (not recommended: dead tunnels hold a socket and an `active_connections` slot forever). |
+| `websockets.max_lifetime_secs` | int | `0` | Hard cap on tunnel age, enforced even while traffic flows. `0` = unlimited (panels legitimately run for hours). |
+
+Notes:
+
+- The upgrade **handshake is a normal HTTP request**: routing, ACLs, bans, rate limits, conn limits, WAF, and challenges all apply to it as usual.
+- A live tunnel holds one `active_connections` slot (site and global) from the `101` until it closes — 10k idle WebSockets show up as 10k connections, not zero.
+- Tunnel bytes are metered into the site's byte counters/quota when the tunnel ends. The `RequestEvent` publishes when the `101` completes (its byte counts cover the handshake only).
+
+```yaml
+websockets:
+  enabled: true
+  idle_timeout_secs: 3600
+  max_lifetime_secs: 0
+```
+
+---
+
 ## 3. Hostname semantics
 
 - Case-insensitive; a port suffix (`example.com:8080`) and a trailing dot are stripped before matching. IPv6 literals are not routed.

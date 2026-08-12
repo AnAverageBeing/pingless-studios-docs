@@ -142,7 +142,7 @@ From the automated e2e + attack battery ([Testing & Benchmarks](./architecture/t
 | Metric | Result |
 |---|---|
 | Unit tests | **215 passed** (`cargo test --workspace`) |
-| E2E battery | **77 / 77 passed** (routing, TLS/SNI, XFF modes, WAF, limits, PoW, quotas, API roles, hot reload, bans, SSE, keep-alive, WebSocket, PROXY v1/v2, transparent mode, graceful shutdown) |
+| E2E battery | **85 / 85 passed** (routing, TLS/SNI, XFF modes, WAF, limits, PoW, quotas, API roles, hot reload, bans, SSE, keep-alive, WebSocket, PROXY v1/v2, transparent mode, graceful shutdown) |
 | Attack scenarios | **8 / 8 passed** (HTTP flood ×2, random-Host flood ×2, POST flood, slowloris, WAF sweep, XFF spoofing) |
 | HTTP flood absorbed | **152,735 rps** loopback, 100% 429 — benign site kept 100% 200 at p95 2.3 ms |
 | Random-Host flood | **150,426 rps** → 100% 421, legitimate site untouched |

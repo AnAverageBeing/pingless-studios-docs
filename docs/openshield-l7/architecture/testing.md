@@ -1,6 +1,6 @@
 ---
 title: Testing & Benchmarks — OpenShield-L7
-description: The OpenShield-L7 test battery — 215 unit tests, 77 e2e assertions, 8 attack scenarios with measured results, and how to reproduce with testing/run_all.sh.
+description: The OpenShield-L7 test battery — 215 unit tests, 85 e2e assertions, 8 attack scenarios with measured results, and how to reproduce with testing/run_all.sh.
 outline: deep
 ---
 
@@ -14,11 +14,11 @@ OpenShield-L7 ships with an automated battery that builds the release binary, sp
 |---|---|---|
 | Unit tests | `cargo test --workspace` | **215 tests** across the seven crates — config validation, challenge crypto, client-IP resolution, limiters, WAF families, API handlers. |
 | Lint | `cargo clippy --workspace --all-targets` | Clippy-clean. |
-| E2E + attacks | `testing/run_all.sh` | 77 e2e assertions + 8 attack scenarios against a running proxy. Needs root (the transparent-mode case); uses only high ports on loopback + the LAN address. Exits non-zero on any failure. |
+| E2E + attacks | `testing/run_all.sh` | 85 e2e assertions + 8 attack scenarios against a running proxy. Needs root (the transparent-mode case); uses only high ports on loopback + the LAN address. Exits non-zero on any failure. |
 
 ---
 
-## E2E battery: 77 / 77 passed
+## E2E battery: 85 / 85 passed
 
 The battery covers the whole surface of the proxy. Grouped summary of the 77 assertions (all PASS):
 
@@ -35,9 +35,10 @@ The battery covers the whole surface of the proxy. Grouped summary of the 77 ass
 | Hot reload | 58–60 | Invalid edit leaves other sites unaffected and keeps the broken site's last good config; reload reports the broken file; the fixed file hot-applies. |
 | Bans | 61–65 | Manual ban blocks one IP only; list + DELETE lifts it; DELETE of a nonexistent ban → 404. |
 | Stats / analytics / SSE | 66–68 | Global counters match generated traffic; analytics tops plausible; SSE emits request events. |
-| Protocol behavior | 69–73 | HTTP/1.1 keep-alive ×50; WebSocket upgrade pass-through; PROXY protocol v1 and v2 deliver the client endpoint; trusted XFF feeds the PROXY source (port 0 = unknown). |
-| Transparent mode | 74–75 | Origin sees the real client IP (`10.255.255.7`) with **no XFF header at all**; trusted XFF resolves through to the bound source. |
-| CLI & shutdown | 76–77 | `validate` reports all configs valid; graceful SIGTERM mid-download drains in a bounded 5 s and exits 0. |
+| Protocol behavior | 69, 79–81 | HTTP/1.1 keep-alive ×50; PROXY protocol v1 and v2 deliver the client endpoint; trusted XFF feeds the PROXY source (port 0 = unknown). |
+| WebSockets | 70–78 | Upgrade pass-through; text+binary echo incl. a 1 MiB frame; 50 concurrent tunnels; tunnels counted in `active_connections` until close; keepalives beat `idle_timeout`, silence closes; `max_lifetime` caps a busy tunnel; `websockets.enabled: false` → 403 `websocket.disabled`; handshake rate-limited, established tunnel unaffected. |
+| Transparent mode | 82–83 | Origin sees the real client IP (`10.255.255.7`) with **no XFF header at all**; trusted XFF resolves through to the bound source. |
+| CLI & shutdown | 84–85 | `validate` reports all configs valid; graceful SIGTERM mid-download drains in a bounded 5 s and exits 0. |
 
 ---
 
