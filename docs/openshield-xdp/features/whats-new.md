@@ -1,6 +1,27 @@
-# What's New — v2.0 to v2.17.1
+# What's New — v2.0 to v2.17.3
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.17.3 — realistic preset values + blend fix
+
+Field-reported: a game-hosting wizard run (Minecraft + game server + Docker + download server, Gaming/Balanced) produced ceilings no legit client could ever reach — 560 SYN/s per IP, 3500 new connections/s per IP, a 10k pps attack floor.
+
+- **Attack-surface knobs no longer blend by maximum.** Rate ceilings merge by union (a mixed box must fit every workload's legit traffic — correct), but the same rule also governed the knobs whose height *is* the attack surface: per-IP SYN/connection limits, new-source limit, attack-declaration floors, attack per-IP cap, panic breaker. One 0.5-weighted "download server" vote pulled all of them to CDN-edge levels on a game box. They now blend by weighted average, so the dominant workload sets the box's character.
+- **Per-IP bases retuned to measured reality** across all categories: SYN 150–250 (was up to 500), per-IP PPS 800–2500 (Gaming 2000), UDP 350–1800, conn-rate ~2× SYN, ICMP ≤100.
+- Example: the reported selection now generates SYN **170**/IP (was 560), conn-rate **450** (was 3500), attack floor **5.1k pps** (was 10k), attack per-IP cap **1466** (was 3000).
+
+Note: existing installs keep their saved config — the retune applies to new wizard runs / profile applications.
+
+## v2.17.2 — deep-audit hardening release
+
+A multi-area audit (packet parse, maps/races, limiters, daemon, config/presets, lifecycle, security); every finding was code-traced or rig-reproduced before fixing.
+
+- **Packet payload accounting now trusts the IP layer, not the frame** — last-hop NIC padding and L2 trailers no longer count as TCP/UDP payload. Closes the empty-ACK established-mark mint on physical NICs, a SYNPROXY cookie-gate skip for the canonical flood SYN shape, and L7 evasion via forged UDP lengths.
+- **Exemption sets anchor on real socket state** (`/proc/net/tcp`) — the kernel's established mark was mintable in two crafted packets (rig-proven); protected sources and blackhole exemptions now require a real connection in the host's socket table.
+- **Early-spike baselines clamp learning to 2×/window** (ramp poisoning killed); the per-port cap can no longer be disarmed by port-spray squatting; legit fragmented TCP no longer dies as bogus-null-flags; v4-mapped IPv6 bogons actually filtered.
+- **Auto-update works under systemd now** — it runs as a detached process (the in-daemon path was dead on arrival and self-killed its own rollback).
+- Runtime config edits can no longer clobber hand edits, persist license-gutted values, force a full map rebuild on every reload, or brick the next start; runtime bloom enable actually works; clear-blacklist clears the pinned (manual) tier; registry stops per-second disk writes; star decay reaches the kernel repeat-offender ladder.
+- uninstall fully detaches (and only ours); install --update backs up + health-checks; tcpdump orphans reaped; state/logs no longer world-readable; API keys/webhook URLs redacted from logs; feed CIDR injection guards (no 0.0.0.0/0 self-DoS); unload works with a broken config.
 
 ## v2.17.1 — peacetime fairness: "games fine, websites dead" fix
 
