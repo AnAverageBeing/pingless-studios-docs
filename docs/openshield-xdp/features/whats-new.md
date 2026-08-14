@@ -1,6 +1,16 @@
-# What's New — v2.0 to v2.17.3
+# What's New — v2.0 to v2.17.4
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.17.4 — audit follow-up fixes
+
+A regression-hunt pass over the v2.17.2/2.17.3 changes; every item confirmed before fixing.
+
+- **Fragmented UDP packets were dropped at parse** (large DNSSEC/NFS/game datagrams, with `drop_fragments` off) — a v2.17.2 regression, fixed.
+- **The per-port cap's overflow backstop now actually exists** (loader pre-creates it); the carpet-bomb disarm is closed for real.
+- **Auto-update no longer retry-loops a failing build** (persisted latch; each attempt used to restart the firewall twice every 90s), survives systemd-less environments, and can't corrupt itself when two updates run at once.
+- **Blackhole exemptions now see tenant VMs/containers** — proof comes from the conntrack table too, not just the host's own socket table.
+- Plus: tail-fragment validation, blacklist-clear vs bulk-ban race, notes pruning, big-endian hosts, and a protected-set expiry edge right after boot.
 
 ## v2.17.3 — realistic preset values + blend fix
 
