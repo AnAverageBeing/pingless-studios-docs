@@ -1,6 +1,42 @@
-# What's New — v2.0 to v2.17.4
+# What's New — v2.0 to v2.18.0
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.18.0 — hot reload over HTTP, synproxy self-probe, TC egress (opt-in)
+
+- **Hot reload is now an API call.** `POST /control/reload` on the metrics
+  endpoint re-reads `/etc/openshield/openshield.yaml`, validates it, and
+  applies every runtime-safe setting (123 fields today) through the same
+  path as `openshield reload` — no restart, no re-attach, dashboards can
+  drive it. The response reports how many settings were applied.
+  Read-only fields (interface, map sizes) still require a real reload, as
+  before. Off unless `metrics.control_enabled: true`, same as the rest of
+  the control API.
+- **SYNPROXY probes itself at load.** On kernels where XDP_TX delivery is
+  broken (observed on 7.0-RC: cookie replies silently vanish — a total TCP
+  blackout with synproxy on), the loader now attaches the live program to a
+  throwaway veth pair and demands a real cookie SYN-ACK within 400 ms. If
+  the probe fails, synproxy is force-disabled for that session with a loud
+  error instead of blackholing your TCP. No config needed; healthy kernels
+  see zero behavior change.
+- **TC egress per-IP protection (opt-in, `egress:` config).** The XDP
+  firewall is RX-only by design; v2.18 adds its outbound twin: a small,
+  separate BPF policer on the interface's clsact egress hook that caps
+  OUTBOUND packets/sec and bytes/sec per SOURCE IP (plus optional UDP /
+  ICMP / SYN sub-caps and exemption list). On a dedicated host it stops one
+  compromised tenant VM from flooding out and getting the whole box
+  null-routed; on a single VPS it blunts amplification participation. Off
+  by default; every knob hot-applies at runtime; enabling runs an outbound
+  connectivity self-check through the very hook it attached and
+  force-disables itself if it would break connectivity. Never touches
+  foreign qdiscs/filters, and crash leftovers clean themselves up.
+  `openshield egress status`, `GET /metrics/egress`, and a four-scenario
+  rig (inert under cap / cap enforcement / per-IP isolation / exemption)
+  back it.
+- Release discipline: customer zips are now mechanically gated on the live
+  rigs (flood matrix, blackhole, interference, hot-reload, egress) passing
+  on the exact tree being packaged, and every release is dogfooded through
+  `openshield update` on our own field boxes before we call it shipped.
 
 ## v2.17.4 — audit follow-up fixes
 

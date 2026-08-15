@@ -187,6 +187,26 @@ Highlights of what's inside:
 
 Empty when no suppression windows are active.
 
+### `/metrics/egress`
+
+TC egress policer status (v2.18+; all zeros with `active: false` while the opt-in feature is off):
+
+```jsonc
+{
+  "generated_at": 1754325123,
+  "data": {
+    "active": true,
+    "passed_total": 1823310,
+    "dropped_total": 1338533,
+    "dropped_udp": 1338000,
+    "dropped_icmp": 12,
+    "dropped_syn": 521
+  }
+}
+```
+
+Counters are cumulative since attach, summed over the policer's per-CPU stats map.
+
 <a id="control_api_warning"></a>
 ## ⚠️ Control API — read this before enabling
 
@@ -233,6 +253,15 @@ curl -X POST -H "Authorization: Bearer osk_..." -H "Content-Type: application/js
   -d '{"settings":{"static.enabled":true,"dynamic.global_pps_threshold":100000}}' \
   http://127.0.0.1:9100/control/config
 ```
+
+**`POST /control/reload`** (v2.18+) — hot reload over HTTP: re-reads `/etc/openshield/openshield.yaml`, validates it, and applies every runtime-safe setting through the exact same path as `openshield reload` (no restart, no re-attach). Edit the YAML by hand or from your own tooling, then:
+
+```bash
+curl -X POST -H "Authorization: Bearer osk_..." http://127.0.0.1:9100/control/reload
+# => { "success": true, "applied": 123 }
+```
+
+`applied` counts the runtime-safe fields pushed through the update path. Read-only fields (interface, map sizes) still require a real reload — they are reported by `GET /control/config` but not re-applied here.
 
 ```jsonc
 { "success": true, "applied": 2 }

@@ -225,6 +225,22 @@ Total per-destination drop with established-connection survival — see [Blackho
 | `blackhole.grace_minutes` | `int` | `10` | `1` – `1,440` | Minutes an established-source exemption to a blackholed destination survives without re-proof (applies immediately) | 🔄 |
 <!-- CONFIG-REFERENCE:END -->
 
+## `egress` — TC Egress Per-IP Policer (v2.18+)
+
+Opt-in OUTBOUND per-source-IP caps on the clsact egress hook — the RX-only firewall's outbound twin. Off by default; every field hot-applies. See [What's New v2.18.0](../features/whats-new.md). Status: `openshield egress status`; metrics: `GET /metrics/egress`.
+
+<!-- CONFIG-REFERENCE:BEGIN category="Egress" -->
+| Field | Type | Default | Range | Description | Safe? |
+|-------|------|---------|-------|-------------|-------|
+| `egress.enabled` | `bool` | `false` | `true` / `false` | Attach the TC egress per-source-IP outbound policer (applies immediately; first enable runs an outbound connectivity self-check) | 🔄 |
+| `egress.per_ip_pps` | `int` | `0` | `0` – `100,000,000` | Max outbound packets/sec per source IP (0 = off; applies immediately) | 🔄 |
+| `egress.per_ip_bps` | `int` | `0` | `0` – `100,000,000,000` | Max outbound bytes/sec per source IP (0 = off; applies immediately) | 🔄 |
+| `egress.udp_pps` | `int` | `0` | `0` – `100,000,000` | Max outbound UDP packets/sec per source IP (0 = off; applies immediately) | 🔄 |
+| `egress.icmp_pps` | `int` | `0` | `0` – `100,000,000` | Max outbound ICMP/ICMPv6 packets/sec per source IP (0 = off; applies immediately) | 🔄 |
+| `egress.syn_pps` | `int` | `0` | `0` – `100,000,000` | Max outbound TCP SYN packets/sec per source IP (0 = off; applies immediately) | 🔄 |
+| `egress.log_drops` | `bool` | `false` | `true` / `false` | Emit sampled kernel trace-pipe lines for egress drops (1 in 64; debug knob; applies immediately) | 🔄 |
+<!-- CONFIG-REFERENCE:END -->
+
 ## `maps` — BPF Map Sizing
 
 | Field | Type | Default | Range | Description | Safe? |
