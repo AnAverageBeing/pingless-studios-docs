@@ -1,6 +1,49 @@
-# What's New — v2.0 to v2.18.0
+# What's New — v2.0 to v2.18.1
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.18.1 — adversarial-audit hardening: the bans that always enforce
+
+A full-tree adversarial audit (11 auditors, every finding cross-verified
+against the code before fixing — two rejected as wrong/overstated).
+
+- **Manual bans always enforce.** On a fresh install the kernel's ban
+  fast-path (`bans_empty`) was only cleared by feed/geo bans — a manual
+  blacklist entry silently did nothing while the CLI reported success.
+  Every userspace insert now clears it, and the ban sweep self-heals.
+- **Failed map-resize can no longer leave you bare.** A live map resize
+  that failed used to unpins everything, error quietly, and report
+  success with nothing attached. It now restores the previous sizes and
+  reports the failure honestly.
+- **The rotating-flood cap actually caps.** `attack_per_ip_pps` sat
+  behind a 1-in-256 sampling gate, evaluating ~0.3% of a flood; sources
+  sending under 256 packets per window were never capped. The cap now
+  evaluates the live per-window count for every packet.
+- **SYNPROXY correctness**: payload-carrying final handshake ACKs now
+  validate (some clients were deadlocked), and IPv6 events carry real
+  addresses instead of 0.0.0.0.
+- **IPv6 hardening**: ICMPv6 (NDP) is no longer dropped by the
+  private-range filter, extension-header chains beyond 4 headers are
+  handled or rejected instead of evading every L4 check, and the v6
+  bogon list covers the documentation + v4-compat ranges.
+- **Established-mark exemption gets a 60s freshness bound** — the
+  peacetime scoring exemption can no longer be held forever by two
+  crafted packets (documented v2.17.2 residual, now bounded).
+- **Rate-cap engine races closed**: per-port cap rollover is CAS-elected
+  (no more all-core spinlock on a flooded port), protocol-cap rollover
+  is single-winner, and the first packet on a new port is evaluated.
+- **TC egress safety**: clsact is only removed when truly empty (foreign
+  filters are safe), orphaned filters on renamed interfaces are cleaned,
+  and debug logs print the right address.
+- **Operator-facing**: CIDRs can be added from the TUI Access tab (was
+  100% broken), /metrics/access and the TUI say when lists are capped,
+  credentials are masked in the config tab, and /metrics answers fast
+  even after million-ban mitigations (build 3).
+- **Housekeeping**: dead code and dead config keys removed, edge sync
+  covers IPv6, socket-truth scans halved, bulk-ban note writes are
+  batched, baseline imports fully validated, rigs run clean on fresh CI
+  machines, and release builds pin their BPF feature set instead of
+  trusting the build host's kernel.
 
 ## v2.18.0 — hot reload over HTTP, synproxy self-probe, TC egress (opt-in)
 
