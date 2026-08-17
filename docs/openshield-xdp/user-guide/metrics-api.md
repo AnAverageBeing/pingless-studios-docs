@@ -79,6 +79,8 @@ All errors are JSON: `{ "error": "..." }`. A 403 from a `/control/*` path with b
 | `/metrics/forensics` | GET | Forensics storage: dir, size vs cap, collecting/halted state, cleanup counters |
 | `/metrics/ovh` | GET | OVH edge-mitigation module: mode, protected IPs, rules pushed/removed, rate-limit hits |
 | `/metrics/schedule` | GET | Active suppression windows |
+| `/metrics/dstips` | GET | Tracked destination IPs overview: tracked count + top-5 destinations by current pps |
+| `/metrics/dstip?ip=<addr>` | GET | Full per-destination analysis: registry/blackhole flags, current rates, per-second series, 1m/5m/15m windows, attack history |
 
 The sub-endpoints wrap their payload in `{ "generated_at": <unix>, "data": ... }` (schedule uses `"schedule"` instead of `"data"`). They require the same auth as `/metrics` and work regardless of `control_enabled`.
 
@@ -207,6 +209,50 @@ TC egress policer status (v2.18+; all zeros with `active: false` while the opt-i
 
 Counters are cumulative since attach, summed over the policer's per-CPU stats map.
 
+### `/metrics/dstips`
+
+Tracked destination IPs overview — how many destinations the per-IP tracker holds, plus the top-5 by current pps (the snapshot's `dstip` section):
+
+```jsonc
+{
+  "generated_at": 1754325123,
+  "data": {
+    "tracked": 142,
+    "top": [
+      { "ip": "203.0.113.10", "pps": 48200, "...": "..." },
+      { "ip": "203.0.113.11", "pps": 9100,  "...": "..." }
+    ]
+  }
+}
+```
+
+### `/metrics/dstip?ip=<addr>`
+
+Full per-destination analysis for one address — current rates, a per-second time series, 1m/5m/15m window aggregates, and every recorded attack against that destination. `attached`/`blackholed` come from the attached-IP registry and tenant blackhole. Missing or invalid `ip` returns 400.
+
+```jsonc
+{
+  "generated_at": 1754325123,
+  "data": {
+    "ip": "203.0.113.10",
+    "tracked": true,
+    "attached": true,
+    "blackholed": false,
+    "auto_blackhole": false,
+    "current": { "pps": 48200, "bps": 385600000, "dps": 12000 },
+    "step_sec": 1,
+    "series": [ { "t": 1754325100, "pps": 46000, "bps": 368000000, "dps": 11500 } ],
+    "windows": {
+      "1m":  { "peak_pps": 51000, "avg_pps": 44000, "peak_bps": 408000000, "avg_bps": 352000000, "drops": 1820000 },
+      "5m":  { "...": "same shape" },
+      "15m": { "...": "same shape" }
+    },
+    "attacks": [ { "start": 1754321000, "end": 1754321600, "type": "udp_flood", "peak_pps": 480000, "verdict": "mitigated" } ],
+    "ongoing_attack": false
+  }
+}
+```
+
 <a id="control_api_warning"></a>
 ## ⚠️ Control API — read this before enabling
 
@@ -253,6 +299,11 @@ curl -X POST -H "Authorization: Bearer osk_..." -H "Content-Type: application/js
   -d '{"settings":{"static.enabled":true,"dynamic.global_pps_threshold":100000}}' \
   http://127.0.0.1:9100/control/config
 ```
+
+New runtime-safe settings (same endpoint, hot-applied):
+
+- `dynamic.port_syn_pps` — per-destination-port new-connection/s cap (0 = off); excess SYNs to that port are dropped.
+- `geoip.enforce_mode` — `always` applies the geo country list at all times; `attack` only while an attack is declared.
 
 **`POST /control/reload`** (v2.18+) — hot reload over HTTP: re-reads `/etc/openshield/openshield.yaml`, validates it, and applies every runtime-safe setting through the exact same path as `openshield reload` (no restart, no re-attach). Edit the YAML by hand or from your own tooling, then:
 

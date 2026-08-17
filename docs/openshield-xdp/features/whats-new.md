@@ -1,6 +1,33 @@
-# What's New — v2.0 to v2.18.1
+# What's New — v2.0 to v2.19.0
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.19.0 — per-port connection caps, geo enforce modes, DstIP Analyzer
+
+- **Per-port new-connection cap** (`dynamic.port_syn_pps`) — the existing
+  per-IP connection limit now has its per-PORT twin: cap new TCP
+  connections/sec per destination port (always-on, CAS-windowed,
+  fail-open, same exemptions as the port cap). One flooded service port
+  stops eating the box's connection budget while every other port runs
+  untouched.
+- **Geo enforce mode** (`geoip.enforce_mode`) — `always` keeps classic
+  geo-blocking; `attack` enforces your country list only while an attack
+  is declared. For hosts with legitimate users in high-risk regions you
+  only cut off during a flood. Hot-applies, no reload.
+- **New TUI tab: DstIP Analyzer** (key `I`) — enter any destination IP
+  and watch it live: current pps/bps/drops, 1m/5m/15m peak+avg windows,
+  a pps+drops chart, and that IP's attack history with targeted/global
+  verdicts and an ongoing-attack badge. Built for dedi operators
+  watching tenant IPs. Note: per-destination drop figures are estimated
+  from the destination's share of inbound traffic (exact for targeted
+  floods, proportional for spread ones).
+- **API**: `GET /metrics/dstips` (tracked destinations overview) and
+  `GET /metrics/dstip?ip=<addr>` (the full analysis payload the Analyzer
+  shows). Both new config knobs are runtime-safe — settable via
+  `/control/config` and `openshield reload`, documented in the API
+  reference.
+- Fix: `dynamic.new_source_limit: 0` (feature off) was briefly rejected
+  by validation in 2.18.1 — accepted again (0 = off, house convention).
 
 ## v2.18.1 — adversarial-audit hardening: the bans that always enforce
 
