@@ -17,7 +17,7 @@ description: Install LiteShield XDP with the interactive installer or manually �
 
 | Requirement | Minimum | Check |
 | ----------- | ------- | ----- |
-| Kernel | Linux **5.15+** | `uname -r` |
+| Kernel | Linux **5.15+** (RHEL 9-family 5.14 proceeds with a warning — see below) | `uname -r` |
 | Kernel BTF | `CONFIG_DEBUG_INFO_BTF=y` | `ls /sys/kernel/btf/vmlinux` |
 | Go | **1.22+** | `go version` |
 | Build tools | `clang`, `llvm-strip`, `bpftool`, `make` | `command -v clang` |
@@ -27,6 +27,23 @@ description: Install LiteShield XDP with the interactive installer or manually �
 The installer detects missing dependencies and installs them automatically via
 your package manager — `apt`, `dnf`, `yum`, `pacman`, `apk`, and `zypper` are
 all supported. You only need root and a 5.15+ kernel with BTF.
+:::
+
+::: details RHEL 9 family (AlmaLinux / Rocky / RHEL / CentOS Stream 9) — kernel 5.14
+These distros ship a **5.14** kernel (e.g. `5.14.0-687.5.3.el9_8`) that sits
+below the tested 5.15 floor — but Red Hat backports the BPF features
+LiteShield needs (BTF, bounded loops, map spinlocks, LRU/LPM maps, tail
+calls), so it usually works. The installer detects the `el9` suffix in the
+kernel's own release string (never the distro ID) and **continues with a
+warning** instead of refusing. This is an untested configuration; any other
+kernel below 5.15 is still refused. If the verifier rejects the program at
+load time, move to a mainline kernel from **ELRepo**:
+
+```bash
+sudo dnf install -y https://www.elrepo.org/elrepo-release-9.el9.elrepo.noarch.rpm
+sudo dnf --enablerepo=elrepo-kernel install -y kernel-ml
+sudo reboot   # boot into the new kernel, then run the installer
+```
 :::
 
 ::: warning BTF is not optional
