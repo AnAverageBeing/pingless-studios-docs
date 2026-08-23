@@ -1,6 +1,35 @@
-# What's New — v2.0 to v2.19.3
+# What's New — v2.0 to v2.19.4
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.19.4 — what's-new setup flow, autoload watchdog, access search
+
+- **"What's new" setup flow** — when a release adds a config value that
+  needs your decision, it now asks instead of silently defaulting: a prompt
+  on interactive loads, `openshield setup` anytime, and the same pending
+  list over the API (`GET /metrics/setup`, `POST /control/setup/answer`) so
+  the xdp.network dashboard can pop the question too. Unanswered questions
+  run their safe default and never block the firewall; answers are
+  hot-applied and recorded on the box.
+- **`openshield autoload`** — keep the firewall running, always: boot start
+  via the loader service, a 30s watchdog that restarts the loader when the
+  process dies **or XDP detaches while the loader lives** (a bare NIC alone
+  never trips systemd's Restart), and a config-change fuse — any edit to
+  openshield.yaml (manual or live) disarms autoload automatically so a bad
+  config can never restart-loop your box. Re-arm after review with
+  `openshield autoload`.
+- **Access search** — `openshield whitelist check <ip>` /
+  `openshield blacklist check <ip>` answer "is this IP listed, where, and
+  why" instantly (whitelist, pinned/LRU bans with reason + expiry, subnet
+  bans incl. geo). TUI Access tab: `/` filters the list live by IP or note.
+- **Human-readable ban reasons** — `blacklist list` now prints
+  `auto_fetch`, `ttl_anomaly`, `conn_rate_exceeded`, … instead of raw codes.
+- **`openshield stats` waits for the loader** — up to 90s with a live
+  countdown instead of an instant "cannot connect" while the loader is
+  still starting or restarting.
+- **RHEL/Alma fixes** (from 2.19.3 respins): install continues with a
+  warning on RHEL 9-family 5.14 kernels, and the CLI now links into
+  /usr/sbin so `openshield` is found in sudo-entered root shells.
 
 ## v2.19.3 — CONTAINED state, analyzer blackhole popup, safer NIC tuning
 
