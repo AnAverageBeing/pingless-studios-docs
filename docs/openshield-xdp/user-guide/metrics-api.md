@@ -80,7 +80,7 @@ All errors are JSON: `{ "error": "..." }`. A 403 from a `/control/*` path with b
 | `/metrics/ovh` | GET | OVH edge-mitigation module: mode, protected IPs, rules pushed/removed, rate-limit hits |
 | `/metrics/schedule` | GET | Active suppression windows |
 | `/metrics/dstips` | GET | Tracked destination IPs overview: tracked count + top-5 destinations by current pps |
-| `/metrics/dstip?ip=<addr>` | GET | Full per-destination analysis: registry/blackhole flags, current rates, per-second series, 1m/5m/15m windows, attack history |
+| `/metrics/dstip?ip=<addr>[&range=15m\|1h\|24h]` | GET | Full per-destination analysis: registry/blackhole flags (with remaining seconds), current rates, per-second series (minute-resolution on 1h/24h), windows, attack history |
 
 The sub-endpoints wrap their payload in `{ "generated_at": <unix>, "data": ... }` (schedule uses `"schedule"` instead of `"data"`). They require the same auth as `/metrics` and work regardless of `control_enabled`.
 
@@ -100,7 +100,7 @@ Highlights of what's inside:
 
 - **`snapshot.global`** — `current_pps`, `current_bps`, `passed_pps`, drop/pass rates, totals. The `current_pps` vs `passed_pps` pair is your proof-of-mitigation: what's arriving vs what got through. Since v2.13.5: `live_pass_rate` / `live_drop_rate` (percentages for the *current interval* — the cumulative `pass_rate`/`drop_rate` mix in peacetime traffic) and `live_ips_passed` / `live_ips_blocked` (distinct sources this interval that passed vs are currently blocked).
 - **`snapshot.traffic`** — per-protocol rates, peaks, `top_ports`, and per-second history series (`pps_history`, `bps_history`, `drop_rate_history`, newest last — graph them directly).
-- **`snapshot.attack`** — `state` (`NORMAL`/`UNDER_ATTACK`), type, duration, baseline + spike thresholds, packets dropped, IPs banned, new sources blocked.
+- **`snapshot.attack`** — `state` (`NORMAL`/`UNDER_ATTACK`), type, duration, baseline + spike thresholds, packets dropped, IPs banned, new sources blocked. `contained` (bool) is true when an attack is active but ≥85% of arriving packets are being dropped (EMA-smoothed): the flood is still arriving — so `state`, duration and the end-of-attack report keep accruing — but it is fully mitigated. The TUI shows an amber `CONTAINED` badge in this state instead of the red `UNDER ATTACK` one.
 - **`snapshot.bans` / `snapshot.top_offenders`** — active ban count and recent entries (IP, reason, expiry, star level); per-IP rates and suspicion scores.
 - **`behavior`** — `enabled`, `auto_block`, live clusters (`state`, `confidence`, `reasons` like "machine-paced timing"), and learned per-port baselines.
 - **`attacks`** — up to 50 recent attack records: peak/avg/p95 pps, IPs involved, protocol mix, `forensics_dir`.
@@ -228,7 +228,14 @@ Tracked destination IPs overview — how many destinations the per-IP tracker ho
 
 ### `/metrics/dstip?ip=<addr>`
 
-Full per-destination analysis for one address — current rates, a per-second time series, 1m/5m/15m window aggregates, and every recorded attack against that destination. `attached`/`blackholed` come from the attached-IP registry and tenant blackhole. Missing or invalid `ip` returns 400.
+Full per-destination analysis for one address — current rates, a time series, window aggregates, and every recorded attack against that destination. `attached`/`blackholed` come from the attached-IP registry and tenant blackhole. Missing or invalid `ip` returns 400.
+
+**Query parameters:**
+
+| Param | Values | Default | Notes |
+|---|---|---|---|
+| `ip` | IPv4/IPv6 address | — | required |
+| `range` | `15m` \| `1h` \| `24h` | `15m` | `15m` = live 1-second series. `1h`/`24h` are answered from the box-side minute-resolution history (`step_sec` 60) — 24h costs ~12 MB RAM on the box, nothing is streamed off it. `current` rates and `ongoing_attack` stay live-resolution on every range. Unknown values fall back to `15m`. |
 
 ```jsonc
 {
@@ -239,13 +246,16 @@ Full per-destination analysis for one address — current rates, a per-second ti
     "attached": true,
     "blackholed": false,
     "auto_blackhole": false,
+    "blackhole_remaining_sec": -1,   // seconds until the blackhole lapses; -1 = indefinite (only meaningful when blackholed)
+    "range": "15m",                  // echoes the served range — "15m" | "1h" | "24h"
     "current": { "pps": 48200, "bps": 385600000, "dps": 12000 },
-    "step_sec": 1,
+    "step_sec": 1,                   // 60 when range is 1h/24h
     "series": [ { "t": 1754325100, "pps": 46000, "bps": 368000000, "dps": 11500 } ],
     "windows": {
       "1m":  { "peak_pps": 51000, "avg_pps": 44000, "peak_bps": 408000000, "avg_bps": 352000000, "drops": 1820000 },
       "5m":  { "...": "same shape" },
       "15m": { "...": "same shape" }
+      // range=1h answers windows 1h; range=24h answers windows 1h + 24h
     },
     "attacks": [ { "start": 1754321000, "end": 1754321600, "type": "udp_flood", "peak_pps": 480000, "verdict": "mitigated" } ],
     "ongoing_attack": false
@@ -345,6 +355,23 @@ curl -X POST ... .../control/blacklist/clear
 ```
 
 Responses mirror the whitelist ones.
+
+### Tenant blackhole
+
+Engage or lift a tenant blackhole on a destination IP — while active, **all** traffic to that destination is dropped at XDP (established sessions keep their grace window; see `blackhole.*` in the config reference).
+
+```bash
+# Engage (seconds optional; 0 or omitted = indefinite until removed)
+curl -X POST ... -d '{"ip":"203.0.113.10","seconds":600}' .../control/blackhole
+# Lift
+curl -X DELETE ... -d '{"ip":"203.0.113.10"}' .../control/blackhole
+```
+
+```jsonc
+{ "success": true, "ip": "203.0.113.10", "blackholed": true, "seconds": 600 }
+```
+
+The same operations exist on the TUI socket (`blackhole_add` / `blackhole_remove`), the CLI (`openshield blackhole add <ip> --seconds N`), and the DstIP Analyzer tab (`b` key: permanent / 5m / 10m / 1h / 6h / custom 1s–30d). Live blackhole state per destination is on `GET /metrics/dstip?ip=` (`blackholed`, `auto_blackhole`, `blackhole_remaining_sec`).
 
 ### Geo blocking
 
