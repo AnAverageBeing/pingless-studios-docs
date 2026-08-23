@@ -65,6 +65,10 @@ features:
     details: Free, minimal XDP (eBPF) firewall for Linux 5.15+. One XDP program, one Go binary, one YAML config — per-IP rate limiting, auto-ban, live TUI, Discord alerts.
     link: /liteshield-xdp/
   -
+    title: 🎮 GameFilter XDP
+    details: Per-game, protocol-validating XDP filter in all-Rust (aya-ebpf + aya). Only packets that provably speak the protocol assigned to each port reach your game servers — MC Java/Bedrock, Geyser, FiveM, Source engine, SSH — with sliding admissions, failure-to-ban escalation, and an HTTP API.
+    link: /gamefilter-xdp/
+  -
     title: 🚀 NitroCord
     details: Velocity-compatible Minecraft proxy with built-in attack prevention. Kernel ipset firewall, TCP fingerprinting, anti-bot verification, anti-VPN/GeoIP, attack-mode adaptation — drop-in plugin compatible.
     link: /nitrocord/

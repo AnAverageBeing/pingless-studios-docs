@@ -55,6 +55,11 @@ Free, minimal XDP (eBPF) firewall for Linux 5.15+. One XDP program, one Go binar
 
 [Documentation →](/liteshield-xdp/) · [GitHub →](https://github.com/AnAverageBeing/LiteShield-XDP)
 
+## 🎮 GameFilter XDP
+Per-game, protocol-validating XDP filter written fully in Rust (aya-ebpf kernel program + aya userspace). It sits on the private NIC in front of your game servers and only lets through packets that provably speak the protocol assigned to each port — built-in validators for Minecraft Java/Bedrock, Geyser, FiveM, Source engine (CS2/CS:GO), and SSH, plus generic TCP/UDP fallbacks. Sources that validate once are admitted on a sliding TTL; repeated failures temp-ban the source in kernel. Managed entirely over a token-authenticated HTTP API or CLI, with hot config reload and OpenShield-XDP list sync.
+
+[Documentation →](/gamefilter-xdp/) · [GitHub →](https://github.com/AnAverageBeing/GameFilter-XDP)
+
 ## 🚀 NitroCord
 Velocity-compatible Minecraft proxy with built-in, license-gated attack prevention — kernel ipset firewall, TCP fingerprinting, anti-bot verification, anti-VPN/GeoIP, packet flood scoring, null-ping-proof MOTD caching, exploit filters, and an attack-mode engine that adapts the whole proxy under load. Drop-in replacement for Velocity: all plugins work unchanged.
 

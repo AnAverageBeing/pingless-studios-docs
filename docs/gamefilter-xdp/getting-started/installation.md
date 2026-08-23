@@ -144,7 +144,7 @@ curl -H "Authorization: Bearer <key>" http://127.0.0.1:9300/health
 ```
 
 ```json
-{"status":"ok","generated_at":1755931200,"version":"0.1.0","api_uptime_seconds":312,"loaded":true}
+{"status":"ok","generated_at":1755931200,"version":"1.0.0","api_uptime_seconds":312,"loaded":true}
 ```
 
 A quick end-to-end proof: ping a Bedrock filter port with a crafted RakNet

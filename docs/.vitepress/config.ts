@@ -28,6 +28,7 @@ export default withMermaid({
       { text: 'GitHub', link: 'https://github.com/AnAverageBeing' },
       { text: 'Bandwidth', link: '/bandwidth-manager/' },
       { text: 'L7 Proxy', link: '/openshield-l7/' },
+      { text: 'GameFilter', link: '/gamefilter-xdp/' },
     ],
 
     sidebar: [
@@ -909,6 +910,42 @@ export default withMermaid({
             { text: 'Overview', link: '/openshield-l7/architecture/overview' },
             { text: 'Transparent Client IP', link: '/openshield-l7/architecture/transparent-ip' },
             { text: 'Testing & Benchmarks', link: '/openshield-l7/architecture/testing' },
+          ]
+        },
+      ]
+    },
+    {
+      text: 'GameFilter XDP',
+      collapsed: true,
+      items: [
+        {
+          text: 'Getting Started',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/gamefilter-xdp/' },
+            { text: 'Installation', link: '/gamefilter-xdp/getting-started/installation' },
+          ]
+        },
+        {
+          text: 'Configuration',
+          collapsed: true,
+          items: [
+            { text: 'Reference', link: '/gamefilter-xdp/configuration/reference' },
+          ]
+        },
+        {
+          text: 'User Guide',
+          collapsed: true,
+          items: [
+            { text: 'CLI Reference', link: '/gamefilter-xdp/user-guide/cli' },
+            { text: 'HTTP API', link: '/gamefilter-xdp/user-guide/api' },
+          ]
+        },
+        {
+          text: 'Architecture',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/gamefilter-xdp/architecture/overview' },
           ]
         },
       ]
