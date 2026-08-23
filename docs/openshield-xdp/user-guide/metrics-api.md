@@ -81,6 +81,7 @@ All errors are JSON: `{ "error": "..." }`. A 403 from a `/control/*` path with b
 | `/metrics/schedule` | GET | Active suppression windows |
 | `/metrics/dstips` | GET | Tracked destination IPs overview: tracked count + top-5 destinations by current pps |
 | `/metrics/dstip?ip=<addr>[&range=15m\|1h\|24h]` | GET | Full per-destination analysis: registry/blackhole flags (with remaining seconds), current rates, per-second series (minute-resolution on 1h/24h), windows, attack history |
+| `/metrics/setup` | GET | Pending "what's new" setup questions introduced by recent releases (the dashboard popup source) |
 
 The sub-endpoints wrap their payload in `{ "generated_at": <unix>, "data": ... }` (schedule uses `"schedule"` instead of `"data"`). They require the same auth as `/metrics` and work regardless of `control_enabled`.
 
@@ -263,6 +264,34 @@ Full per-destination analysis for one address — current rates, a time series, 
 }
 ```
 
+### `/metrics/setup`
+
+Pending "what's new" setup questions introduced by recent releases — the exact list the terminal prompt, `openshield setup`, and the xdp.network dashboard popup all render from. When an update adds a config value that deserves a user decision, it appears here until answered; unanswered questions run their safe default and never block the firewall.
+
+```jsonc
+{
+  "generated_at": 1754325123,
+  "data": {
+    "version": "2.19.3",
+    "pending": 1,
+    "questions": [
+      {
+        "id": "nic_tuning_hardware",     // stable id — the answer key
+        "since": "2.19.3",               // version that introduced it
+        "field": "dynamic.nic_tuning_hardware",
+        "kind": "bool",                  // "bool" | "choice" | "string" | "int"
+        "title": "Enable hardware-tier NIC tuning (queue/ring changes)?",
+        "description": "Queue-count and ring-buffer changes fully RESET the NIC…",
+        "options": [],                   // kind=choice only
+        "default": false                 // the safe value running right now
+      }
+    ]
+  }
+}
+```
+
+Answer via `POST /control/setup/answer` (below), `openshield setup` on the box, or the interactive prompt on the next `openshield load`. Answered questions disappear from `pending` everywhere and are recorded on the box (`/var/lib/openshield/setup-state.json`).
+
 <a id="control_api_warning"></a>
 ## ⚠️ Control API — read this before enabling
 
@@ -372,6 +401,20 @@ curl -X DELETE ... -d '{"ip":"203.0.113.10"}' .../control/blackhole
 ```
 
 The same operations exist on the TUI socket (`blackhole_add` / `blackhole_remove`), the CLI (`openshield blackhole add <ip> --seconds N`), and the DstIP Analyzer tab (`b` key: permanent / 5m / 10m / 1h / 6h / custom 1s–30d). Live blackhole state per destination is on `GET /metrics/dstip?ip=` (`blackholed`, `auto_blackhole`, `blackhole_remaining_sec`).
+
+### Setup answers
+
+Apply one "what's new" setup answer — the same effect as answering the terminal prompt or `openshield setup`. Get the pending list from `GET /metrics/setup`.
+
+```bash
+curl -X POST ... -d '{"id":"nic_tuning_hardware","value":true}' .../control/setup/answer
+```
+
+```jsonc
+{ "success": true, "applied": "nic_tuning_hardware" }
+```
+
+Answers go through the same runtime config path as `POST /control/config` (hot-applied, persisted, audit-logged). Unknown ids, wrong value kinds, and validation failures return an error and leave the question pending for a retry.
 
 ### Geo blocking
 
