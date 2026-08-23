@@ -11,8 +11,8 @@ Trash Bin Pro gives game-server owners the safety net every desktop OS has had f
 
 <div class="tip custom-block" style="margin-top: 1.5rem;">
 
-**Built for PingLess Studios by [AnAverageBeing](https://github.com/AnAverageBeing)**
-[GitHub Repo](https://github.com/AnAverageBeing/pterodactyl-trash-bin-pro) · [Studio](https://studio.pingless.org)
+**Built for ALTIS TECH SOLUTIONS by [AnAverageBeing](https://github.com/AnAverageBeing)**
+[GitHub Repo](https://github.com/AnAverageBeing/pterodactyl-trash-bin-pro) · [Studio](https://xdp.network)
 
 </div>
 

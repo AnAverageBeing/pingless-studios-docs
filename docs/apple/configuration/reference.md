@@ -156,7 +156,7 @@ Version marker written on every hub load. Never accepted from input; safe to ign
 | `info.identifier` | `apple` | Unique ID (lowercase, no hyphens) |
 | `info.version` | `1.0.0` | SemVer |
 | `info.target` | `beta-2026-05` | Blueprint build target |
-| `info.author` | `Pingless.org (AnAverageBeing)` | Author |
+| `info.author` | `xdp.network (AnAverageBeing)` | Author |
 | `info.icon` | `icon.svg` | Extension list icon |
 | `admin.view` | `admin/view.blade.php` | Settings hub partial |
 | `admin.controller` | `admin/controller.php` | Settings hub controller |

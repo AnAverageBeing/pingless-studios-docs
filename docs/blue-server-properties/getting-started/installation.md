@@ -6,7 +6,7 @@ description: Install Blue Server Properties Editor — Blueprint, standalone man
 # Installation
 
 Blue Server Properties Editor supports **three** install paths — more than any
-other PingLess panel addon:
+other XDP.Network panel addon:
 
 | Path | When to use |
 |---|---|

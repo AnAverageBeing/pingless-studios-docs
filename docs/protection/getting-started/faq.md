@@ -7,7 +7,7 @@ description: Common questions about Protection Plus — DDoS scope, false positi
 
 ## Does it stop inbound DDoS attacks against my node?
 
-**No.** Protection Plus is *egress* protection: it stops your **customers** from attacking other people — outbound floods, port scans, miners, Tor exits. Mitigating inbound attacks aimed at your nodes is the job of your XDP firewall / upstream layer (see the PingLess XDP firewall). The two are complementary: one keeps abuse out, the other keeps your IPs clean.
+**No.** Protection Plus is *egress* protection: it stops your **customers** from attacking other people — outbound floods, port scans, miners, Tor exits. Mitigating inbound attacks aimed at your nodes is the job of your XDP firewall / upstream layer (see the XDP.Network firewall). The two are complementary: one keeps abuse out, the other keeps your IPs clean.
 
 ## Will it flag my game servers as miners or floods?
 

@@ -9,8 +9,8 @@ description: A family of 46 standalone addons for Pterodactyl Panel v1.12.x plus
 
 <div class="tip custom-block" style="margin-top: 1.5rem;">
 
-**Built for PingLess Studios**
-[studio.pingless.org](https://studio.pingless.org) · Standalone packages, installed directly on the panel
+**Built for ALTIS TECH SOLUTIONS**
+[xdp.network](https://xdp.network) · Standalone packages, installed directly on the panel
 
 </div>
 
@@ -158,9 +158,9 @@ Glacier compatibility applies to **client-facing** surfaces only (server pages, 
 
 <div class="footer-note">
 
-**Developed for [PingLess Studios](https://studio.pingless.org)**
+**Developed for [ALTIS TECH SOLUTIONS](https://xdp.network)**
 
-Questions or licensing — reach us at [studio.pingless.org](https://studio.pingless.org).
+Questions or licensing — reach us at [xdp.network](https://xdp.network).
 
 </div>
 

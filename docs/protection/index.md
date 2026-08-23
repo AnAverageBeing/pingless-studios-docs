@@ -18,7 +18,7 @@ It watches every process, connection, container, archive and uploaded file on th
 
 <div class="tip custom-block" style="margin-top: 1.5rem;">
 
-**🛡️ Built for PingLess Studios by [AnAverageBeing](https://github.com/AnAverageBeing)**  
+**🛡️ Built for ALTIS TECH SOLUTIONS by [AnAverageBeing](https://github.com/AnAverageBeing)**  
 [GitHub Repo](https://github.com/AnAverageBeing/protection) · `MIT License` · runs as the system command `protection`
 
 </div>
@@ -197,7 +197,7 @@ Set `general.mode` (or pick it in the installer) to scope what Protection Plus a
 
 <div class="footer-note">
 
-**Developed by [AnAverageBeing](https://github.com/AnAverageBeing) for [PingLess Studios](https://github.com/AnAverageBeing)**
+**Developed by [AnAverageBeing](https://github.com/AnAverageBeing) for [ALTIS TECH SOLUTIONS](https://github.com/AnAverageBeing)**
 
 For hosting operators who'd rather sleep at night. · `MIT License`
 

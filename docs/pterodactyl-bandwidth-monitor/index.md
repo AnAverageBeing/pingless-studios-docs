@@ -16,8 +16,8 @@ head:
 
 <div class="tip custom-block" style="margin-top: 1.5rem;">
 
-**📡 Built for PingLess Studios**  
-[studio.pingless.org](https://studio.pingless.org) · Panel addon + node agent, installed separately
+**📡 Built for ALTIS TECH SOLUTIONS**  
+[xdp.network](https://xdp.network) · Panel addon + node agent, installed separately
 
 </div>
 
@@ -142,9 +142,9 @@ Both halves were verified end-to-end on a real Pterodactyl panel and Wings node:
 
 <div class="footer-note">
 
-**Developed for [PingLess Studios](https://studio.pingless.org)**
+**Developed for [ALTIS TECH SOLUTIONS](https://xdp.network)**
 
-Questions or licensing — reach us at [studio.pingless.org](https://studio.pingless.org).
+Questions or licensing — reach us at [xdp.network](https://xdp.network).
 
 </div>
 

@@ -316,7 +316,7 @@ info:
   flags: ""
   version: "1.2.0"
   target: "beta-2026-06"
-  author: "PingLess"
+  author: "XDP.Network"
   website: ""
 ```
 

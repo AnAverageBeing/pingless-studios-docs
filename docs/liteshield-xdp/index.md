@@ -18,7 +18,7 @@ LiteShield sits at the earliest possible point in the Linux networking stack and
 
 <div class="tip custom-block" style="margin-top: 1.5rem;">
 
-**🛡️ Built for PingLess Studios by [AnAverageBeing](https://github.com/AnAverageBeing)**  
+**🛡️ Built for ALTIS TECH SOLUTIONS by [AnAverageBeing](https://github.com/AnAverageBeing)**  
 [GitHub Repo](https://github.com/AnAverageBeing/LiteShield-XDP) · `MIT License`
 
 </div>
@@ -174,7 +174,7 @@ flowchart TD
 
 <div class="footer-note">
 
-**Developed by [AnAverageBeing](https://github.com/AnAverageBeing) for [PingLess Studios](https://github.com/pingless-studios)**
+**Developed by [AnAverageBeing](https://github.com/AnAverageBeing) for [ALTIS TECH SOLUTIONS](https://github.com/pingless-studios)**
 
 Crafted with ❤️ and one very opinionated `XDP_DROP`.  
 If this project saves you from a 3 AM flood, consider starring the repo.

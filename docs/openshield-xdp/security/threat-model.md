@@ -222,7 +222,7 @@ sysctl -w kernel.randomize_va_space=2
 
 ## Reporting Vulnerabilities
 
-See [SECURITY.md](https://studio.pingless.org/security) for full disclosure policy.
+See [SECURITY.md](https://xdp.network) for full disclosure policy.
 
 - **Private reports**: Discord DM or GitHub private vulnerability reporting
 - **Scope**: XDP program logic, userspace loader, control protocol

@@ -11,8 +11,8 @@ Blue Plugin Installer adds a **Plugin Installer** tab to every server's sidebar.
 
 <div class="tip custom-block" style="margin-top: 1.5rem;">
 
-**Built for PingLess Studios by [AnAverageBeing](https://github.com/AnAverageBeing)**
-[GitHub Repo](https://github.com/AnAverageBeing/blue-plugin-installer) · [Studio](https://studio.pingless.org)
+**Built for ALTIS TECH SOLUTIONS by [AnAverageBeing](https://github.com/AnAverageBeing)**
+[GitHub Repo](https://github.com/AnAverageBeing/blue-plugin-installer) · [Studio](https://xdp.network)
 
 </div>
 

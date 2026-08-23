@@ -11,8 +11,8 @@ Blue Server Properties Editor adds a **Server Properties** tab to every server's
 
 <div class="tip custom-block" style="margin-top: 1.5rem;">
 
-**Built for PingLess Studios by [AnAverageBeing](https://github.com/AnAverageBeing)**
-[GitHub Repo](https://github.com/AnAverageBeing/blue-server-properties) · [Studio](https://studio.pingless.org)
+**Built for ALTIS TECH SOLUTIONS by [AnAverageBeing](https://github.com/AnAverageBeing)**
+[GitHub Repo](https://github.com/AnAverageBeing/blue-server-properties) · [Studio](https://xdp.network)
 
 </div>
 

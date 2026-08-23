@@ -11,7 +11,7 @@ One binary (`openshield-l7`), one global config file, one YAML file per proxied 
 
 <div class="tip custom-block" style="margin-top: 1.5rem;">
 
-**🛡️ Built for PingLess Studios by [AnAverageBeing](https://github.com/AnAverageBeing)**
+**🛡️ Built for ALTIS TECH SOLUTIONS by [AnAverageBeing](https://github.com/AnAverageBeing)**
 [GitHub Repo](https://github.com/AnAverageBeing/openshield-l7) (currently private) · `MIT License`
 
 </div>

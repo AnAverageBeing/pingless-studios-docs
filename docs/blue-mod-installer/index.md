@@ -11,8 +11,8 @@ Blue Mod Installer adds a **Mod Installer** tab to every server's sidebar. Users
 
 <div class="tip custom-block" style="margin-top: 1.5rem;">
 
-**Built for PingLess Studios by [AnAverageBeing](https://github.com/AnAverageBeing)**
-[GitHub Repo](https://github.com/AnAverageBeing/blue-mod-installer) · [Studio](https://studio.pingless.org)
+**Built for ALTIS TECH SOLUTIONS by [AnAverageBeing](https://github.com/AnAverageBeing)**
+[GitHub Repo](https://github.com/AnAverageBeing/blue-mod-installer) · [Studio](https://xdp.network)
 
 </div>
 

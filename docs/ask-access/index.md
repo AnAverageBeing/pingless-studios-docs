@@ -11,8 +11,8 @@ Instead of owners manually digging through the Subusers page and guessing which 
 
 <div class="tip custom-block" style="margin-top: 1.5rem;">
 
-**Built for PingLess Studios by [AnAverageBeing](https://github.com/AnAverageBeing)**
-[GitHub Repo](https://github.com/AnAverageBeing/Ask-Access) · [Studio](https://studio.pingless.org)
+**Built for ALTIS TECH SOLUTIONS by [AnAverageBeing](https://github.com/AnAverageBeing)**
+[GitHub Repo](https://github.com/AnAverageBeing/Ask-Access) · [Studio](https://xdp.network)
 
 </div>
 

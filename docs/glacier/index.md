@@ -16,8 +16,8 @@ head:
 
 <div class="tip custom-block" style="margin-top: 1.5rem;">
 
-**❄️ Built for PingLess Studios**
-[studio.pingless.org](https://studio.pingless.org) · Single `.blueprint` package, installed on the panel
+**❄️ Built for ALTIS TECH SOLUTIONS**
+[xdp.network](https://xdp.network) · Single `.blueprint` package, installed on the panel
 
 </div>
 
@@ -116,9 +116,9 @@ Every surface was verified on a real Pterodactyl 1.12 panel during development: 
 
 <div class="footer-note">
 
-**Developed for [PingLess Studios](https://studio.pingless.org)**
+**Developed for [ALTIS TECH SOLUTIONS](https://xdp.network)**
 
-Questions or licensing — reach us at [studio.pingless.org](https://studio.pingless.org).
+Questions or licensing — reach us at [xdp.network](https://xdp.network).
 
 </div>
 

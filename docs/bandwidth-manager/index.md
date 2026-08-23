@@ -18,7 +18,7 @@ Stop guessing which container is saturating your uplink. Bandwidth Manager gives
 
 <div class="tip custom-block" style="margin-top: 1.5rem;">
 
-**🎯 Built for PingLess Studios by [AnAverageBeing](https://github.com/AnAverageBeing)**  
+**🎯 Built for ALTIS TECH SOLUTIONS by [AnAverageBeing](https://github.com/AnAverageBeing)**  
 [GitHub Repo](https://github.com/AnAverageBeing/Bandwidth-flow-maintainer) · `MIT License`
 
 </div>
@@ -179,7 +179,7 @@ flowchart TD
 
 <div class="footer-note">
 
-**Developed by [AnAverageBeing](https://github.com/AnAverageBeing) for [PingLess Studios](https://github.com/pingless-studios)**
+**Developed by [AnAverageBeing](https://github.com/AnAverageBeing) for [ALTIS TECH SOLUTIONS](https://github.com/pingless-studios)**
 
 Crafted with ❤️ and lots of `tc filter add dev …` commands.  
 If this project saves you from a 3 AM pager, consider starring the repo.

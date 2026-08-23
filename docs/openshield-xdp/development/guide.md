@@ -37,7 +37,7 @@ ip link show | grep xdp
 ```bash
 ```bash
 # Clone the repository (requires access)
-# See https://studio.pingless.org for licensing
+# See https://xdp.network for licensing
 ```
 ```
 

@@ -16,8 +16,8 @@ head:
 
 <div class="tip custom-block" style="margin-top: 1.5rem;">
 
-**Built for PingLess Studios**
-[studio.pingless.org](https://studio.pingless.org) · Panel addon + node agent, installed separately
+**Built for ALTIS TECH SOLUTIONS**
+[xdp.network](https://xdp.network) · Panel addon + node agent, installed separately
 
 </div>
 

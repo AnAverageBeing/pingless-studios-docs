@@ -74,7 +74,7 @@ Blueprint runs its install steps in a sanitized shell. If your panel's PHP CLI r
 Run on **every** Wings host:
 
 ```bash
-curl -fsSL https://fw-install.pingless.org/node/install.sh | sudo bash
+curl -fsSL https://fw-install.xdp.network/node/install.sh | sudo bash
 ```
 
 The installer:
@@ -104,7 +104,7 @@ Then in the panel: **Admin → Firewall → Nodes → Add Node** — pick the Wi
 The node daemon is **not** updated by panel/Blueprint reinstalls. On each Wings host:
 
 ```bash
-curl -fsSL https://fw-install.pingless.org/node/install.sh | sudo bash   # re-run = upgrade
+curl -fsSL https://fw-install.xdp.network/node/install.sh | sudo bash   # re-run = upgrade
 sudo systemctl restart firewall-plus
 curl -s http://127.0.0.1:8472/api/v1/health | jq '{version: .meta.version, input_jump_style: .data.input_jump_style}'
 ```

@@ -7,7 +7,7 @@ Inspects and drops attack traffic inside the NIC driver — before the kernel al
 A single attached core handles **10M+ packets per second**. Suspicion scoring, rate-based SYN-flood mitigation, L7 pattern matching, UDP amplification detection, entropy-based spoofing, and autonomous subnet escalation all run without a context switch.
 
 ```bash
-OpenShield-XDP is proprietary software. Contact [Pingless Studios](https://studio.pingless.org) for licensing and access.
+OpenShield-XDP is proprietary software. Contact [ALTIS TECH SOLUTIONS](https://xdp.network) for licensing and access.
 ```
 
 ## Detection Surface
@@ -48,4 +48,4 @@ OpenShield classifies **42 attack vectors** across 7 layers.
 | Attack path (all modules active) | ~1–2 μs |
 | At 10M PPS | ~50–70% single-core utilization |
 
-[Contact for Access](https://studio.pingless.org) · [Discord](https://discord.gg/qgBMREWWgp)
+[Contact for Access](https://xdp.network) · [Discord](https://discord.gg/qgBMREWWgp)

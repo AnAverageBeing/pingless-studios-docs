@@ -38,7 +38,7 @@ Branding, theme, messages, and the license key.
 | `license-key` | string | `""` (empty) | Your commercial license key, format `PL-XXXX-...`, as issued by the Altis dashboard after purchase. Verified online and cryptographically cached for offline grace; binds one activation seat to this server's hostname. **Required** — the proxy refuses to start without a valid key. |
 
 ::: danger Keep your license key private
-Treat `license-key` like a password: it activates seats on your account. Never share the file, commit it to a public repository, or post it in support chats — share the key itself only with PingLess Studios support when asked.
+Treat `license-key` like a password: it activates seats on your account. Never share the file, commit it to a public repository, or post it in support chats — share the key itself only with ALTIS TECH SOLUTIONS support when asked.
 :::
 
 ### [theme]

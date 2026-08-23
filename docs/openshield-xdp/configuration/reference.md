@@ -184,8 +184,8 @@ whitelist:
 | `telemetry.top_offenders_count` | `int` | `20` | `1` – `1000` | Top N IPs shown in TUI/stats | 🔄 |
 | `telemetry.log_level` | `string` | `"info"` | `debug` / `info` / `warn` / `error` | Log verbosity | 🔄 |
 | `telemetry.snapshot_interval` | `int` | `1` | `1` – `60` | Seconds between stat snapshots | 🔄 |
-| `telemetry.attack_share` | `bool` | `false` | `true` / `false` | Share anonymized attack fingerprints with PingLess after attacks (type/rates/duration/port classes/source count — never IPs) | 🔄 |
-| `telemetry.attack_share_endpoint` | `string` | `""` | URL | Override fingerprint endpoint (empty = PingLess telemetry on the license server) | 🔄 |
+| `telemetry.attack_share` | `bool` | `false` | `true` / `false` | Share anonymized attack fingerprints with XDP.Network after attacks (type/rates/duration/port classes/source count — never IPs) | 🔄 |
+| `telemetry.attack_share_endpoint` | `string` | `""` | URL | Override fingerprint endpoint (empty = XDP.Network telemetry on the license server) | 🔄 |
 
 ## `updates` — Auto-Update Channel (v2.16+)
 
@@ -377,7 +377,7 @@ Full guide: [Geo Blocking](/openshield-xdp/user-guide/geo-blocking).
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `license.key` | `string` | `""` | License key from your Altis dashboard (`PL-XXXX-XXXX-XXXX-XXXX`) |
-| `license.server_url` | `string` | `"https://pingless-license-system.vercel.app"` | License server base URL (override for self-hosting) |
+| `license.server_url` | `string` | `"https://pingless-license-system-9q61c496h-pingless1.vercel.app"` | License server base URL (override for self-hosting) |
 | `license.product_slug` | `string` | `"openshield-xdp"` | Product slug registered in the Altis dashboard |
 | `license.public_key` | `string` | (embedded) | Ed25519 public key for offline signature verification |
 | `license.cache_path` | `string` | `"/var/lib/openshield/license.json"` | Local cache of the last successful license response |

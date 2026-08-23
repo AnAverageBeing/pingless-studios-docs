@@ -264,4 +264,4 @@ This stops and disables the service, removes the `tc` rules the agent created fr
 
 - Open **Admin → Bandwidth → Settings** to set default speeds and day/week/month quotas — these prefill the bandwidth fields on every new server's build configuration.
 - Per-server overrides live under **Admin → Bandwidth → Servers**.
-- Questions or issues: [studio.pingless.org](https://studio.pingless.org).
+- Questions or issues: [xdp.network](https://xdp.network).

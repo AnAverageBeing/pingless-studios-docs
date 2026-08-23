@@ -5,7 +5,7 @@ description: How NitroCord licensing works for buyers — where to buy, activati
 
 # Licensing
 
-NitroCord is a commercial product sold by PingLess Studios. **A valid license key is required to run the proxy at all** — there is no free/community mode. This page covers everything you need to know as a buyer; the only configuration involved is pasting one line.
+NitroCord is a commercial product sold by ALTIS TECH SOLUTIONS. **A valid license key is required to run the proxy at all** — there is no free/community mode. This page covers everything you need to know as a buyer; the only configuration involved is pasting one line.
 
 ## What the license does
 
@@ -59,7 +59,7 @@ Protection Enabled
   ✔ Reconnect Verification
   ... (every enabled protection is listed)
 
-For support: contact pingless.org on Discord or an.average.being on BuiltByBit, or join the Discord server discord-studio.pingless.org
+For support: contact xdp.network on Discord or an.average.being on BuiltByBit, or join the Discord server xdp.network/discord
 ```
 
 From then on the proxy re-validates your key every 6 hours in the background — you never have to touch it again.

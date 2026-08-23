@@ -271,7 +271,7 @@ For advanced features (baseline learning, attack forensics, 42 detection vectors
 
 <div class="footer-note">
 
-**Benchmarked by [AnAverageBeing](https://github.com/AnAverageBeing) for [PingLess Studios](https://github.com/pingless-studios)**
+**Benchmarked by [AnAverageBeing](https://github.com/AnAverageBeing) for [ALTIS TECH SOLUTIONS](https://github.com/pingless-studios)**
 
 Test methodology: hping3 --flood on veth pair, 10s per test, generic XDP mode.
 Results may vary based on hardware, kernel version, and NIC capabilities.

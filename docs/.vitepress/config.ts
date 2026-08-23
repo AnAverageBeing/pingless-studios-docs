@@ -1,7 +1,7 @@
 import { withMermaid } from 'vitepress-plugin-mermaid'
 
 export default withMermaid({
-  title: 'PingLess Studios',
+  title: 'XDP.Network by ALTIS TECH SOLUTIONS',
   description: 'Open-source infrastructure tools',
   base: '/pingless-studios-docs/',
   lang: 'en-US',
@@ -16,8 +16,8 @@ export default withMermaid({
     ['link', { rel: 'icon', type: 'image/png', href: '/pingless-studios-docs/pingles.png' }],
     ['meta', { name: 'theme-color', content: '#89b4fa' }],
     ['meta', { property: 'og:type', content: 'website' }],
-    ['meta', { property: 'og:title', content: 'PingLess Studios Docs' }],
-    ['meta', { property: 'og:site_name', content: 'PingLess Studios' }],
+    ['meta', { property: 'og:title', content: 'XDP.Network Docs' }],
+    ['meta', { property: 'og:site_name', content: 'XDP.Network by ALTIS TECH SOLUTIONS' }],
   ],
 
   themeConfig: {
@@ -959,7 +959,7 @@ export default withMermaid({
     ],
 
     footer: {
-      message: 'Made by pingless.org — <a href="https://studio.pingless.org">PingLess Studios</a>',
+      message: 'Made by <a href="https://xdp.network">XDP.Network</a> — ALTIS TECH SOLUTIONS',
     },
 
     search: { provider: 'local' },

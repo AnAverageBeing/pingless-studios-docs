@@ -2,19 +2,19 @@
 layout: home
 
 hero:
-  name: "PingLess Studios"
+  name: "ALTIS TECH SOLUTIONS"
   text: "Open-source infrastructure & security"
   tagline: High-performance tools for servers, networks, and applications
   image:
     src: /pingles.png
-    alt: PingLess Studios
+    alt: ALTIS TECH SOLUTIONS
   actions:
     - theme: brand
       text: Explore Projects
       link: /projects/
     - theme: alt
       text: Contact Us
-      link: https://studio.pingless.org
+      link: https://xdp.network
     - theme: alt
       text: GitHub
       link: https://github.com/AnAverageBeing
@@ -114,9 +114,9 @@ features:
     link: /blue-server-properties/
   -
     title: 📡 More Coming Soon
-    details: PingLess Studios is actively developing new infrastructure and security tools. Follow on GitHub for updates.
+    details: ALTIS TECH SOLUTIONS is actively developing new infrastructure and security tools. Follow on GitHub for updates.
     link: https://github.com/AnAverageBeing
 
 footer:
-  message: "© 2025-2026 PingLess Studios — <a href='https://studio.pingless.org'>studio.pingless.org</a>"
+  message: "© 2025-2026 ALTIS TECH SOLUTIONS — <a href='https://xdp.network'>xdp.network</a>"
 ---

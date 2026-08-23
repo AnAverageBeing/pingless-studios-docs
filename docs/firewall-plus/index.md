@@ -11,8 +11,8 @@ Firewall-Plus gives every game server its own iptables chains and ipsets, manage
 
 <div class="tip custom-block" style="margin-top: 1.5rem;">
 
-**Built for PingLess Studios by [AnAverageBeing](https://github.com/AnAverageBeing)**
-[GitHub Repo](https://github.com/AnAverageBeing/pterodactyl-firewall-plus) · [Studio](https://studio.pingless.org)
+**Built for ALTIS TECH SOLUTIONS by [AnAverageBeing](https://github.com/AnAverageBeing)**
+[GitHub Repo](https://github.com/AnAverageBeing/pterodactyl-firewall-plus) · [Studio](https://xdp.network)
 
 </div>
 
@@ -89,7 +89,7 @@ php artisan migrate --force
 **Each Wings node:**
 
 ```bash
-curl -fsSL https://fw-install.pingless.org/node/install.sh | sudo bash
+curl -fsSL https://fw-install.xdp.network/node/install.sh | sudo bash
 curl -s http://127.0.0.1:8472/api/v1/health
 ```
 

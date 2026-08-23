@@ -1,6 +1,6 @@
 ---
 title: NitroCord
-description: Minecraft proxy with built-in attack prevention — a Velocity fork by PingLess Studios
+description: Minecraft proxy with built-in attack prevention — a Velocity fork by ALTIS TECH SOLUTIONS
 head:
   - - meta
     - name: og:title
