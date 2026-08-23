@@ -60,6 +60,7 @@ curl "http://127.0.0.1:9100/metrics/baseline?key=osk_1a2b3c..."
 | 403 | Source IP not in `metrics.whitelist`, **or** control API disabled |
 | 405 | Wrong HTTP method for the path |
 | 429 | Rate limit exceeded |
+| 501 | `/metrics/setup` provider not initialized in this build |
 | 503 | Section not available in this build |
 
 All errors are JSON: `{ "error": "..." }`. A 403 from a `/control/*` path with body `{ "error": "control API disabled (metrics.control_enabled: false)" }` means the gate is off.
@@ -76,8 +77,12 @@ All errors are JSON: `{ "error": "..." }`. A 403 from a `/control/*` path with b
 | `/metrics/autofetch` | GET | Blocklist auto-fetcher status |
 | `/metrics/access` | GET | Whitelist + blacklist entries |
 | `/metrics/targets` | GET | Top destination IPs by current rate — "which VPS IP is being attacked" on dedicated hosts. Each target carries a per-IP state (`normal` / `elevated` / `under_attack`) on multi-IP dedicated hosts (v2.12.0+, see `tenant.mode`) |
+| `/metrics/attached` | GET | Attached-IP registry summary: auto/manual/pool counts + cumulative reaps (v2.17+) |
+| `/metrics/blackhole` | GET | Tenant-blackhole status: active entries with origin/expiry, exemption count, kernel drop counter (v2.17+) |
+| `/metrics/egress` | GET | TC egress policer status + cumulative verdict counters (v2.18+, opt-in) |
 | `/metrics/forensics` | GET | Forensics storage: dir, size vs cap, collecting/halted state, cleanup counters |
-| `/metrics/ovh` | GET | OVH edge-mitigation module: mode, protected IPs, rules pushed/removed, rate-limit hits |
+| `/metrics/edge` | GET | Edge-mitigation module status (provider-aware) — the current name of the endpoint below |
+| `/metrics/ovh` | GET | Legacy alias of `/metrics/edge` — serves the identical payload |
 | `/metrics/schedule` | GET | Active suppression windows |
 | `/metrics/dstips` | GET | Tracked destination IPs overview: tracked count + top-5 destinations by current pps |
 | `/metrics/dstip?ip=<addr>[&range=15m\|1h\|24h]` | GET | Full per-destination analysis: registry/blackhole flags (with remaining seconds), current rates, per-second series (minute-resolution on 1h/24h), windows, attack history |
@@ -106,6 +111,28 @@ Highlights of what's inside:
 - **`behavior`** — `enabled`, `auto_block`, live clusters (`state`, `confidence`, `reasons` like "machine-paced timing"), and learned per-port baselines.
 - **`attacks`** — up to 50 recent attack records: peak/avg/p95 pps, IPs involved, protocol mix, `forensics_dir`.
 - **`config`** — flat `key = value` map of the active mitigation config. License keys, webhook URLs and other secrets are excluded by construction.
+
+Every top-level key in `snapshot`:
+
+| Key | Contents |
+|-----|----------|
+| `timestamp` | snapshot build time (unix) |
+| `global` | current/total rates — the proof-of-mitigation pair |
+| `attack` | attack state machine (state, thresholds, `contained`) |
+| `bans` / `top_offenders` | active ban count + recent entries; per-IP rates/suspicion |
+| `traffic` | per-protocol rates, peaks, `top_ports`, per-second history series |
+| `system` | loader `version`, `kernel`, `uptime`, `interface`, `xdp_mode` |
+| `maps` | BPF map occupancy |
+| `prof` | kernel per-drop-path counters |
+| `recent_events` / `logs` | latest loader events and log lines |
+| `attack_timeline` | state transitions, newest first |
+| `panic` | circuit-breaker state |
+| `license` | `tier`, `hwid`, `expires_at` (`error` when invalid) |
+| `alerter` | webhook delivery health — same shape as `/metrics/alerter` |
+| `attached` | registry summary — same shape as `/metrics/attached` |
+| `blackhole` | blackhole status — same shape as `/metrics/blackhole` |
+| `egress` | policer counters — same shape as `/metrics/egress` |
+| `dstip` | tracked-destination summary — same shape as `/metrics/dstips` |
 
 ### `/metrics/baseline`
 
@@ -209,6 +236,52 @@ TC egress policer status (v2.18+; all zeros with `active: false` while the opt-i
 ```
 
 Counters are cumulative since attach, summed over the policer's per-CPU stats map.
+
+### `/metrics/attached`
+
+Attached-IP registry summary (v2.17+) — which destination IPs the host has learned or been told are its own. Informational: it gates auto-blackhole eligibility and feeds the TUI IPs tab.
+
+```jsonc
+{
+  "generated_at": 1754325123,
+  "data": {
+    "attached_total": 12,        // all entries (auto + manual)
+    "attached_auto": 9,          // learned from traffic + local-address sweeps
+    "attached_manual": 3,        // operator-added (never reaped)
+    "attached_pools": 1,         // attached CIDR pools
+    "attached_reaped_total": 41  // cumulative auto-entry reaps (idle ≥ registry.inactive_days)
+  }
+}
+```
+
+### `/metrics/blackhole`
+
+Tenant-blackhole status (v2.17+): every active entry, where it came from, when it lapses, plus the exemption count and the kernel's cumulative drop counter.
+
+```jsonc
+{
+  "generated_at": 1754325123,
+  "data": {
+    "active": [
+      { "address": "203.0.113.10", "auto": false, "seconds_remaining": -1 }
+    ],
+    "active_total": 1,
+    "auto_events_total": 3,
+    "blackhole_dropped_total": 18322014,  // cumulative XDP drops, all time
+    "exempt_sources": 2                   // live (dst, src) grace exemptions
+  }
+}
+```
+
+`auto: true` marks entries from the auto-blackhole trigger vs operator-added ones; `seconds_remaining: -1` = indefinite. Engage/lift via `POST|DELETE /control/blackhole`; per-destination state also shows in `/metrics/dstip?ip=`.
+
+### `/metrics/edge`
+
+Edge-mitigation module status (provider-aware — OVH today): `enabled` from config, `running` while the syncer is up, plus provider-specific rule/rate-limit counters when running. `/metrics/ovh` is the legacy alias and serves the identical payload.
+
+```jsonc
+{ "generated_at": 1754325123, "data": { "enabled": true, "running": false } }
+```
 
 ### `/metrics/dstips`
 
@@ -396,9 +469,7 @@ curl -X POST ... -d '{"ip":"203.0.113.10","seconds":600}' .../control/blackhole
 curl -X DELETE ... -d '{"ip":"203.0.113.10"}' .../control/blackhole
 ```
 
-```jsonc
-{ "success": true, "ip": "203.0.113.10", "blackholed": true, "seconds": 600 }
-```
+Both return `{ "success": true, "ip": "203.0.113.10" }` — confirm current state via `GET /metrics/blackhole` or `GET /metrics/dstip?ip=` (`blackholed`, `blackhole_remaining_sec`).
 
 The same operations exist on the TUI socket (`blackhole_add` / `blackhole_remove`), the CLI (`openshield blackhole add <ip> --seconds N`), and the DstIP Analyzer tab (`b` key: permanent / 5m / 10m / 1h / 6h / custom 1s–30d). Live blackhole state per destination is on `GET /metrics/dstip?ip=` (`blackholed`, `auto_blackhole`, `blackhole_remaining_sec`).
 
