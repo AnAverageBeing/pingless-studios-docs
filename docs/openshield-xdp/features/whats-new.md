@@ -1,6 +1,35 @@
-# What's New — v2.0 to v2.19.0
+# What's New — v2.0 to v2.19.3
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.19.3 — CONTAINED state, analyzer blackhole popup, safer NIC tuning
+
+- **CONTAINED badge** — attack state is arrival-based by design (banned
+  sources still blasting the NIC keep attack time accruing), but a red
+  UNDER ATTACK banner while every packet is being dropped reads as a
+  false alarm. When an attack is active and ≥85% of arriving traffic is
+  being dropped (EMA-smoothed), the TUI shows an amber `[~~] CONTAINED`
+  badge instead — flood still arriving, fully mitigated. The classifier,
+  caps, attack records and webhook reports are untouched. API:
+  `snapshot.attack.contained`.
+- **DstIP Analyzer: blackhole popup** (key `b`) — blackhole the analyzed
+  destination right from the analyzer: Permanent / 5m / 10m / 1h / 6h /
+  Custom (single-unit `30s`–`30d` or compounds like `1h30m`). The Status
+  panel now also shows the blackhole's remaining time
+  (`blackhole_remaining_sec` in the API; -1 = indefinite).
+- **NIC tuning split into safe vs hardware tiers** — queue-count
+  (`ethtool -L`) and ring-buffer (`ethtool -G`) changes fully reset the
+  NIC and can hang some driver/firmware combos hard enough to need
+  IPMI. They now sit behind `dynamic.nic_tuning_hardware` (default off)
+  and the wizard offers them only via a separate, explicitly-warned
+  confirm. The safe tier (coalescing, IRQ spread, qdisc, txqueuelen,
+  LRO) never resets the device.
+- **RHEL-family polish**: the CLI now also links into `/usr/sbin`, so
+  `openshield` is found even in root shells entered via `sudo su`
+  (sudo's secure_path on RHEL/Alma excludes /usr/local/bin).
+- **Analyzer long ranges** (from 2.19.2): `/metrics/dstip?ip=&range=1h|24h`
+  answers from a box-side minute-resolution history — 24h of per-tenant
+  history at ~12 MB RAM, no external storage.
 
 ## v2.19.0 — per-port connection caps, geo enforce modes, DstIP Analyzer
 
