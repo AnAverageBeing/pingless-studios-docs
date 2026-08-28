@@ -73,7 +73,7 @@ curl -H "Authorization: Bearer gf_9f2c…" http://127.0.0.1:9300/health
 {
   "status": "ok",
   "generated_at": 1755931200,
-  "version": "1.2.0",
+  "version": "1.2.1",
   "api_uptime_seconds": 312,
   "loaded": true
 }
@@ -96,7 +96,7 @@ curl -H "Authorization: Bearer gf_9f2c…" http://127.0.0.1:9300/api/v1/metrics
     "xdp_mode": "native",
     "mode": "dedicated",
     "loaded_at": 1755924000,
-    "version": "1.2.0"
+    "version": "1.2.1"
   },
   "counters": {
     "passed": 128412,
