@@ -1,6 +1,6 @@
 ---
 title: HTTP API
-description: GameFilter XDP management API — token auth, per-IP rate limiting, and every endpoint (health, stats, filters, admissions, lists, config, reload, whitelist/blacklist) with curl examples and JSON responses.
+description: GameFilter XDP management API — token auth, per-IP rate limiting, live tenant management, and every endpoint (health, stats, metrics, tenants, filters, admissions, lists, config, reload, whitelist/blacklist) with curl examples and JSON responses.
 ---
 
 # HTTP API
@@ -53,8 +53,9 @@ All errors are JSON with an HTTP status code:
 | 400 | Bad request (invalid IP, `default_action` not `drop`/`pass`, `api_key` shorter than 8 chars) |
 | 401 | Missing or invalid API key |
 | 403 | Source IP not in `api.whitelist` |
-| 404 | Unknown endpoint |
+| 404 | Unknown endpoint or tenant/filter not found |
 | 405 | Method not allowed |
+| 409 | Filter name conflict |
 | 429 | Rate limit exceeded |
 | 500 | Internal error (e.g. pinned maps missing because the filter isn't loaded) |
 
@@ -72,245 +73,254 @@ curl -H "Authorization: Bearer gf_9f2c…" http://127.0.0.1:9300/health
 {
   "status": "ok",
   "generated_at": 1755931200,
-  "version": "1.0.0",
+  "version": "1.2.0",
   "api_uptime_seconds": 312,
   "loaded": true
 }
 ```
 
+## `GET /api/v1/metrics`
+
+Real-time 1s sampler output with current/peak rates, 5-minute history, counters, tenants, and filters.
+
+```bash
+curl -H "Authorization: Bearer gf_9f2c…" http://127.0.0.1:9300/api/v1/metrics
+```
+
+```json
+{
+  "generated_at": 1755931200,
+  "loaded": true,
+  "system": {
+    "interface": "vmbr0",
+    "xdp_mode": "native",
+    "mode": "dedicated",
+    "loaded_at": 1755924000,
+    "version": "1.2.0"
+  },
+  "counters": {
+    "passed": 128412,
+    "dropped": 984012,
+    "validated_ok": 1240,
+    "validated_fail": 980000,
+    "admitted_hits": 127172,
+    "banned": 45
+  },
+  "rates": {
+    "pass_pps": 850,
+    "drop_pps": 42000,
+    "validated_ok_per_sec": 2,
+    "validated_fail_per_sec": 41998,
+    "peak_pass_pps": 1500,
+    "peak_drop_pps": 90000
+  },
+  "history": [
+    { "ts": 1755931199, "pass_pps": 845, "drop_pps": 41800 }
+  ],
+  "tenants": [
+    { "ip": "10.210.0.2", "label": "Minecraft VPS" }
+  ],
+  "filters": [ … ],
+  "lists": {
+    "whitelisted": 2,
+    "blacklisted": 5,
+    "tenants_count": 1
+  },
+  "admissions": {
+    "active": 340
+  },
+  "api_uptime_seconds": 312
+}
+```
+
 ## `GET /api/v1/stats`
 
-Global + per-filter counters, list sizes, and active admission count. This is the same snapshot `gamefilter status --json` prints.
+Global counters + tenants + per-filter counters + list sizes, and active admission count. This is the same snapshot `gamefilter status --json` prints.
 
 ```bash
 curl -H "Authorization: Bearer gf_9f2c…" http://127.0.0.1:9300/api/v1/stats
 ```
 
+---
+
+## Tenant Endpoints (Multi-Tenant / Dedicated Mode)
+
+In `mode: dedicated`, only enrolled destination IPs are inspected. Un-enrolled destination IPs bypass filtering instantly with `XDP_PASS`.
+
+### `GET /api/v1/tenants`
+
+List all enrolled tenant destination IPs.
+
+```bash
+curl -H "Authorization: Bearer gf_9f2c…" http://127.0.0.1:9300/api/v1/tenants
+```
+
 ```json
 {
-  "loaded": true,
   "generated_at": 1755931200,
-  "system": {
-    "interface": "eth1",
-    "xdp_mode": "native",
-    "loaded_at": 1755924000,
-    "version": "1.0.0"
-  },
-  "global": {
-    "passed": 128412,
-    "dropped": 9033,
-    "validated_ok": 4210,
-    "validated_fail": 8801,
-    "admitted_hits": 120244,
-    "banned": 17
-  },
-  "filters": [
-    {
-      "slot": 0,
-      "name": "mc-java",
-      "protocol": "tcp",
-      "ports": "25565",
-      "validator": "mc_java",
-      "passed": 52100,
-      "dropped": 1200,
-      "validated_ok": 2400,
-      "validated_fail": 1200,
-      "admitted_hits": 49700,
-      "banned": 9
-    }
-  ],
-  "lists": { "whitelisted": 2, "blacklisted": 26 },
-  "admissions": { "active": 4312 }
+  "mode": "dedicated",
+  "count": 2,
+  "enrolled_in_kernel": 2,
+  "tenants": [
+    { "ip": "10.210.0.2", "label": "Minecraft VPS" },
+    { "ip": "10.210.0.3", "label": "FiveM VPS" }
+  ]
 }
 ```
 
-## `GET /api/v1/filters`
+### `POST /api/v1/tenants`
 
-Just the filter table with counters (the `filters` array from stats):
+Enroll a destination IP live into the kernel's `TENANTS_MAP` and persist to YAML.
+
+```bash
+curl -X POST -H "Authorization: Bearer gf_9f2c…" -H "Content-Type: application/json" \
+  -d '{"ip": "10.210.0.4", "label": "CS2 Server"}' \
+  http://127.0.0.1:9300/api/v1/tenants
+```
+
+```json
+{
+  "enrolled": "10.210.0.4",
+  "label": "CS2 Server",
+  "persisted": true,
+  "mode": "dedicated"
+}
+```
+
+### `GET /api/v1/tenants/{ip}`
+
+View enrollment status and label for a specific IP.
+
+```bash
+curl -H "Authorization: Bearer gf_9f2c…" http://127.0.0.1:9300/api/v1/tenants/10.210.0.2
+```
+
+### `DELETE /api/v1/tenants/{ip}`
+
+Un-enroll a destination IP live. Traffic to this IP will now immediately bypass filtering without requiring a reload or restart.
+
+```bash
+curl -X DELETE -H "Authorization: Bearer gf_9f2c…" \
+  http://127.0.0.1:9300/api/v1/tenants/10.210.0.4
+```
+
+```json
+{
+  "unenrolled": "10.210.0.4",
+  "persisted": true,
+  "mode": "dedicated"
+}
+```
+
+### `GET /api/v1/tenants/{ip}/admissions`
+
+View active player/source admissions specifically targeting this tenant destination IP.
+
+```bash
+curl -H "Authorization: Bearer gf_9f2c…" http://127.0.0.1:9300/api/v1/tenants/10.210.0.2/admissions
+```
+
+---
+
+## Filter Endpoints
+
+### `GET /api/v1/filters`
+
+Active filter table with per-filter counters:
 
 ```bash
 curl -H "Authorization: Bearer gf_9f2c…" http://127.0.0.1:9300/api/v1/filters
 ```
 
-```json
-{
-  "generated_at": 1755931200,
-  "filters": [
-    { "slot": 0, "name": "mc-java", "protocol": "tcp", "ports": "25565", "validator": "mc_java",
-      "passed": 52100, "dropped": 1200, "validated_ok": 2400, "validated_fail": 1200,
-      "admitted_hits": 49700, "banned": 9 }
-  ]
-}
-```
+### `POST /api/v1/filters`
 
-## `GET /api/v1/admissions`
-
-Live admitted sources with remaining TTL. Expired entries are filtered out. Sources admitted under the fragment any-rule marker show `"filter": "any"`.
-
-```bash
-curl -H "Authorization: Bearer gf_9f2c…" http://127.0.0.1:9300/api/v1/admissions
-```
-
-```json
-{
-  "generated_at": 1755931200,
-  "count": 2,
-  "admissions": [
-    { "ip": "203.0.113.50", "filter": "mc-bedrock", "remaining_seconds": 287 },
-    { "ip": "203.0.113.50", "filter": "any", "remaining_seconds": 287 }
-  ]
-}
-```
-
-## `GET /api/v1/lists`
-
-Current whitelist and blacklist contents (including synced and kernel-added temp-bans):
-
-```bash
-curl -H "Authorization: Bearer gf_9f2c…" http://127.0.0.1:9300/api/v1/lists
-```
-
-```json
-{
-  "generated_at": 1755931200,
-  "whitelist": ["203.0.113.10"],
-  "blacklist": ["198.51.100.7", "192.0.2.44"]
-}
-```
-
-## `GET /api/v1/config`
-
-Read the running config. Both API keys (`api.api_key` and `sync.openshield.api_key`) are masked:
-
-```bash
-curl -H "Authorization: Bearer gf_9f2c…" http://127.0.0.1:9300/api/v1/config
-```
-
-```json
-{
-  "generated_at": 1755931200,
-  "config": {
-    "interface": "eth1",
-    "xdp_mode": "auto",
-    "enabled": true,
-    "default_action": "drop",
-    "filters": [ … ],
-    "whitelist": [],
-    "blacklist": [],
-    "sync": { "openshield": { "enabled": false, "mode": "api", "url": "http://127.0.0.1:9100",
-                              "api_key": "***", "file": "/var/lib/openshield/lists.json", "interval_sec": 15 } },
-    "api": { "enabled": true, "listen": "127.0.0.1:9300", "api_key": "***",
-             "rate_limit_per_sec": 10, "whitelist": [] }
-  }
-}
-```
-
-## `POST /api/v1/config`
-
-Partial patch — only the fields you send are changed. The result is persisted to the YAML and hot-applied to the running filter.
+Add a filter to the running engine live.
 
 ```bash
 curl -X POST -H "Authorization: Bearer gf_9f2c…" -H "Content-Type: application/json" \
-  -d '{"default_action": "pass"}' \
-  http://127.0.0.1:9300/api/v1/config
+  -d '{
+    "name": "fivem",
+    "protocol": "udp",
+    "ports": ["30120"],
+    "validator": "fivem",
+    "min_size": 9,
+    "max_size": 1500,
+    "admission_ttl_sec": 600,
+    "ban_sec": 300,
+    "max_failures": 8
+  }' \
+  http://127.0.0.1:9300/api/v1/filters
 ```
 
-```json
-{
-  "applied": true,
-  "persisted": true,
-  "hot_applied": true,
-  "config": { … }
-}
-```
+### `PATCH /api/v1/filters/{name}`
 
-Patchable fields (all optional):
-
-| Field | Type | Notes |
-| ----- | ---- | ----- |
-| `enabled` | bool | Global kill switch |
-| `default_action` | string | Must be `drop` or `pass` (`400` otherwise) |
-| `filters` | array | **Replaces the whole filter list** |
-| `api.rate_limit_per_sec` | int | |
-| `api.whitelist` | array | Replaces the API source allowlist |
-| `api.api_key` | string | Min 8 characters (`400` otherwise) |
-
-`hot_applied: false` means the patch was saved but the kernel push failed (e.g. filter not loaded) — check the daemon logs.
-
-## `POST /api/v1/reload`
-
-Re-read the YAML from disk and hot-apply it — the API twin of `gamefilter reload`.
+Update fields (e.g. widen a port range live without restart):
 
 ```bash
-curl -X POST -H "Authorization: Bearer gf_9f2c…" http://127.0.0.1:9300/api/v1/reload
+curl -X PATCH -H "Authorization: Bearer gf_9f2c…" -H "Content-Type: application/json" \
+  -d '{"ports": ["27015-27060"]}' \
+  http://127.0.0.1:9300/api/v1/filters/source-engine
 ```
 
-```json
-{"reloaded": true}
-```
+### `DELETE /api/v1/filters/{name}`
 
-## `POST /api/v1/whitelist`
-
-```bash
-curl -X POST -H "Authorization: Bearer gf_9f2c…" -H "Content-Type: application/json" \
-  -d '{"ip": "203.0.113.10"}' \
-  http://127.0.0.1:9300/api/v1/whitelist
-```
-
-```json
-{"added": "203.0.113.10", "list": "WHITELIST"}
-```
-
-## `DELETE /api/v1/whitelist/{ip}`
-
-```bash
-curl -X DELETE -H "Authorization: Bearer gf_9f2c…" \
-  http://127.0.0.1:9300/api/v1/whitelist/203.0.113.10
-```
-
-```json
-{"removed": "203.0.113.10", "list": "WHITELIST"}
-```
-
-## `POST /api/v1/blacklist`
-
-`duration` is in seconds; omit it (or send `0`) for a permanent ban.
-
-```bash
-curl -X POST -H "Authorization: Bearer gf_9f2c…" -H "Content-Type: application/json" \
-  -d '{"ip": "198.51.100.7", "duration": 3600}' \
-  http://127.0.0.1:9300/api/v1/blacklist
-```
-
-```json
-{"added": "198.51.100.7", "list": "BLACKLIST"}
-```
-
-## `DELETE /api/v1/blacklist/{ip}`
-
-```bash
-curl -X DELETE -H "Authorization: Bearer gf_9f2c…" \
-  http://127.0.0.1:9300/api/v1/blacklist/198.51.100.7
-```
-
-```json
-{"removed": "198.51.100.7", "list": "BLACKLIST"}
-```
+Delete a filter rule live.
 
 ---
 
-## Endpoint summary
+## Configuration Endpoints
+
+### `GET /api/v1/config`
+
+Read active config with secret keys masked.
+
+### `POST /api/v1/config`
+
+Partial patch applied live and persisted:
+
+```bash
+curl -X POST -H "Authorization: Bearer gf_9f2c…" -H "Content-Type: application/json" \
+  -d '{"mode": "dedicated", "default_action": "pass"}' \
+  http://127.0.0.1:9300/api/v1/config
+```
+
+### `POST /api/v1/reload`
+
+Re-read `/etc/gamefilter/gamefilter.yaml` from disk and hot-apply it incrementally.
+
+---
+
+## List Endpoints
+
+### `GET /api/v1/lists`
+
+View current whitelist, blacklist, and enrolled tenant keys.
+
+### `POST /api/v1/whitelist` / `DELETE /api/v1/whitelist/{ip}`
+
+Add or remove whitelist IPs.
+
+### `POST /api/v1/blacklist` / `DELETE /api/v1/blacklist/{ip}`
+
+Add (`{"ip":"1.2.3.4", "duration":3600}`) or remove blacklist IPs.
+
+---
+
+## Endpoint Summary
 
 | Path | Method | Description |
 | ---- | ------ | ----------- |
 | `/health` | GET | Liveness, version, loaded flag |
 | `/api/v1/stats` | GET | Global + per-filter counters, list sizes, admissions |
-| `/api/v1/filters` | GET | Active filter table with counters |
-| `/api/v1/admissions` | GET | Live admitted sources with remaining TTL |
-| `/api/v1/lists` | GET | Whitelist + blacklist entries |
+| `/api/v1/metrics` | GET | 1s rate sampler, peaks, 5-min history, counters |
+| `/api/v1/tenants` | GET / POST | List enrolled tenant IPs / enroll new IP |
+| `/api/v1/tenants/{ip}` | GET / DELETE | View tenant status / un-enroll IP |
+| `/api/v1/tenants/{ip}/admissions` | GET | View live admitted players to this tenant |
+| `/api/v1/filters` | GET / POST | Active filter table / add filter live |
+| `/api/v1/filters/{name}` | GET / PATCH / DELETE | Granular filter inspection / update / delete |
+| `/api/v1/admissions` | GET | Live admitted sources across all tenants |
+| `/api/v1/lists` | GET | Whitelist + blacklist + tenant entries |
 | `/api/v1/config` | GET / POST | Read (secrets masked) / partial patch, hot-applied |
 | `/api/v1/reload` | POST | Re-read the YAML and hot-apply |
-| `/api/v1/whitelist` | POST | Add `{ip}` |
-| `/api/v1/whitelist/{ip}` | DELETE | Remove |
-| `/api/v1/blacklist` | POST | Add `{ip, duration?}` |
-| `/api/v1/blacklist/{ip}` | DELETE | Remove |
+| `/api/v1/whitelist[/{ip}]` | POST / DELETE | Manage whitelist |
+| `/api/v1/blacklist[/{ip}]` | POST / DELETE | Manage blacklist (`{"ip","duration"}`) |

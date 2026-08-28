@@ -13,7 +13,12 @@ Every value below is optional — missing keys fall back to the defaults shown. 
 interface: eth1
 xdp_mode: auto
 enabled: true
-default_action: drop
+mode: dedicated
+default_action: pass
+
+tenants:
+  - ip: "10.210.0.2"
+    label: "Minecraft VPS"
 
 filters:
   - name: mc-java
@@ -59,11 +64,11 @@ api:
 | Type | string |
 | Default | `"eth1"` |
 
-The interface the XDP program attaches to. This must be the **private NIC** facing your game servers, not the public edge.
+The interface the XDP program attaches to. This can be a **private NIC** (e.g. `eth1`) or a **VM bridge** (e.g. `vmbr0` / `br0`) facing your game servers / guest VPSes, behind OpenShield on the physical uplink.
 
-**When to change:** always, at install — the installer auto-detects from your default route and asks.
+**When to change:** always, at install — the installer auto-detects from your default route / bridges and asks.
 
-**Common mistakes:** attaching to the public interface (GameFilter is designed to run behind an edge firewall like OpenShield-XDP), or attaching to the interface you SSH through without an `ssh` filter or whitelist entry.
+**Common mistakes:** attaching to the public interface where OpenShield is already running (Linux only allows one native XDP program per interface).
 
 ### `xdp_mode`
 
@@ -74,7 +79,27 @@ The interface the XDP program attaches to. This must be the **private NIC** faci
 
 Reserved. The loader currently always behaves as `auto`: it attempts a **native** (driver) attach first and falls back to **generic** (SKB) mode if the NIC driver rejects it. The mode actually used is recorded in `/var/lib/gamefilter/state.json` and shown by `gamefilter status`.
 
-**Common mistakes:** assuming you can force a mode here — you can't yet; the value is parsed but not consulted.
+### `mode`
+
+| | |
+|---|---|
+| Type | string (`"dedicated"` \| `"vps"`) |
+| Default | `"vps"` |
+
+The operating mode for destination IP matching:
+- **`dedicated` (Multi-Tenant / Proxmox):** ONLY destination IPs listed under `tenants:` (or enrolled via REST API) are filtered. All other destination IPs on the bridge bypass filtering instantly with `XDP_PASS` (100% transparent and safe for web/DB/general VPSes).
+- **`vps` (Single-Server / Standalone):** Filters all incoming traffic on the interface regardless of destination IP.
+
+**When to change:** use `dedicated` on hypervisors / dedicated servers hosting multiple guest VPSes with different workloads. Use `vps` on a dedicated game server box or single-purpose VPS.
+
+### `tenants`
+
+| | |
+|---|---|
+| Type | list of `{ ip: string, label?: string }` |
+| Default | `[]` |
+
+The list of enrolled tenant destination IPs in `mode: dedicated`. Each entry declares an IP that should be protected by the filter rules. Can be updated live via the REST API (`/api/v1/tenants`) or `gamefilter reload`.
 
 ### `enabled`
 

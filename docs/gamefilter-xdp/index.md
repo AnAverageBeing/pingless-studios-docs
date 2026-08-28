@@ -7,23 +7,45 @@ description: Per-game, protocol-validating XDP (eBPF) firewall filter in Rust �
 
 Per-game, protocol-validating XDP filter — all Rust (aya-ebpf kernel program, aya userspace).
 
-GameFilter XDP sits on the **private NIC** between your edge firewall and your game servers. Every port a game listens on gets a filter; a packet only reaches the server if it **provably speaks that game's protocol**. Sources that pass validation once are admitted for a sliding TTL, so real players never notice the filter — and random flood garbage aimed at a game port dies in the NIC driver.
+GameFilter XDP sits on the **private NIC** or **VM bridge (`vmbr0` / `br0`)** between your edge firewall (such as [OpenShield-XDP](/openshield-xdp/)) and your game servers / guest VPSes. Every port a game listens on gets a filter; a packet only reaches the server if it **provably speaks that game's protocol**. Sources that pass validation once are admitted for a sliding TTL, so real players never notice the filter — and random flood garbage aimed at a game port dies in the NIC driver.
 
 There are **no pps knobs**. Instead of guessing how many packets per second a "legit" client sends, GameFilter checks what the packet *is*: magic bytes at exact offsets, frame-length consistency, payload size bounds. A 10M pps UDP flood of random payloads to your Minecraft port is simply not RakNet — it is dropped on the first packet, and repeated failures temp-ban the source.
+
+## Topologies & Modes
+
+GameFilter supports two operating modes:
+- **`mode: dedicated` (Multi-Tenant / Proxmox / Dedicated Server):** ONLY destination IPs enrolled under `tenants:` (or via the REST API) are inspected. All other destination IPs on the bridge bypass filtering instantly with `XDP_PASS` (100% transparent and safe for web, DB, and general guest VPSes).
+- **`mode: vps` (Single Server / Standalone):** Inspects all traffic arriving on the interface regardless of destination IP.
+
+```
+Internet ──► Physical NIC (eno1) ──► OpenShield-XDP (Volumetric Anti-DDoS)
+                    │ (Clean Traffic)
+                    ▼
+             VM Bridge (vmbr0) ──► GameFilter-XDP (Per-Game Protocol Validation)
+                    │
+       ┌────────────┴────────────┬────────────────────────┐
+       ▼                         ▼                        ▼
+Guest VPS A (Minecraft)   Guest VPS B (FiveM)     Guest VPS C (Web/DB)
+[Enrolled: mc_java]       [Enrolled: fivem]       [Un-enrolled: 100% Bypassed]
+```
 
 ## How It Works
 
 ```mermaid
 flowchart TD
-    P["Packet arrives<br/>(private NIC, XDP hook)"] --> WL{"Source in<br/>WHITELIST?"}
+    P["Packet arrives<br/>(vmbr0 / private NIC, XDP hook)"] --> WL{"Source in<br/>WHITELIST?"}
     WL -->|"yes"| PASS1["XDP_PASS<br/>(full bypass)"]
     WL -->|"no"| BL{"Source in<br/>BLACKLIST?"}
     BL -->|"permanent or unexpired"| DROP1["XDP_DROP"]
-    BL -->|"no / expired"| OWN{"Destination port<br/>owned by a filter?"}
+    BL -->|"no / expired"| MODE{"mode: dedicated?"}
+    MODE -->|"yes"| TENANT{"Destination IP<br/>in TENANTS_MAP?"}
+    TENANT -->|"no (un-enrolled VPS)"| BYPASS["XDP_PASS<br/>(instant safe bypass)"]
+    TENANT -->|"yes"| OWN{"Destination port<br/>owned by a filter?"}
+    MODE -->|"no (vps mode)"| OWN
     OWN -->|"no"| DEF{"default_action"}
     DEF -->|"drop"| DROP2["XDP_DROP"]
     DEF -->|"pass"| PASS2["XDP_PASS"]
-    OWN -->|"yes"| ADM{"Source admitted<br/>for this rule?<br/>(sliding TTL)"}
+    OWN -->|"yes"| ADM{"Source admitted<br/>for (src, dst, rule)?<br/>(sliding TTL)"}
     ADM -->|"yes"| PASS3["XDP_PASS<br/>TTL refreshed"]
     ADM -->|"no"| VAL["Protocol validator<br/>magic bytes · framing · size bounds"]
     VAL -->|"valid"| ADMIT["XDP_PASS + admit source<br/>for admission_ttl_sec"]
@@ -35,16 +57,16 @@ flowchart TD
 
 ## Features
 
-- **Protocol proof, not rate guessing** — validators check exact protocol structure (magic offsets, varint frame-length consistency), not just ports
-- **7 built-in validators** — `mc_java`, `raknet` (Bedrock/MCPE/Geyser), `fivem`, `source_engine` (CS2/CS:GO), `ssh_banner`, plus `tcp_generic` / `udp_generic` size-bounds fallbacks
-- **Sliding admission TTL** — a source that validates once is admitted per (source, rule); every further packet refreshes the window, so established players take the fast path
-- **Failure → temp-ban escalation** — `max_failures` invalid packets inside a 60-second window bans the source for `ban_sec`, enforced in kernel
-- **Flexible port ownership** — single ports (`"25565"`), lists, and ranges (`"27015-27050"`), up to 64 filters
-- **Whitelist / blacklist** — permanent or timed entries, managed live from the CLI or HTTP API without a reload
-- **OpenShield-XDP list sync** — mirrors OpenShield's whitelist/blacklist into the kernel maps (adds *and* removals), via its API, a JSON export file, or a direct read of its pinned ban maps
-- **HTTP management API** — token-authenticated, per-IP rate-limited; stats, filters, admissions, lists, config read/patch, hot reload. No TUI by design
-- **Hot config reload** — `gamefilter reload` re-pushes rules, port ownership, and the global config into the pinned maps without detaching
-- **Fail-open by design** — non-IP or unparseable traffic is passed; only traffic to filter-owned ports is ever at risk of a drop
+- **Multi-Tenant / Proxmox ready** — `mode: dedicated` inspects only enrolled tenant destination IPs; general VPSes bypass instantly with zero risk of breaking web or database workloads.
+- **Protocol proof, not rate guessing** — validators check exact protocol structure (magic offsets, varint frame-length consistency), not just ports.
+- **7 built-in validators** — `mc_java`, `raknet` (Bedrock/MCPE/Geyser), `fivem`, `source_engine` (CS2/CS:GO), `ssh_banner`, plus `tcp_generic` / `udp_generic` size-bounds fallbacks.
+- **Sliding admission TTL** — a source that validates once is admitted per `(src_ip, dst_ip, rule)`; every further packet refreshes the window, so established players take the fast path.
+- **Failure → temp-ban escalation** — `max_failures` invalid packets inside a 60-second window bans the source for `ban_sec`, enforced in kernel.
+- **Flexible port ownership** — single ports (`"25565"`), lists, and ranges (`"27015-27050"`), up to 64 filters.
+- **Whitelist / blacklist** — permanent or timed entries, managed live from the CLI or HTTP API without a reload.
+- **OpenShield-XDP list sync** — mirrors OpenShield's whitelist/blacklist into the kernel maps (adds *and* removals), via its API, a JSON export file, or a direct read of its pinned ban maps.
+- **HTTP management API** — token-authenticated, per-IP rate-limited; stats, metrics sampler, live tenant enrollment, filters, admissions, lists, config read/patch, hot reload. No TUI by design.
+- **Blip-free hot reload** — delta-only port map updates, in-place rule writes, and admissions preserved for unchanged rules.
 
 ## Quick Install
 
@@ -53,10 +75,10 @@ flowchart TD
 sudo ./install.sh
 ```
 
-The installer checks your kernel (5.15+ with BTF), asks which interface to filter (the **private** one), writes `/etc/gamefilter/gamefilter.yaml`, and enables the systemd loader + API services. See [Installation](./getting-started/installation) for the full walkthrough.
+The installer auto-detects your environment (Bare Metal / Proxmox VE / KVM), suggests your bridge (e.g. `vmbr0`), prompts for deployment mode (`dedicated` vs `vps`), writes `/etc/gamefilter/gamefilter.yaml`, and starts the systemd services.
 
 ```bash
-sudo gamefilter status     # per-filter counters
+sudo gamefilter status     # view status, mode & protected tenants
 sudo gamefilter key        # show API URL + key
 ```
 
@@ -78,24 +100,17 @@ SYN/ACK packets carry no payload and pass unvalidated — but they never admit a
 
 ## vs. Generic Rate-Limit Firewalls
 
-GameFilter is a complement to rate-limiting firewalls like [OpenShield-XDP](/openshield-xdp/), not a replacement — run OpenShield on the public edge and GameFilter on the private NIC in front of the game servers.
+GameFilter is a complement to rate-limiting firewalls like [OpenShield-XDP](/openshield-xdp/), not a replacement — run OpenShield on the public edge and GameFilter on the private NIC or bridge in front of the game servers.
 
 | | GameFilter XDP | Generic rate-limit firewall |
 | --- | --- | --- |
 | Decision basis | Protocol validity (magic bytes, framing, size bounds) | Packets/bytes per second per source |
+| Multi-tenant safety | Dedicated mode bypasses non-game VPS IPs instantly | Inspects/drops all traffic on port across host |
 | Tuning | Per-game payload bounds from documented protocol structure | Thresholds guessed from traffic baselines |
 | Random-payload flood to a game port | Dropped on the **first** packet (not valid protocol) | Dropped only after a rate threshold trips |
 | Legit player experience | Validated once, then admitted (sliding TTL fast path) | Counted against rate budgets forever |
 | Attacker with valid-looking low-rate traffic | Blocked unless packets are protocol-perfect | Invisible below the threshold |
-| Where it runs | Private NIC in front of game servers | Public edge |
+| Where it runs | Private NIC or VM bridge (`vmbr0`) | Public edge (`eno1`) |
 | Management | HTTP API + CLI, hot reload, OpenShield list sync | Varies |
-
-## Accuracy
-
-Validators check exact protocol structure, not just ports — absolute accuracy depends on correct per-game `min_size`/`max_size` tuning for your setup. The `fivem` ENet CONNECT check and Source-engine game-join bytes are marked UNVERIFIED upstream (only query formats are officially documented); if you hit false drops there, widen `validator` to `udp_generic` for that port and keep the size bounds tight. The byte-level basis of every validator, with sources, is in the project's `docs/protocol-research.md`.
-
-::: info Project status
-`license` and `update` are intentionally **not implemented yet** — all features are currently enabled and there is no license server. There is no TUI and no stats window; everything is managed through the HTTP API or CLI.
-:::
 
 [Installation →](./getting-started/installation) · [Configuration Reference →](./configuration/reference) · [HTTP API →](./user-guide/api) · [Architecture →](./architecture/overview)
