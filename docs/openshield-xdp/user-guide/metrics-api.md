@@ -410,12 +410,19 @@ All are POST unless noted, all require auth, all return `{ "error": "..." }` wit
 curl -X POST -H "Authorization: Bearer osk_..." -H "Content-Type: application/json" \
   -d '{"settings":{"static.enabled":true,"dynamic.global_pps_threshold":100000}}' \
   http://127.0.0.1:9100/control/config
+
+# burst-tolerant rate gating (v2.20.0+): tolerate 5s bursts, allow 6 empties/min
+curl -X POST -H "Authorization: Bearer osk_..." -H "Content-Type: application/json" \
+  -d '{"settings":{"dynamic.burst_allowance_sec":5,"dynamic.burst_max_per_min":6}}' \
+  http://127.0.0.1:9100/control/config
 ```
 
 New runtime-safe settings (same endpoint, hot-applied):
 
 - `dynamic.port_syn_pps` — per-destination-port new-connection/s cap (0 = off); excess SYNs to that port are dropped.
 - `geoip.enforce_mode` — `always` applies the geo country list at all times; `attack` only while an attack is declared.
+- `dynamic.burst_allowance_sec` — burst bucket depth (seconds of each per-IP rate threshold) before suspicion may score; 0 = legacy per-window scoring. Default 3.
+- `dynamic.burst_max_per_min` — bucket-empty windows tolerated per rolling minute before scoring starts; 0 = score on the first empty. Default 4.
 
 **`POST /control/reload`** (v2.18+) — hot reload over HTTP: re-reads `/etc/openshield/openshield.yaml`, validates it, and applies every runtime-safe setting through the exact same path as `openshield reload` (no restart, no re-attach). Edit the YAML by hand or from your own tooling, then:
 
