@@ -1,6 +1,25 @@
-# What's New — v2.0 to v2.19.4
+# What's New — v2.0 to v2.20.0
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.20.0 — burst-tolerant rate limiting
+
+- **Burst allowance for every per-IP rate threshold** (`dynamic.burst_allowance_sec`,
+  default 3s) — pps, bps, tcp, udp, icmp and syn thresholds now run on
+  window-granular token buckets instead of hard per-second windows: a
+  threshold-sized bucket refills every second and over-threshold traffic
+  drains it. Bursts up to N seconds of threshold are absorbed with **zero
+  suspicion** — Minecraft chunk downloads, login waves, NAT'd player groups,
+  backup/SFTP pushes — while sustained floods empty the bucket and score
+  exactly as before. `0` restores legacy per-window scoring.
+- **Per-minute burst grace** (`dynamic.burst_max_per_min`, default 4) —
+  bucket-empty windows only start scoring once a source passes this many
+  empties per rolling minute, so repeat-but-occasional bursts (world
+  downloads every few minutes) stay free too; sustained floods still accrue
+  score every window past the grace.
+- Everything hot-applies (`openshield reload`, TUI, `/control/config`).
+- New rig: `rig-burst-test` (short burst absorbed → sustained banned at the
+  allowance → legacy mode bans instantly) — the release gate is now 9 rigs.
 
 ## v2.19.4 — what's-new setup flow, autoload watchdog, access search
 

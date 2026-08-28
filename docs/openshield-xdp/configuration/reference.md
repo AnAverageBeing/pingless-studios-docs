@@ -117,6 +117,7 @@ validation:
 | `dynamic.spike_recovery_time` | `int` | `10` | `1` – `600` | Seconds below recovery factor before clearing | 🔄 |
 | `dynamic.attack_per_ip_pps` | `int` | `1000` | `0` – `1,000,000` | Hard per-source pps cap while an attack is active (0=off). Drops flooders at XDP instantly — rotating spoofed sources never live long enough to be scored | 🔄 |
 | `dynamic.attack_port_pps` | `int` | `10000` | `0` – `1,000,000` | Aggregate pps cap per destination port while an attack is active (0=off). Rotation-proof: throttles the attacked port as a whole regardless of how many source IPs the flood rotates through. Legit traffic on that port is throttled (not banned) until the attack clears | 🔄 |
+| `dynamic.port_syn_pps` | `int` | `0` | `0` – `1,000,000` | Per-destination-port new TCP connections/sec cap (0 = off; applies immediately) | 🔄 |
 | `dynamic.spike_recovery_factor` | `float64` | `0.7` | `0` – `1` | Fraction of spike threshold below which attack state clears (< 1.0) | 🔄 |
 | `dynamic.attack_trigger_time` | `int` | `3` | `1` – `60` | Consecutive seconds above threshold before attack state | 🔄 |
 | `dynamic.attack_max_duration` | `int` | `3600` | `0` – `86,400` | Hard cap on attack state seconds (0=disabled) | 🔄 |
@@ -135,11 +136,13 @@ validation:
 | `dynamic.attack_icmp_pps` | `int` | `1000` | `0` – `10,000,000` | Aggregate ICMP packets/sec cap while an attack is declared (0=off, default 1000). Legit ICMP is tens of pps | 🔄 |
 | `dynamic.attack_udp_pps` | `int` | `100000` | `0` – `100,000,000` | Aggregate UDP packets/sec cap (attack mode or early spike trigger; 0=off, default 100000). Carpet-bomb answer; protected sources exempt | 🔄 |
 | `dynamic.nic_tuning` | `bool` | `false` | `true` / `false` | Host-wide NIC tuning (throughput over latency; applies immediately) | 🔄 |
+| `dynamic.nic_tuning_hardware` | `bool` | `false` | `true` / `false` | Allow NIC-resetting tuning (queue/ring changes): the link flaps and some drivers can hang the host — maintenance windows only. Needs nic_tuning on | 🔄 |
+| `dynamic.burst_allowance_sec` | `int` | `3` | `0` – `60` | Seconds of burst each rate threshold tolerates before suspicion can score (0 = score every over-threshold window, legacy). Covers chunk downloads, login waves, NAT groups, backup pushes | 🔄 |
+| `dynamic.burst_max_per_min` | `int` | `4` | `0` – `1,000` | Bucket-empty windows tolerated per rolling minute before scoring starts (0 = score on the first empty). Repeat-but-occasional bursts (e.g. world downloads every few minutes) stay free below this | 🔄 |
 | `dynamic.udp_resp_enabled` | `bool` | `true` | `true` / `false` | Anti-amplification residual heuristic: sustained excess reply rates from privileged-sport sources lose the outbound-response exemption | 🔄 |
 | `dynamic.udp_resp_factor` | `int` | `4` | `2` – `64` | Sustained rate above factor × early rate counts as excess | 🔄 |
 | `dynamic.udp_resp_window_sec` | `int` | `10` | `2` – `300` | Consecutive excess seconds before the response exemption is revoked | 🔄 |
 | `dynamic.synproxy_companion_auto` | `bool` | `false` | `true` / `false` | Auto-insert/remove the netfilter SYNPROXY companion rule trio while the SYN-cookie path is engaged (applies immediately) | 🔄 |
-| `dynamic.baseline_window` | `int` | `60` | — | Seconds to build baseline | ⚙️ |
 | `dynamic.baseline_update_interval` | `int` | `5` | — | Seconds between baseline updates | ⚙️ |
 | `dynamic.baseline_alpha` | `float64` | `0.1` | — | EMA smoothing factor | ⚙️ |
 <!-- CONFIG-REFERENCE:END -->
