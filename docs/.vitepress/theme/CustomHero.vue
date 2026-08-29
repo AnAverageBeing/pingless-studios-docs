@@ -19,7 +19,7 @@
 
       <div class="hero-buttons">
         <a href="#features" class="btn btn-primary">Premium Features</a>
-        <a href="https://pingless.org" class="btn btn-outline">View Plans</a>
+        <a href="https://xdp.network" class="btn btn-outline">View Plans</a>
       </div>
     </div>
 

@@ -2,6 +2,7 @@ import { withMermaid } from 'vitepress-plugin-mermaid'
 
 export default withMermaid({
   title: 'XDP.Network by ALTIS TECH SOLUTIONS',
+  siteTitle: 'XDP.Network',
   description: 'Open-source infrastructure tools',
   base: '/pingless-studios-docs/',
   lang: 'en-US',

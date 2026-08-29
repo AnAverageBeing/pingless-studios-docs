@@ -11,3 +11,14 @@
 .vp-doc .mermaid .label foreignObject {
     overflow: visible !important;
 }
+
+/* Ensure title and nav items fit nicely without overlapping */
+.VPNavBarTitle .title {
+    font-size: 16px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.VPNavBarMenu {
+    flex-shrink: 0;
+}
+
