@@ -121,6 +121,7 @@ validation:
 | `dynamic.spike_recovery_factor` | `float64` | `0.7` | `0` – `1` | Fraction of spike threshold below which attack state clears (< 1.0) | 🔄 |
 | `dynamic.attack_trigger_time` | `int` | `3` | `1` – `60` | Consecutive seconds above threshold before attack state | 🔄 |
 | `dynamic.attack_max_duration` | `int` | `3600` | `0` – `86,400` | Hard cap on attack state seconds (0=disabled) | 🔄 |
+| `dynamic.attack_min_duration_sec` | `int` | `30` | `0` – `3,600` | Minimum attack age before recovery may end it (0=off) | 🔄 |
 | `dynamic.attack_warmup_sec` | `int` | `20` | `0` – `600` | Seconds after loader start with no attack declaration (0=disabled) | 🔄 |
 | `dynamic.attack_min_pps` | `int` | `1000` | `0` – `1,000,000,000` | Absolute floor for the attack PPS trigger threshold | 🔄 |
 | `dynamic.attack_min_bps` | `int` | `1048576` | `0` – `1,000,000,000,000` | Absolute floor for the attack BPS trigger threshold | 🔄 |

@@ -1,6 +1,60 @@
-# What's New — v2.0 to v2.20.0
+# What's New — v2.0 to v2.22.0
 
 The feature changelog for the 2.x line. For the complete feature map see [Everything OpenShield-XDP Does](/openshield-xdp/features/).
+
+## v2.22.0 — ASN policies, per-destination geo/ASN, Bedrock churn fix, lifecycle + webhook hardening
+
+- **ASN policy layer** (new **ASN tab**, key `A`) — global ASN
+  whitelist/blacklist with `always` / `attack-only` enforcement, backed by a
+  kernel source classifier (GeoLite2 ASN dataset, ~510k prefixes, loaded
+  lazily on first policy). Socket (`asn_global_*`), API
+  (`POST/DELETE /control/asn`), and `geoip.asn_enabled` opt-in — off costs
+  nothing.
+- **Per-destination geo/ASN policies** — every attached IP can carry its own
+  country/ASN block-or-allow policy plus per-destination ASN overrides, with
+  `always`/`attack-only` enforcement. Only traffic **destined to that IP**
+  sees the second layer — other tenants are untouched, and a destination
+  allow can never rescue a global deny. Visible in the DstIP Analyzer as
+  `geo_asn_policy`; managed from the ASN tab, the socket, or
+  `/control/geoasn/*` and `/control/asn/dst`.
+- **Bedrock/UDP random-block fix** — during a flood, the LRU churn evicts a
+  legit player's `ip_stats` entry; their next packet looked brand-new and
+  the new-source gate temp-banned them. The new-source gate and the CT
+  blind-ACK/RST gates now exempt `protected_map` members (userspace
+  socket-truth presence) — long-lived MC Java/Bedrock/SFTP sessions survive
+  full flood matrices (rig-proven, 100% UDP delivery).
+- **Faster geo country changes** — the country prefix index is built once
+  per dataset revision and cached (memory + on-disk), jobs serialize, and
+  country toggles apply in well under 2s. Also fixed: allow-mode installing
+  blocking prefixes, attack-only mode leaking exact-source bans, and geo
+  prefixes overwriting manual bans.
+- **Ban map 10M default / 50M max** — `maps.ban_max` default raised 4M→10M
+  (validated ceiling 50M), and IPv6 sizing is now independent via
+  `maps.ban_max_v6` (pre-v2.22 a non-default `ban_max` silently resized the
+  IPv6 map too).
+- **Webhook reliability** — every accepted attack-start now gets exactly one
+  terminal message (false-alarm and sub-floor endings included), updates
+  coalesce per event, terminal events are never evicted from the bounded
+  queue, Discord `Retry-After` is honored, daily-report retries stay
+  anchored to their original window, and delivery failures surface in the
+  snapshot + `/metrics/alerter` (coalesced / terminal_lost /
+  attack_end_followup_failed counters).
+- **Lifecycle hardening** — the loader can no longer be SIGKILLed out of a
+  graceful stop by slow feeds/webhooks (fetcher requests are now
+  context-cancelled; CLI stop budget 3s→5s per phase; systemd
+  `KillSignal=SIGINT` + `TimeoutStopSec=15s`), signals register before
+  attach, license hard-fail shuts down through the orderly path (bans
+  persist), and attack-mode log suppression no longer hides WARN/ERROR.
+- **Per-port/protocol blackholes** — `openshield blackhole port add <ip>
+  <port|range> --proto tcp|udp|both [--seconds N]` (plus socket +
+  `/control/blackhole/port*`): drop traffic to one destination on a port or
+  port range, temporary or permanent, alongside the whole-IP blackhole.
+- **Spaceflare.org rebrand** — display text moved from XDP.Network to
+  Spaceflare.org; license/update/trust infrastructure is unchanged.
+- **Installer fixes** — Balanced is now the actual default profile (the
+  wizard recommended it but pre-selected Strict), "Save & Apply" renamed to
+  what it really does, existing configuration is preserved on reconfigure,
+  and child-process failures propagate instead of pretending success.
 
 ## v2.20.0 — burst-tolerant rate limiting
 

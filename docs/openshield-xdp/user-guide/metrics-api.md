@@ -480,6 +480,21 @@ Both return `{ "success": true, "ip": "203.0.113.10" }` — confirm current stat
 
 The same operations exist on the TUI socket (`blackhole_add` / `blackhole_remove`), the CLI (`openshield blackhole add <ip> --seconds N`), and the DstIP Analyzer tab (`b` key: permanent / 5m / 10m / 1h / 6h / custom 1s–30d). Live blackhole state per destination is on `GET /metrics/dstip?ip=` (`blackholed`, `auto_blackhole`, `blackhole_remaining_sec`).
 
+**Port/protocol blackholes** (v2.22+) — the finer-grained variant: drop traffic to a destination on one port or a port range, TCP/UDP/both, temporary or permanent. Whole-IP blackholes and bans outrank port rules.
+
+```bash
+# Blackhole TCP+UDP to 203.0.113.10 on ports 27000-27100 for 10 minutes
+curl -X POST ... -d '{"ip":"203.0.113.10","port":"27000-27100","proto":"both","seconds":600}' .../control/blackhole/port
+# Single port, UDP only, permanent
+curl -X POST ... -d '{"ip":"203.0.113.10","port":"19132","proto":"udp"}' .../control/blackhole/port
+# Remove / list / clear
+curl -X DELETE ... -d '{"ip":"203.0.113.10","port":"27000-27100","proto":"both"}' .../control/blackhole/port
+curl .../control/blackhole/port/list
+curl -X POST .../control/blackhole/port/clear
+```
+
+CLI: `openshield blackhole port {add,remove,list,clear}`; socket: `blackhole_port_*`; per-destination port rules show under `port_blackholes` in `/metrics/dstip`.
+
 ### Setup answers
 
 Apply one "what's new" setup answer — the same effect as answering the terminal prompt or `openshield setup`. Get the pending list from `GET /metrics/setup`.
@@ -507,6 +522,46 @@ curl -X POST ... -d '{"country":"CN"}' .../control/geo/toggle
 ```jsonc
 { "success": true, "country": "CN", "blocked": true }   // blocked=true: added (job started), false: removed
 ```
+
+### Geo/ASN policy (v2.22+)
+
+Two layers: a **global** descriptor + global ASN rules applying everywhere,
+and a **per-destination** layer that only traffic destined to a policy-bound
+IP sees. Every rule carries `enforce: "always"` (all the time) or
+`enforce: "attack"` (only while an attack is declared). Precedence: hard
+bans and blackholes outrank everything; a per-destination `allow` never
+rescues a global deny; unclassified sources always pass.
+
+```bash
+# Global geo/ASN descriptor (country list + ASN list, block or allow each)
+curl -X POST .../control/geoasn/global -d '{
+  "country_mode":"block", "country_enforce":"always", "countries":["CN","RU"],
+  "asn_mode":"off", "asn_enforce":"always", "asns":[] }'
+
+# Per-destination policy: only traffic destined to 203.0.113.10 sees it
+curl -X POST .../control/geoasn/dst -d '{
+  "ip":"203.0.113.10",
+  "policy":{ "country_mode":"allow", "country_enforce":"attack", "countries":["US","DE"],
+             "asn_mode":"block", "asn_enforce":"always", "asns":[16509] } }'
+curl -X DELETE .../control/geoasn/dst -d '{"ip":"203.0.113.10"}'
+
+# Global ASN whitelist/blacklist
+curl -X POST .../control/asn -d '{"asn":15169, "rule":{"mode":"allow","enforce":"always"}}'
+curl -X DELETE .../control/asn -d '{"asn":15169}'
+
+# Per-destination ASN override (BLOCK drops that ASN to this destination
+# only; ALLOW rescues it from the destination's own descriptor ASN list)
+curl -X POST .../control/asn/dst -d '{"ip":"203.0.113.10","asn":16509,
+  "rule":{"mode":"block","enforce":"attack"}}'
+curl -X DELETE .../control/asn/dst -d '{"ip":"203.0.113.10","asn":16509}'
+
+# Snapshot: descriptors, ASN rules, classifier + gate state
+curl .../control/geoasn/list
+```
+
+Requires `geoip.asn_enabled: true` (the first configured policy downloads the
+GeoLite2 ASN dataset in the background). Per-destination policy also shows
+under `geo_asn_policy` in `/metrics/dstip`.
 
 ### Baseline management
 
