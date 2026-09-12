@@ -56,6 +56,31 @@ The feature changelog for the 2.x line. For the complete feature map see [Everyt
   what it really does, existing configuration is preserved on reconfigure,
   and child-process failures propagate instead of pretending success.
 
+### Build 2 — Geo/ASN gate preservation hotfix
+
+An ASN or geo rule added through the ASN tab/API appeared active
+(`asn_db: yes`) yet traffic from the listed AS kept passing: every full
+config rewrite (reload, license refresh, runtime config update) rebuilt the
+kernel config from YAML and **zeroed the runtime-owned Geo/ASN presence
+bytes**, silently disarming the stage while the UI still reported it ready.
+The gates are now preserved across rewrites; regression tests at both the
+helper and live `UpdateConfig` seams.
+
+### Build 3 — attack targets scoped to your networks + embed hardening
+
+- **"Random subnets" in Top Targeted IPs explained:** on forwarding
+  deployments (XDP on OVH with VXLAN to colo, routed upstreams) dst_stats
+  sees **every destination crossing the wire** — including other networks
+  on the same fabric being flooded. Attack records now classify each
+  target with a `scope` from the attached-IP registry (`pool` /
+  `manual` / `auto` / `transit`), and end-of-attack alerts split the list
+  into **"Top Targeted IPs (your networks)"** and **"Other destinations
+  seen (learned/transit)"**. Declare your allocations
+  (`openshield ips add` / pool add) so the split is meaningful; with
+  nothing declared, the legacy flat list renders unchanged.
+- Attack-update embeds can no longer render "Attack #0" or an
+  epoch "57 years ago" next-update, regardless of upstream path.
+
 ## v2.20.0 — burst-tolerant rate limiting
 
 - **Burst allowance for every per-IP rate threshold** (`dynamic.burst_allowance_sec`,
