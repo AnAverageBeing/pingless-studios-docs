@@ -81,6 +81,88 @@ helper and live `UpdateConfig` seams.
 - Attack-update embeds can no longer render "Attack #0" or an
   epoch "57 years ago" next-update, regardless of upstream path.
 
+### Builds 4–5 — cockpit redesign (TUI + Discord embeds)
+
+- **New dashboard** — status strip, attack banner, bento grid (Traffic
+  with in-card chart, Defense with drop-path bars, Protocol + Activity
+  with live top attacking countries and an all-countries popup).
+- **Status page bento** — License / Registry / Egress / Edge / Flowspec
+  cards fill the previously empty right half.
+- **Config tab readability** — numbered bullets, colored values
+  (true/false/numbers), grey descriptions, clear range column.
+- **Access tab search** (`/`) — find an IP across blacklist/whitelist and
+  remove it in place; Geo+ASN tabs gain a policy-overview container;
+  IPs and DstIP tabs merged into one Network tab.
+- Discord embeds: sectioned layouts, per-family colors, attack-numbered
+  footers.
+
+### Build 6 — Flowspec shutdown + persistence fixes
+
+- `Manager.Stop()` no longer hangs up to 2 minutes in the initial BGP
+  peer wait (systemd would SIGKILL at 15s); the wait is cancelled on
+  shutdown and the first reconcile is skipped when stopping.
+- Flowspec whitelist/blacklist persistence is now crash-safe (atomic
+  temp+rename write) and no longer silently disabled when
+  `audit_log_path` is cleared.
+
+### Build 7 — deep-audit batch (14 verified defects)
+
+A full six-subsystem engineering audit; every finding was verified
+first-hand before fixing.
+
+- **Attack-update embeds shipped zeroed content** — the queue dropped the
+  event details for coalescible events, so the lazily built embed showed
+  all zeros (this was the real root cause behind the build-1 "Attack #0"
+  report; earlier hardening only masked the title). Fixed at the source,
+  with a regression test.
+- **Terminal alert accounting** — attack start/end and panic alerts are
+  now counted in `terminal_lost` at every drop point (requeue exhaustion,
+  closed queue), panic alerts get the same requeue budget, and in-flight
+  webhook HTTP honors shutdown cancellation instead of risking a SIGKILL
+  mid-delivery. During attacks, per-IP ban embeds collapse into **one
+  30-second digest** instead of one embed per event type every 5s.
+- **Runtime map-resize no longer kills telemetry** — the event ring
+  reader and XDP tracer are re-created against the new maps after a
+  `maps.*` resize (previously they kept reading destroyed maps and all
+  ring-driven events silently stopped until restart).
+- **Per-destination ASN overrides actually enforce** — `asn_dst_add`
+  rules were dead when the destination had no country/ASN descriptor
+  (the kernel gate byte never armed). One-line gate fix + test.
+- **Pinned bans survive restarts as pinned** — the ban-state file's
+  dedup kept the LRU copy of a heavy/repeat ban, silently demoting it to
+  the flood-evictable tier on every graceful restart. The pinned copy now
+  wins, and `bans.json` is written atomically.
+- **Config saves no longer delete Flowspec** — `SaveAnnotated` never
+  emitted the `flowspec:` section, so any runtime `config set`/whitelist
+  persist wiped the operator's BGP Flowspec configuration (peers,
+  passwords) from disk. The full section is now emitted, guarded by a
+  round-trip test plus a reflection test asserting every top-level
+  config section appears in saves.
+- **Flowspec can't null-route legitimate clients** — `auto_mode: all`
+  pushed upstream discard rules for unbanned top-pps sources (including
+  protected high-rate clients); auto-rules now require a live kernel
+  ban, matching the edge syncer.
+- **Edge (OVH) mitigation honors the whitelist** and no longer pushes
+  feed/auto-fetch bans to the provider; `last_error` clears on recovery.
+- **Blocklist fetcher hardening** — feed entries no longer clobber live
+  attack/manual bans (lookup-before-write), single-IP feed lines go
+  through the same protected-range self-DoS guard as CIDRs, and
+  `never_block` now covers CIDR overlaps in both directions.
+- **Updater health check is real** — a build used to be declared healthy
+  ~2s after restart, long before the license check (15s) and XDP attach
+  could fail, so auto-rollback effectively never fired. The service must
+  now stay active through the full license+attach window or the previous
+  build is restored.
+- **Installer** — systemd always runs the full-featured
+  `openshield-loader` binary (the CLI `load` path lacks Flowspec), and
+  the generated config (license key, webhook URL, metrics key) is
+  root-only from the start.
+- Smaller fixes: latent Flowspec self-deadlock on a future runtime
+  toggle, bulk-ban jobs now respect shutdown, attack history capped at
+  1024 records, `kernelVersion()` no longer panics on an empty
+  osrelease, socket `blackhole_add` rejects negative seconds.
+
+
 ## v2.20.0 — burst-tolerant rate limiting
 
 - **Burst allowance for every per-IP rate threshold** (`dynamic.burst_allowance_sec`,
