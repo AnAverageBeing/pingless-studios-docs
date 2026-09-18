@@ -81,6 +81,38 @@ helper and live `UpdateConfig` seams.
 - Attack-update embeds can no longer render "Attack #0" or an
   epoch "57 years ago" next-update, regardless of upstream path.
 
+### Build 8 — `tunnels.peers`: XDP stops killing your VXLAN/colo tunnel
+
+**The problem (rig-reproduced):** with XDP on a border host that fronts
+encapsulated traffic (the classic "OVH bare metal + VXLAN to colocated
+servers" layout), every tunneled tenant aggregates onto the single tunnel
+peer source IP. At real rates the per-IP thresholds scored that peer and
+the kernel banned it — one temp ban reset **every tunneled connection**
+for the ban duration. Symptoms reported by a customer: all connections
+timing out/reset with XDP loaded, rising in-app latency, an upstream peer
+blacklisted "for no reason". NIC tuning changed nothing because the drops
+happen at XDP before the stack.
+
+**The fix:** declare your tunnel endpoints once —
+
+```yaml
+tunnels:
+  peers: ["203.0.113.10"]   # your colo router / tunnel endpoint IPs or CIDRs
+```
+
+Peers bypass all per-IP scoring and bans (independent of
+`whitelist.enabled`, hot-applies via `openshield reload` or
+`config set tunnels.peers`). This is explicit trust: XDP can't see inside
+the encap, so per-IP outer-header checks are meaningless for a peer — you
+either trust it or cap the whole tunnel. On older builds the same effect
+is `openshield whitelist add <peer-ip>`.
+
+Also fixed along the way: the kernel treats a whitelist bloom-filter miss
+as authoritative, and the bloom set didn't include the peers — their
+bypass silently died with `bloom_filter_enabled` on (the default). New
+regression rig: `scripts/rig-vxlan-repro.sh` proves both the aggregate
+ban and the fix end-to-end.
+
 ### Builds 4–5 — cockpit redesign (TUI + Discord embeds)
 
 - **New dashboard** — status strip, attack banner, bento grid (Traffic
