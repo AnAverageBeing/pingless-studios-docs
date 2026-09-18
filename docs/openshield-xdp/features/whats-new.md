@@ -81,6 +81,28 @@ helper and live `UpdateConfig` seams.
 - Attack-update embeds can no longer render "Attack #0" or an
   epoch "57 years ago" next-update, regardless of upstream path.
 
+### Build 9 — false-positive fixes for verified-legit sources (non-tunnel deployments)
+
+The same "connections reset / latency / blacklisted for no reason" family
+also hit plain (non-tunnel) deployments. Two general mechanisms, both
+rig-verified:
+
+- **The attack-mode per-IP hard cap** (`attack_per_ip_pps`, default 1000,
+  ON by default) had **no protected-source exemption** — during any attack
+  declaration a verified-legit heavy source (NAT gateway, CDN peer, busy
+  upstream) got hard-dropped, throttling every user behind it. The cap
+  exists for rotating spoofed floods, which can never mint `protected_map`
+  membership. Protected sources are now exempt, same rule as the v2.17.2
+  CT blind gates.
+- **Restart blindness**: every load/restart/update left established local
+  TCP connections unknown to the fresh maps for up to 10s, so the CT
+  blind-ACK/RST gates dropped their mid-transfer ACKs. The protected-set
+  sweep now runs at startup — the socket-truth leg
+  (`/proc/net/tcp ESTABLISHED`) is provable at t=0.
+
+Kernel change shipped through the full gate: verifier checks (bpftool +
+all-features Go gate) plus all nine release rigs and `rig-ct-evict` PASS.
+
 ### Build 8 — `tunnels.peers`: XDP stops killing your VXLAN/colo tunnel
 
 **The problem (rig-reproduced):** with XDP on a border host that fronts
