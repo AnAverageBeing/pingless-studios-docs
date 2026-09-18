@@ -495,6 +495,32 @@ curl -X POST .../control/blackhole/port/clear
 
 CLI: `openshield blackhole port {add,remove,list,clear}`; socket: `blackhole_port_*`; per-destination port rules show under `port_blackholes` in `/metrics/dstip`.
 
+### Peer trust (v2.22 build 10+)
+
+Read and manage peer trust (the TUI **Peer** tab's HTTP twin): explicit
+tunnel peers (IPs/CIDRs) and peer ASNs — both are full-bypass (never
+scored, banned, or capped). Peer-ASN bypass activates once the source-ASN
+dataset is populated (`asn_db: true`; builds lazily on first use) and
+requires the ASN license tier (`asn_licensed`).
+
+```bash
+# Current state
+curl .../metrics/peers
+# → {"peers":["203.0.113.10"],"asns":[64999],"asn_db":true,"asn_licensed":true}
+
+# Explicit peers (IP or CIDR)
+curl -X POST   ... -d '{"value":"203.0.113.10"}'  .../control/peers
+curl -X DELETE ... -d '{"value":"203.0.113.10"}'  .../control/peers
+
+# Peer ASNs (whitelists every prefix the ASN announces)
+curl -X POST   ... -d '{"asn":64999}'             .../control/peers/asn
+curl -X DELETE ... -d '{"asn":64999}'             .../control/peers/asn
+```
+
+Mutations persist to `tunnels.peers` / `tunnels.asns` in the YAML config
+and hot-apply to the kernel maps. Socket equivalents: `peer_list`,
+`peer_add`, `peer_remove`, `peer_asn_add`, `peer_asn_remove`.
+
 ### Setup answers
 
 Apply one "what's new" setup answer — the same effect as answering the terminal prompt or `openshield setup`. Get the pending list from `GET /metrics/setup`.

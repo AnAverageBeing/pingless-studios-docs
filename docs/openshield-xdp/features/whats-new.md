@@ -81,6 +81,23 @@ helper and live `UpdateConfig` seams.
 - Attack-update embeds can no longer render "Attack #0" or an
   epoch "57 years ago" next-update, regardless of upstream path.
 
+### Build 10 — Peer tab + ASN peer trust
+
+- **New TUI Peer tab** (key `P`) — the admin surface for peering trust:
+  two sections, IP/Subnet peers and ASN peers, with add/remove, live
+  `asn-db`/`asn-license` status hints, and the same functionality over
+  the socket (`peer_list`, `peer_add`, `peer_remove`, `peer_asn_add`,
+  `peer_asn_remove`) and the HTTP API (`GET /metrics/peers`,
+  `POST/DELETE /control/peers`, `POST/DELETE /control/peers/asn`).
+- **ASN peer whitelist** (`tunnels.asns`) — every prefix of a whitelisted
+  ASN gets the same full-bypass treatment as an explicit `tunnels.peers`
+  entry: never scored, never banned, never capped. "Peering with AS64999"
+  is now one line instead of listing hundreds of prefixes. Requires the
+  ASN license tier and the source-ASN dataset, which builds lazily on
+  first use — the tab shows `asn-db: yes` once the bypass is live.
+  Rig-proven isolated from the exact-peer path (a source with only ASN
+  trust survives the same flood that bans an untrusted source).
+
 ### Build 9 — false-positive fixes for verified-legit sources (non-tunnel deployments)
 
 The same "connections reset / latency / blacklisted for no reason" family
