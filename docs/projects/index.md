@@ -114,5 +114,10 @@ Host-level firewall and DDoS mitigation for the Pterodactyl Panel host itself. A
 
 [Documentation →](/panel-firewall/) · [GitHub →](https://github.com/AnAverageBeing/pterodactyl-panel-firewall)
 
+## ProxTree
+Multi-tenant SOCKS5 / SOCKS4 / HTTP proxy hosting platform for reselling proxy access. A Go control plane on PostgreSQL is the source of truth for nodes, IP pools, credentials, rotations and availability; a node agent runs the actual proxy listeners and enforces credentials, per-IP egress binding, connection limits and expiry locally, so a node keeps serving even while the control plane is unreachable. Provisioning is atomic (reserve, push to the agent, compensate on failure), every mutating endpoint is idempotent, rotation avoids reusing addresses, and capacity accounts for the requested IP shape and for whether the server can actually route each address. Ships with a Paymenter addon covering storefront stock, purchase gating, provisioning on the first paid invoice, renewal, suspension, termination and a client dashboard.
+
+[Documentation →](/proxtree/) · [GitHub →](https://github.com/AnAverageBeing/proxtree)
+
 ## 📦 More Projects
 Follow [ALTIS TECH SOLUTIONS on GitHub](https://github.com/AnAverageBeing) for new projects and updates.

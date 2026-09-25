@@ -113,6 +113,10 @@ features:
     details: Modern categorized server.properties editor for Minecraft servers — toggles, dropdowns and 3-column grid with live Wings read/write, customizable sidebar label, Blueprint or Blueprint-free install.
     link: /blue-server-properties/
   -
+    title: ProxTree
+    details: Multi-tenant SOCKS5/SOCKS4/HTTP proxy hosting platform. A Go control plane, a node agent that enforces credentials, per-IP egress and expiry locally, and a Paymenter addon that turns a purchase into a working proxy.
+    link: /proxtree/
+  -
     title: 📡 More Coming Soon
     details: ALTIS TECH SOLUTIONS is actively developing new infrastructure and security tools. Follow on GitHub for updates.
     link: https://github.com/AnAverageBeing

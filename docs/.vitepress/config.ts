@@ -30,6 +30,7 @@ export default withMermaid({
       { text: 'Bandwidth', link: '/bandwidth-manager/' },
       { text: 'L7 Proxy', link: '/openshield-l7/' },
       { text: 'GameFilter', link: '/gamefilter-xdp/' },
+      { text: 'ProxTree', link: '/proxtree/' },
     ],
 
     sidebar: [
@@ -51,7 +52,7 @@ export default withMermaid({
         },
         {
           text: 'Features',
-          collapsed: false,
+          collapsed: true,
           items: [
             { text: 'Everything It Does', link: '/openshield-xdp/features/' },
             { text: 'Attack Coverage', link: '/openshield-xdp/features/attack-coverage' },
@@ -947,6 +948,48 @@ export default withMermaid({
           collapsed: true,
           items: [
             { text: 'Overview', link: '/gamefilter-xdp/architecture/overview' },
+          ]
+        },
+      ]
+    },
+    {
+      text: 'ProxTree',
+      collapsed: true,
+      items: [
+        {
+          text: 'Getting Started',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/proxtree/' },
+            { text: 'Installation', link: '/proxtree/getting-started/installation' },
+            { text: 'Quick Start', link: '/proxtree/getting-started/quick-start' },
+            { text: 'FAQ', link: '/proxtree/getting-started/faq' },
+          ]
+        },
+        {
+          text: 'Configuration',
+          collapsed: true,
+          items: [
+            { text: 'Reference', link: '/proxtree/configuration/reference' },
+          ]
+        },
+        {
+          text: 'User Guide',
+          collapsed: true,
+          items: [
+            { text: 'REST API', link: '/proxtree/user-guide/api' },
+            { text: 'CLI Reference', link: '/proxtree/user-guide/cli' },
+            { text: 'Paymenter Integration', link: '/proxtree/user-guide/paymenter' },
+            { text: 'Operations', link: '/proxtree/user-guide/operations' },
+          ]
+        },
+        {
+          text: 'Architecture',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/proxtree/architecture/overview' },
+            { text: 'Proxy Engine', link: '/proxtree/architecture/proxy-engine' },
+            { text: 'Provisioning', link: '/proxtree/architecture/provisioning' },
           ]
         },
       ]
